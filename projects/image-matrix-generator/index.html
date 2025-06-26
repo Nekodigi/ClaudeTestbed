@@ -1,660 +1,1099 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Image Matrix Generator - キーワードマトリックス画像生成</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #0a0a0a;
+        color: #e0e0e0;
+        line-height: 1.6;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .subtitle {
+        color: #888;
+        margin-bottom: 30px;
+      }
+
+      .section {
+        background: #1a1a1a;
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 25px;
+        border: 1px solid #333;
+      }
+
+      .section h2 {
+        color: #4ecdc4;
+        margin-bottom: 15px;
+        font-size: 1.5em;
+      }
+
+      .api-keys {
+        display: grid;
+        gap: 15px;
+      }
+
+      .api-key-item {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 10px;
+        align-items: center;
+      }
+
+      label {
+        color: #bbb;
+        font-weight: 500;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        color: #e0e0e0;
+        padding: 10px 15px;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: all 0.3s;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        outline: none;
+        border-color: #4ecdc4;
+        background: #333;
+      }
+
+      .matrix-container {
+        overflow-x: auto;
+        margin-top: 20px;
+      }
+
+      .matrix-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .matrix-controls {
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        background: #4ecdc4;
+        color: #000;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-size: 14px;
+      }
+
+      button:hover {
+        background: #45b7d1;
+        transform: translateY(-1px);
+        box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      button.secondary {
+        background: #666;
+        color: #fff;
+      }
+
+      button.secondary:hover {
+        background: #777;
+        box-shadow: 0 5px 15px rgba(102, 102, 102, 0.3);
+      }
+
+      .matrix-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #2a2a2a;
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .matrix-table th,
+      .matrix-table td {
+        border: 1px solid #444;
+        padding: 10px;
+        text-align: center;
+      }
+
+      .matrix-table th {
+        background: #333;
+        color: #4ecdc4;
+        font-weight: 600;
+      }
+
+      .matrix-table input {
+        width: 100%;
+        text-align: center;
+        background: transparent;
+        border: none;
+        color: #e0e0e0;
+        padding: 5px;
+      }
+
+      .matrix-table input:focus {
+        background: #333;
+        outline: 1px solid #4ecdc4;
+      }
+
+      .delete-btn {
+        background: #ff6b6b;
+        color: #fff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .delete-btn:hover {
+        background: #ff5252;
+      }
+
+      .combinations-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+        margin-top: 20px;
+        max-height: 300px;
+        overflow-y: auto;
+        padding: 10px;
+        background: #2a2a2a;
+        border-radius: 8px;
+      }
+
+      .combination-item {
+        background: #333;
+        padding: 10px;
+        border-radius: 6px;
+        font-size: 13px;
+        color: #bbb;
+        border: 1px solid #444;
+        transition: all 0.2s;
+      }
+
+      .combination-item:hover {
+        border-color: #4ecdc4;
+        color: #e0e0e0;
+      }
+
+      .generate-section {
+        text-align: center;
+      }
+
+      .generate-btn {
+        background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
+        color: #fff;
+        font-size: 18px;
+        padding: 15px 40px;
+        border-radius: 30px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        box-shadow: 0 5px 25px rgba(78, 205, 196, 0.4);
+      }
+
+      .generate-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 35px rgba(78, 205, 196, 0.5);
+      }
+
+      .generate-btn:disabled {
+        background: #666;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .progress-info {
+        margin-top: 20px;
+        text-align: center;
+        color: #888;
+      }
+
+      .results-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .result-item {
+        background: #1a1a1a;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #333;
+        transition: all 0.3s;
+      }
+
+      .result-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        border-color: #4ecdc4;
+      }
+
+      .result-image {
+        width: 100%;
+        height: 250px;
+        background: #2a2a2a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #666;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .result-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .result-info {
+        padding: 15px;
+      }
+
+      .result-prompt {
+        font-size: 13px;
+        color: #bbb;
+        margin-bottom: 10px;
+        line-height: 1.4;
+      }
+
+      .result-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 12px;
+        color: #666;
+      }
+
+      .status-badge {
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
+      }
+
+      .status-badge.success {
+        background: #4ecdc4;
+        color: #000;
+      }
+
+      .status-badge.pending {
+        background: #f39c12;
+        color: #000;
+      }
+
+      .status-badge.error {
+        background: #ff6b6b;
+        color: #fff;
+      }
+
+      .loading-spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid #333;
+        border-top-color: #4ecdc4;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
         }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0a0a0a;
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
-        .subtitle {
-            color: #888;
-            margin-bottom: 30px;
-        }
-        
-        .section {
-            background: #1a1a1a;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 25px;
-            border: 1px solid #333;
-        }
-        
-        .section h2 {
-            color: #4ecdc4;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-        }
-        
-        .api-keys {
-            display: grid;
-            gap: 15px;
-        }
-        
-        .api-key-item {
-            display: grid;
-            grid-template-columns: 200px 1fr;
-            gap: 10px;
-            align-items: center;
-        }
-        
-        label {
-            color: #bbb;
-            font-weight: 500;
-        }
-        
-        input[type="text"], input[type="password"] {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #e0e0e0;
-            padding: 10px 15px;
-            border-radius: 8px;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-        
-        input[type="text"]:focus, input[type="password"]:focus {
-            outline: none;
-            border-color: #4ecdc4;
-            background: #333;
-        }
-        
-        .matrix-container {
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-        
-        .matrix-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        
-        .matrix-controls {
-            display: flex;
-            gap: 10px;
-        }
-        
-        button {
-            background: #4ecdc4;
-            color: #000;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-        
-        button:hover {
-            background: #45b7d1;
-            transform: translateY(-1px);
-            box-shadow: 0 5px 15px rgba(78, 205, 196, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        button.secondary {
-            background: #666;
-            color: #fff;
-        }
-        
-        button.secondary:hover {
-            background: #777;
-            box-shadow: 0 5px 15px rgba(102, 102, 102, 0.3);
-        }
-        
-        .matrix-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #2a2a2a;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        
-        .matrix-table th, .matrix-table td {
-            border: 1px solid #444;
-            padding: 10px;
-            text-align: center;
-        }
-        
-        .matrix-table th {
-            background: #333;
-            color: #4ecdc4;
-            font-weight: 600;
-        }
-        
-        .matrix-table input {
-            width: 100%;
-            text-align: center;
-            background: transparent;
-            border: none;
-            color: #e0e0e0;
-            padding: 5px;
-        }
-        
-        .matrix-table input:focus {
-            background: #333;
-            outline: 1px solid #4ecdc4;
-        }
-        
-        .delete-btn {
-            background: #ff6b6b;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .delete-btn:hover {
-            background: #ff5252;
-        }
-        
-        .combinations-preview {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 10px;
-            margin-top: 20px;
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 10px;
-            background: #2a2a2a;
-            border-radius: 8px;
-        }
-        
-        .combination-item {
-            background: #333;
-            padding: 10px;
-            border-radius: 6px;
-            font-size: 13px;
-            color: #bbb;
-            border: 1px solid #444;
-            transition: all 0.2s;
-        }
-        
-        .combination-item:hover {
-            border-color: #4ecdc4;
-            color: #e0e0e0;
-        }
-        
-        .generate-section {
-            text-align: center;
-        }
-        
-        .generate-btn {
-            background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1);
-            color: #fff;
-            font-size: 18px;
-            padding: 15px 40px;
-            border-radius: 30px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            box-shadow: 0 5px 25px rgba(78, 205, 196, 0.4);
-        }
-        
-        .generate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 35px rgba(78, 205, 196, 0.5);
-        }
-        
-        .generate-btn:disabled {
-            background: #666;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        .progress-info {
-            margin-top: 20px;
-            text-align: center;
-            color: #888;
-        }
-        
-        .results-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 20px;
-        }
-        
-        .result-item {
-            background: #1a1a1a;
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #333;
-            transition: all 0.3s;
-        }
-        
-        .result-item:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-            border-color: #4ecdc4;
-        }
-        
-        .result-image {
-            width: 100%;
-            height: 250px;
-            background: #2a2a2a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .result-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-        
-        .result-info {
-            padding: 15px;
-        }
-        
-        .result-prompt {
-            font-size: 13px;
-            color: #bbb;
-            margin-bottom: 10px;
-            line-height: 1.4;
-        }
-        
-        .result-meta {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            color: #666;
-        }
-        
-        .status-badge {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 11px;
-            font-weight: 600;
-        }
-        
-        .status-badge.success {
-            background: #4ecdc4;
-            color: #000;
-        }
-        
-        .status-badge.pending {
-            background: #f39c12;
-            color: #000;
-        }
-        
-        .status-badge.error {
-            background: #ff6b6b;
-            color: #fff;
-        }
-        
-        .loading-spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #333;
-            border-top-color: #4ecdc4;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .api-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .api-option {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .api-option input[type="checkbox"] {
-            width: 18px;
-            height: 18px;
-            cursor: pointer;
-        }
-        
-        .info-box {
-            background: #2a2a2a;
-            border-left: 4px solid #4ecdc4;
-            padding: 15px;
-            margin-bottom: 20px;
-            border-radius: 0 8px 8px 0;
-        }
-        
-        .info-box p {
-            color: #bbb;
-            font-size: 14px;
-        }
+      }
+
+      .api-selector {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+      }
+
+      .api-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .api-option input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+      }
+
+      .info-box {
+        background: #2a2a2a;
+        border-left: 4px solid #4ecdc4;
+        padding: 15px;
+        margin-bottom: 20px;
+        border-radius: 0 8px 8px 0;
+      }
+
+      .info-box p {
+        color: #bbb;
+        font-size: 14px;
+      }
+
+      .model-selector {
+        margin-top: 15px;
+        padding: 15px;
+        background: #2a2a2a;
+        border-radius: 8px;
+        border: 1px solid #444;
+      }
+
+      .model-option {
+        margin-bottom: 10px;
+      }
+
+      .model-option label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+      }
+
+      .model-option input[type="radio"] {
+        width: 16px;
+        height: 16px;
+      }
+
+      .model-info {
+        font-size: 12px;
+        color: #888;
+        margin-left: 26px;
+      }
+
+      .cost-estimation {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        border-radius: 8px;
+        padding: 20px;
+        margin-top: 20px;
+      }
+
+      .cost-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .cost-header h3 {
+        color: #4ecdc4;
+        margin: 0;
+      }
+
+      .cost-breakdown {
+        display: grid;
+        gap: 10px;
+      }
+
+      .cost-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: #333;
+        border-radius: 6px;
+      }
+
+      .cost-label {
+        color: #bbb;
+        font-size: 14px;
+      }
+
+      .cost-value {
+        color: #4ecdc4;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .total-cost {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #444;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .total-cost-label {
+        color: #e0e0e0;
+        font-size: 18px;
+        font-weight: 600;
+      }
+
+      .total-cost-value {
+        color: #ff6b6b;
+        font-size: 24px;
+        font-weight: 700;
+      }
+
+      select {
+        background: #2a2a2a;
+        border: 1px solid #444;
+        color: #e0e0e0;
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+
+      select:focus {
+        outline: none;
+        border-color: #4ecdc4;
+        background: #333;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <h1>Image Matrix Generator</h1>
-        <p class="subtitle">複数のキーワードをマトリックス状に組み合わせて、AIで大量の画像を並列生成</p>
-        
-        <div class="info-box">
-            <p>⚡ 各AI APIのキーを入力し、行と列にキーワードを設定することで、全ての組み合わせの画像を一度に生成できます。</p>
+      <h1>Image Matrix Generator</h1>
+      <p class="subtitle">
+        複数のキーワードをマトリックス状に組み合わせて、AIで大量の画像を並列生成
+      </p>
+
+      <div class="info-box">
+        <p>
+          ⚡ 各AI
+          APIのキーを入力し、行と列にキーワードを設定することで、全ての組み合わせの画像を一度に生成できます。
+        </p>
+      </div>
+
+      <section class="section">
+        <h2>🔑 API設定</h2>
+
+        <div class="api-selector">
+          <div class="api-option">
+            <input
+              type="checkbox"
+              id="use-openai"
+              checked
+              onchange="updateAPISettings()"
+            />
+            <label for="use-openai">OpenAI (DALL-E)</label>
+          </div>
+          <div class="api-option">
+            <input
+              type="checkbox"
+              id="use-stability"
+              onchange="updateAPISettings()"
+            />
+            <label for="use-stability">Stability AI</label>
+          </div>
+          <div class="api-option">
+            <input
+              type="checkbox"
+              id="use-imagen"
+              onchange="updateAPISettings()"
+            />
+            <label for="use-imagen">Google AI (Imagen/Gemini)</label>
+          </div>
         </div>
-        
-        <section class="section">
-            <h2>🔑 API設定</h2>
-            
-            <div class="api-selector">
-                <div class="api-option">
-                    <input type="checkbox" id="use-openai" checked>
-                    <label for="use-openai">OpenAI (DALL-E)</label>
-                </div>
-                <div class="api-option">
-                    <input type="checkbox" id="use-stability">
-                    <label for="use-stability">Stability AI</label>
-                </div>
-                <div class="api-option">
-                    <input type="checkbox" id="use-gemini">
-                    <label for="use-gemini">Google Gemini</label>
-                </div>
+
+        <div class="api-keys">
+          <div class="api-key-item" id="openai-key-section">
+            <label for="openai-key">OpenAI API Key:</label>
+            <input type="password" id="openai-key" placeholder="sk-..." />
+          </div>
+
+          <div class="model-selector" id="openai-model-section">
+            <h4 style="color: #bbb; margin-bottom: 10px; font-size: 14px">
+              DALL-E Model & Quality:
+            </h4>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="openai-model"
+                  value="dall-e-3-standard-1024x1024"
+                  checked
+                />
+                <span>DALL-E 3 Standard (1024x1024) - $0.040/image</span>
+              </label>
             </div>
-            
-            <div class="api-keys">
-                <div class="api-key-item" id="openai-key-section">
-                    <label for="openai-key">OpenAI API Key:</label>
-                    <input type="password" id="openai-key" placeholder="sk-...">
-                </div>
-                
-                <div class="api-key-item" id="stability-key-section" style="display: none;">
-                    <label for="stability-key">Stability AI API Key:</label>
-                    <input type="password" id="stability-key" placeholder="sk-...">
-                </div>
-                
-                <div class="api-key-item" id="gemini-key-section" style="display: none;">
-                    <label for="gemini-key">Gemini API Key:</label>
-                    <input type="password" id="gemini-key" placeholder="AIza...">
-                </div>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="openai-model"
+                  value="dall-e-3-standard-1024x1792"
+                />
+                <span>DALL-E 3 Standard (1024x1792) - $0.080/image</span>
+              </label>
             </div>
-        </section>
-        
-        <section class="section">
-            <h2>🎨 キーワードマトリックス</h2>
-            
-            <div class="matrix-header">
-                <div>
-                    <p style="color: #888; font-size: 14px;">行と列にキーワードを設定し、全ての組み合わせで画像を生成します</p>
-                </div>
-                <div class="matrix-controls">
-                    <button class="secondary" onclick="addRow()">➕ 行を追加</button>
-                    <button class="secondary" onclick="addColumn()">➕ 列を追加</button>
-                </div>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="openai-model"
+                  value="dall-e-3-hd-1024x1024"
+                />
+                <span>DALL-E 3 HD (1024x1024) - $0.080/image</span>
+              </label>
             </div>
-            
-            <div class="matrix-container">
-                <table class="matrix-table" id="keywordMatrix">
-                    <thead>
-                        <tr id="matrixHeader">
-                            <th>行 / 列</th>
-                            <th>
-                                <input type="text" value="スタイル1" onchange="updateCombinations()">
-                                <button class="delete-btn" onclick="deleteColumn(1)">✕</button>
-                            </th>
-                            <th>
-                                <input type="text" value="スタイル2" onchange="updateCombinations()">
-                                <button class="delete-btn" onclick="deleteColumn(2)">✕</button>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody id="matrixBody">
-                        <tr>
-                            <td>
-                                <input type="text" value="主題1" onchange="updateCombinations()">
-                                <button class="delete-btn" onclick="deleteRow(0)">✕</button>
-                            </td>
-                            <td class="combination-cell">-</td>
-                            <td class="combination-cell">-</td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <input type="text" value="主題2" onchange="updateCombinations()">
-                                <button class="delete-btn" onclick="deleteRow(1)">✕</button>
-                            </td>
-                            <td class="combination-cell">-</td>
-                            <td class="combination-cell">-</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="openai-model"
+                  value="dall-e-3-hd-1024x1792"
+                />
+                <span>DALL-E 3 HD (1024x1792) - $0.120/image</span>
+              </label>
             </div>
-            
-            <div style="margin-top: 20px;">
-                <h3 style="color: #4ecdc4; margin-bottom: 10px;">📋 生成される組み合わせ (<span id="combinationCount">4</span>パターン)</h3>
-                <div class="combinations-preview" id="combinationsPreview"></div>
+          </div>
+
+          <div
+            class="api-key-item"
+            id="stability-key-section"
+            style="display: none"
+          >
+            <label for="stability-key">Stability AI API Key:</label>
+            <input type="password" id="stability-key" placeholder="sk-..." />
+          </div>
+
+          <div
+            class="model-selector"
+            id="stability-model-section"
+            style="display: none"
+          >
+            <h4 style="color: #bbb; margin-bottom: 10px; font-size: 14px">
+              Stability AI Model:
+            </h4>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="stability-model"
+                  value="sdxl-512"
+                  checked
+                />
+                <span>SDXL (512x512) - $0.036/image</span>
+              </label>
             </div>
-        </section>
-        
-        <section class="section generate-section">
-            <button class="generate-btn" id="generateBtn" onclick="startGeneration()">
-                🚀 画像を一括生成
-            </button>
-            <div class="progress-info" id="progressInfo" style="display: none;">
-                <div class="loading-spinner" style="margin: 0 auto 10px;"></div>
-                <p>生成中... <span id="progressText">0/0</span></p>
+            <div class="model-option">
+              <label>
+                <input type="radio" name="stability-model" value="sdxl-1024" />
+                <span>SDXL (1024x1024) - $0.080/image</span>
+              </label>
             </div>
-        </section>
-        
-        <section class="section" id="resultsSection" style="display: none;">
-            <h2>🖼️ 生成結果</h2>
-            <div class="results-grid" id="resultsGrid"></div>
-        </section>
+            <div class="model-info">
+              Note: Free for businesses with &lt; $1M annual revenue
+            </div>
+          </div>
+
+          <div
+            class="api-key-item"
+            id="imagen-key-section"
+            style="display: none"
+          >
+            <label for="imagen-key">Google AI Studio API Key:</label>
+            <input type="password" id="imagen-key" placeholder="AIza..." />
+          </div>
+
+          <div
+            class="model-selector"
+            id="imagen-model-section"
+            style="display: none"
+          >
+            <h4 style="color: #bbb; margin-bottom: 10px; font-size: 14px">
+              Google AI Model:
+            </h4>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="imagen-model"
+                  value="imagen-4"
+                  checked
+                />
+                <span>Imagen 4 - $0.040/image</span>
+              </label>
+              <div class="model-info">
+                Latest text-to-image model with SynthID watermark
+              </div>
+            </div>
+            <div class="model-option">
+              <label>
+                <input
+                  type="radio"
+                  name="imagen-model"
+                  value="gemini-2.0-flash"
+                />
+                <span>Gemini 2.0 Flash Image Gen - Free (AI Studio)</span>
+              </label>
+              <div class="model-info">
+                Preview model with image generation capability
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>🎨 キーワードマトリックス</h2>
+
+        <div class="matrix-header">
+          <div>
+            <p style="color: #888; font-size: 14px">
+              行と列にキーワードを設定し、全ての組み合わせで画像を生成します
+            </p>
+          </div>
+          <div class="matrix-controls">
+            <button class="secondary" onclick="addRow()">➕ 行を追加</button>
+            <button class="secondary" onclick="addColumn()">➕ 列を追加</button>
+          </div>
+        </div>
+
+        <div class="matrix-container">
+          <table class="matrix-table" id="keywordMatrix">
+            <thead>
+              <tr id="matrixHeader">
+                <th>行 / 列</th>
+                <th>
+                  <input
+                    type="text"
+                    value="スタイル1"
+                    onchange="updateCombinations()"
+                  />
+                  <button class="delete-btn" onclick="deleteColumn(1)">
+                    ✕
+                  </button>
+                </th>
+                <th>
+                  <input
+                    type="text"
+                    value="スタイル2"
+                    onchange="updateCombinations()"
+                  />
+                  <button class="delete-btn" onclick="deleteColumn(2)">
+                    ✕
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <tbody id="matrixBody">
+              <tr>
+                <td>
+                  <input
+                    type="text"
+                    value="主題1"
+                    onchange="updateCombinations()"
+                  />
+                  <button class="delete-btn" onclick="deleteRow(0)">✕</button>
+                </td>
+                <td class="combination-cell">-</td>
+                <td class="combination-cell">-</td>
+              </tr>
+              <tr>
+                <td>
+                  <input
+                    type="text"
+                    value="主題2"
+                    onchange="updateCombinations()"
+                  />
+                  <button class="delete-btn" onclick="deleteRow(1)">✕</button>
+                </td>
+                <td class="combination-cell">-</td>
+                <td class="combination-cell">-</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div style="margin-top: 20px">
+          <h3 style="color: #4ecdc4; margin-bottom: 10px">
+            📋 生成される組み合わせ (<span id="combinationCount">4</span
+            >パターン)
+          </h3>
+          <div class="combinations-preview" id="combinationsPreview"></div>
+        </div>
+
+        <div class="cost-estimation" id="costEstimation">
+          <div class="cost-header">
+            <h3>💰 推定コスト</h3>
+          </div>
+          <div class="cost-breakdown" id="costBreakdown">
+            <div class="cost-item">
+              <span class="cost-label">生成パターン数:</span>
+              <span class="cost-value" id="patternCount">4</span>
+            </div>
+          </div>
+          <div class="total-cost">
+            <span class="total-cost-label">合計推定コスト:</span>
+            <span class="total-cost-value" id="totalCost">$0.00</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section generate-section">
+        <button
+          class="generate-btn"
+          id="generateBtn"
+          onclick="startGeneration()"
+        >
+          🚀 画像を一括生成
+        </button>
+        <div class="progress-info" id="progressInfo" style="display: none">
+          <div class="loading-spinner" style="margin: 0 auto 10px"></div>
+          <p>生成中... <span id="progressText">0/0</span></p>
+        </div>
+      </section>
+
+      <section class="section" id="resultsSection" style="display: none">
+        <h2>🖼️ 生成結果</h2>
+        <div class="results-grid" id="resultsGrid"></div>
+      </section>
     </div>
-    
+
     <script>
-        // APIキーセクションの表示切り替え
-        document.getElementById('use-openai').addEventListener('change', function() {
-            document.getElementById('openai-key-section').style.display = this.checked ? 'grid' : 'none';
+      // API価格設定
+      const API_PRICING = {
+        "dall-e-3-standard-1024x1024": 0.04,
+        "dall-e-3-standard-1024x1792": 0.08,
+        "dall-e-3-hd-1024x1024": 0.08,
+        "dall-e-3-hd-1024x1792": 0.12,
+        "sdxl-512": 0.036,
+        "sdxl-1024": 0.08,
+        "imagen-4": 0.04,
+        "gemini-2.0-flash": 0.0, // Free in AI Studio
+      };
+
+      // APIキーセクションの表示切り替え
+      function updateAPISettings() {
+        const useOpenAI = document.getElementById("use-openai").checked;
+        const useStability = document.getElementById("use-stability").checked;
+        const useImagen = document.getElementById("use-imagen").checked;
+
+        document.getElementById("openai-key-section").style.display = useOpenAI
+          ? "grid"
+          : "none";
+        document.getElementById("openai-model-section").style.display =
+          useOpenAI ? "block" : "none";
+
+        document.getElementById("stability-key-section").style.display =
+          useStability ? "grid" : "none";
+        document.getElementById("stability-model-section").style.display =
+          useStability ? "block" : "none";
+
+        document.getElementById("imagen-key-section").style.display = useImagen
+          ? "grid"
+          : "none";
+        document.getElementById("imagen-model-section").style.display =
+          useImagen ? "block" : "none";
+
+        updateCostEstimate();
+      }
+
+      // コスト推定の更新
+      function updateCostEstimate() {
+        const combinations = getAllCombinations();
+        const combinationCount = combinations.length;
+
+        let totalCost = 0;
+        const costBreakdown = [];
+
+        // OpenAI
+        if (document.getElementById("use-openai").checked) {
+          const selectedModel =
+            document.querySelector('input[name="openai-model"]:checked')
+              ?.value || "dall-e-3-standard-1024x1024";
+          const cost = API_PRICING[selectedModel] * combinationCount;
+          totalCost += cost;
+          costBreakdown.push({
+            name: "OpenAI DALL-E 3",
+            count: combinationCount,
+            unitPrice: API_PRICING[selectedModel],
+            total: cost,
+          });
+        }
+
+        // Stability AI
+        if (document.getElementById("use-stability").checked) {
+          const selectedModel =
+            document.querySelector('input[name="stability-model"]:checked')
+              ?.value || "sdxl-512";
+          const cost = API_PRICING[selectedModel] * combinationCount;
+          totalCost += cost;
+          costBreakdown.push({
+            name: "Stability AI",
+            count: combinationCount,
+            unitPrice: API_PRICING[selectedModel],
+            total: cost,
+          });
+        }
+
+        // Google AI
+        if (document.getElementById("use-imagen").checked) {
+          const selectedModel =
+            document.querySelector('input[name="imagen-model"]:checked')
+              ?.value || "imagen-4";
+          const cost = API_PRICING[selectedModel] * combinationCount;
+          totalCost += cost;
+          costBreakdown.push({
+            name:
+              selectedModel === "gemini-2.0-flash"
+                ? "Google Gemini (Free)"
+                : "Google Imagen 4",
+            count: combinationCount,
+            unitPrice: API_PRICING[selectedModel],
+            total: cost,
+          });
+        }
+
+        // UIを更新
+        document.getElementById("patternCount").textContent = combinationCount;
+
+        const breakdownHtml = costBreakdown
+          .map(
+            (item) => `
+                <div class="cost-item">
+                    <span class="cost-label">${item.name} (${
+              item.count
+            }枚 × $${item.unitPrice.toFixed(3)}):</span>
+                    <span class="cost-value">$${item.total.toFixed(2)}</span>
+                </div>
+            `
+          )
+          .join("");
+
+        document.getElementById("costBreakdown").innerHTML = `
+                <div class="cost-item">
+                    <span class="cost-label">生成パターン数:</span>
+                    <span class="cost-value">${combinationCount}</span>
+                </div>
+                ${breakdownHtml}
+            `;
+
+        document.getElementById(
+          "totalCost"
+        ).textContent = `$${totalCost.toFixed(2)}`;
+      }
+
+      // モデル選択時のイベントリスナー
+      document
+        .querySelectorAll(
+          'input[name="openai-model"], input[name="stability-model"], input[name="imagen-model"]'
+        )
+        .forEach((radio) => {
+          radio.addEventListener("change", updateCostEstimate);
         });
-        
-        document.getElementById('use-stability').addEventListener('change', function() {
-            document.getElementById('stability-key-section').style.display = this.checked ? 'grid' : 'none';
-        });
-        
-        document.getElementById('use-gemini').addEventListener('change', function() {
-            document.getElementById('gemini-key-section').style.display = this.checked ? 'grid' : 'none';
-        });
-        
-        // マトリックス操作関数
-        function addRow() {
-            const tbody = document.getElementById('matrixBody');
-            const columnCount = document.getElementById('matrixHeader').children.length;
-            const rowCount = tbody.children.length;
-            
-            const newRow = document.createElement('tr');
-            
-            // 行ヘッダー
-            const headerCell = document.createElement('td');
-            headerCell.innerHTML = `
-                <input type="text" value="主題${rowCount + 1}" onchange="updateCombinations()">
+
+      // マトリックス操作関数
+      function addRow() {
+        const tbody = document.getElementById("matrixBody");
+        const columnCount =
+          document.getElementById("matrixHeader").children.length;
+        const rowCount = tbody.children.length;
+
+        const newRow = document.createElement("tr");
+
+        // 行ヘッダー
+        const headerCell = document.createElement("td");
+        headerCell.innerHTML = `
+                <input type="text" value="主題${
+                  rowCount + 1
+                }" onchange="updateCombinations()">
                 <button class="delete-btn" onclick="deleteRow(${rowCount})">✕</button>
             `;
-            newRow.appendChild(headerCell);
-            
-            // 組み合わせセル
-            for (let i = 1; i < columnCount; i++) {
-                const cell = document.createElement('td');
-                cell.className = 'combination-cell';
-                cell.textContent = '-';
-                newRow.appendChild(cell);
-            }
-            
-            tbody.appendChild(newRow);
-            updateCombinations();
+        newRow.appendChild(headerCell);
+
+        // 組み合わせセル
+        for (let i = 1; i < columnCount; i++) {
+          const cell = document.createElement("td");
+          cell.className = "combination-cell";
+          cell.textContent = "-";
+          newRow.appendChild(cell);
         }
-        
-        function addColumn() {
-            const header = document.getElementById('matrixHeader');
-            const columnCount = header.children.length;
-            
-            // ヘッダーに新しい列を追加
-            const th = document.createElement('th');
-            th.innerHTML = `
+
+        tbody.appendChild(newRow);
+        updateCombinations();
+      }
+
+      function addColumn() {
+        const header = document.getElementById("matrixHeader");
+        const columnCount = header.children.length;
+
+        // ヘッダーに新しい列を追加
+        const th = document.createElement("th");
+        th.innerHTML = `
                 <input type="text" value="スタイル${columnCount}" onchange="updateCombinations()">
                 <button class="delete-btn" onclick="deleteColumn(${columnCount})">✕</button>
             `;
-            header.appendChild(th);
-            
-            // 各行に新しいセルを追加
-            const rows = document.getElementById('matrixBody').children;
-            for (let row of rows) {
-                const cell = document.createElement('td');
-                cell.className = 'combination-cell';
-                cell.textContent = '-';
-                row.appendChild(cell);
-            }
-            
-            updateCombinations();
+        header.appendChild(th);
+
+        // 各行に新しいセルを追加
+        const rows = document.getElementById("matrixBody").children;
+        for (let row of rows) {
+          const cell = document.createElement("td");
+          cell.className = "combination-cell";
+          cell.textContent = "-";
+          row.appendChild(cell);
         }
-        
-        function deleteRow(index) {
-            const tbody = document.getElementById('matrixBody');
-            if (tbody.children.length > 1) {
-                tbody.children[index].remove();
-                updateCombinations();
-            }
+
+        updateCombinations();
+      }
+
+      function deleteRow(index) {
+        const tbody = document.getElementById("matrixBody");
+        if (tbody.children.length > 1) {
+          tbody.children[index].remove();
+          updateCombinations();
         }
-        
-        function deleteColumn(index) {
-            const header = document.getElementById('matrixHeader');
-            if (header.children.length > 2) {
-                header.children[index].remove();
-                
-                const rows = document.getElementById('matrixBody').children;
-                for (let row of rows) {
-                    row.children[index].remove();
-                }
-                
-                updateCombinations();
-            }
+      }
+
+      function deleteColumn(index) {
+        const header = document.getElementById("matrixHeader");
+        if (header.children.length > 2) {
+          header.children[index].remove();
+
+          const rows = document.getElementById("matrixBody").children;
+          for (let row of rows) {
+            row.children[index].remove();
+          }
+
+          updateCombinations();
         }
-        
-        function updateCombinations() {
-            const header = document.getElementById('matrixHeader');
-            const tbody = document.getElementById('matrixBody');
-            
-            // 列ヘッダーの値を取得
-            const columnHeaders = [];
-            for (let i = 1; i < header.children.length; i++) {
-                const input = header.children[i].querySelector('input');
-                if (input) columnHeaders.push(input.value);
-            }
-            
-            // 行ヘッダーの値を取得
-            const rowHeaders = [];
-            for (let row of tbody.children) {
-                const input = row.children[0].querySelector('input');
-                if (input) rowHeaders.push(input.value);
-            }
-            
-            // 組み合わせを生成
-            const combinations = [];
-            for (let i = 0; i < rowHeaders.length; i++) {
-                for (let j = 0; j < columnHeaders.length; j++) {
-                    combinations.push(`${rowHeaders[i]} + ${columnHeaders[j]}`);
-                    
-                    // テーブルのセルも更新
-                    if (tbody.children[i] && tbody.children[i].children[j + 1]) {
-                        tbody.children[i].children[j + 1].textContent = `${rowHeaders[i]} + ${columnHeaders[j]}`;
-                    }
-                }
-            }
-            
-            // プレビューを更新
-            const preview = document.getElementById('combinationsPreview');
-            preview.innerHTML = combinations.map(combo => 
-                `<div class="combination-item">${combo}</div>`
-            ).join('');
-            
-            document.getElementById('combinationCount').textContent = combinations.length;
+      }
+
+      function updateCombinations() {
+        const header = document.getElementById("matrixHeader");
+        const tbody = document.getElementById("matrixBody");
+
+        // 列ヘッダーの値を取得
+        const columnHeaders = [];
+        for (let i = 1; i < header.children.length; i++) {
+          const input = header.children[i].querySelector("input");
+          if (input) columnHeaders.push(input.value);
         }
-        
-        async function startGeneration() {
-            const generateBtn = document.getElementById('generateBtn');
-            const progressInfo = document.getElementById('progressInfo');
-            const resultsSection = document.getElementById('resultsSection');
-            const resultsGrid = document.getElementById('resultsGrid');
-            
-            // APIキーを取得
-            const apis = [];
-            if (document.getElementById('use-openai').checked) {
-                const key = document.getElementById('openai-key').value;
-                if (key) apis.push({ type: 'openai', key });
+
+        // 行ヘッダーの値を取得
+        const rowHeaders = [];
+        for (let row of tbody.children) {
+          const input = row.children[0].querySelector("input");
+          if (input) rowHeaders.push(input.value);
+        }
+
+        // 組み合わせを生成
+        const combinations = [];
+        for (let i = 0; i < rowHeaders.length; i++) {
+          for (let j = 0; j < columnHeaders.length; j++) {
+            combinations.push(`${rowHeaders[i]} + ${columnHeaders[j]}`);
+
+            // テーブルのセルも更新
+            if (tbody.children[i] && tbody.children[i].children[j + 1]) {
+              tbody.children[i].children[
+                j + 1
+              ].textContent = `${rowHeaders[i]} + ${columnHeaders[j]}`;
             }
-            if (document.getElementById('use-stability').checked) {
-                const key = document.getElementById('stability-key').value;
-                if (key) apis.push({ type: 'stability', key });
-            }
-            if (document.getElementById('use-gemini').checked) {
-                const key = document.getElementById('gemini-key').value;
-                if (key) apis.push({ type: 'gemini', key });
-            }
-            
-            if (apis.length === 0) {
-                alert('少なくとも1つのAPIキーを入力してください。');
-                return;
-            }
-            
-            // 組み合わせを取得
-            const combinations = getAllCombinations();
-            if (combinations.length === 0) {
-                alert('キーワードを入力してください。');
-                return;
-            }
-            
-            // UI更新
-            generateBtn.disabled = true;
-            progressInfo.style.display = 'block';
-            resultsSection.style.display = 'block';
-            resultsGrid.innerHTML = '';
-            
-            // 各組み合わせ用の結果要素を事前に作成
-            const resultElements = combinations.map((combo, index) => {
-                const resultItem = document.createElement('div');
-                resultItem.className = 'result-item';
-                resultItem.innerHTML = `
+          }
+        }
+
+        // プレビューを更新
+        const preview = document.getElementById("combinationsPreview");
+        preview.innerHTML = combinations
+          .map((combo) => `<div class="combination-item">${combo}</div>`)
+          .join("");
+
+        document.getElementById("combinationCount").textContent =
+          combinations.length;
+        updateCostEstimate();
+      }
+
+      async function startGeneration() {
+        const generateBtn = document.getElementById("generateBtn");
+        const progressInfo = document.getElementById("progressInfo");
+        const resultsSection = document.getElementById("resultsSection");
+        const resultsGrid = document.getElementById("resultsGrid");
+
+        // APIキーとモデルを取得
+        const apis = [];
+        if (document.getElementById("use-openai").checked) {
+          const key = document.getElementById("openai-key").value;
+          const model =
+            document.querySelector('input[name="openai-model"]:checked')
+              ?.value || "dall-e-3-standard-1024x1024";
+          if (key) apis.push({ type: "openai", key, model });
+        }
+        if (document.getElementById("use-stability").checked) {
+          const key = document.getElementById("stability-key").value;
+          const model =
+            document.querySelector('input[name="stability-model"]:checked')
+              ?.value || "sdxl-512";
+          if (key) apis.push({ type: "stability", key, model });
+        }
+        if (document.getElementById("use-imagen").checked) {
+          const key = document.getElementById("imagen-key").value;
+          const model =
+            document.querySelector('input[name="imagen-model"]:checked')
+              ?.value || "imagen-4";
+          if (key) apis.push({ type: "imagen", key, model });
+        }
+
+        if (apis.length === 0) {
+          alert("少なくとも1つのAPIキーを入力してください。");
+          return;
+        }
+
+        // 組み合わせを取得
+        const combinations = getAllCombinations();
+        if (combinations.length === 0) {
+          alert("キーワードを入力してください。");
+          return;
+        }
+
+        // UI更新
+        generateBtn.disabled = true;
+        progressInfo.style.display = "block";
+        resultsSection.style.display = "block";
+        resultsGrid.innerHTML = "";
+
+        // 各組み合わせ用の結果要素を事前に作成
+        const resultElements = combinations.map((combo, index) => {
+          const resultItem = document.createElement("div");
+          resultItem.className = "result-item";
+          resultItem.innerHTML = `
                     <div class="result-image">
                         <div class="loading-spinner"></div>
                     </div>
@@ -666,189 +1105,254 @@
                         </div>
                     </div>
                 `;
-                resultsGrid.appendChild(resultItem);
-                return resultItem;
-            });
-            
-            // 並列で画像生成を実行
-            let completed = 0;
-            const totalTasks = combinations.length * apis.length;
-            updateProgress(completed, totalTasks);
-            
-            const promises = [];
-            for (let i = 0; i < combinations.length; i++) {
-                for (let api of apis) {
-                    promises.push(
-                        generateImage(combinations[i], api, resultElements[i])
-                            .finally(() => {
-                                completed++;
-                                updateProgress(completed, totalTasks);
-                            })
-                    );
+          resultsGrid.appendChild(resultItem);
+          return resultItem;
+        });
+
+        // 並列で画像生成を実行
+        let completed = 0;
+        const totalTasks = combinations.length * apis.length;
+        updateProgress(completed, totalTasks);
+
+        const promises = [];
+        for (let i = 0; i < combinations.length; i++) {
+          for (let api of apis) {
+            promises.push(
+              generateImage(combinations[i], api, resultElements[i]).finally(
+                () => {
+                  completed++;
+                  updateProgress(completed, totalTasks);
                 }
-            }
-            
-            await Promise.allSettled(promises);
-            
-            // 完了
-            generateBtn.disabled = false;
-            progressInfo.style.display = 'none';
+              )
+            );
+          }
         }
-        
-        function getAllCombinations() {
-            const header = document.getElementById('matrixHeader');
-            const tbody = document.getElementById('matrixBody');
-            
-            const columnHeaders = [];
-            for (let i = 1; i < header.children.length; i++) {
-                const input = header.children[i].querySelector('input');
-                if (input && input.value.trim()) columnHeaders.push(input.value.trim());
-            }
-            
-            const combinations = [];
-            for (let row of tbody.children) {
-                const rowInput = row.children[0].querySelector('input');
-                if (rowInput && rowInput.value.trim()) {
-                    const rowValue = rowInput.value.trim();
-                    for (let colValue of columnHeaders) {
-                        combinations.push(`${rowValue}, ${colValue}`);
-                    }
-                }
-            }
-            
-            return combinations;
+
+        await Promise.allSettled(promises);
+
+        // 完了
+        generateBtn.disabled = false;
+        progressInfo.style.display = "none";
+      }
+
+      function getAllCombinations() {
+        const header = document.getElementById("matrixHeader");
+        const tbody = document.getElementById("matrixBody");
+
+        const columnHeaders = [];
+        for (let i = 1; i < header.children.length; i++) {
+          const input = header.children[i].querySelector("input");
+          if (input && input.value.trim())
+            columnHeaders.push(input.value.trim());
         }
-        
-        function updateProgress(completed, total) {
-            document.getElementById('progressText').textContent = `${completed}/${total}`;
-        }
-        
-        async function generateImage(prompt, api, resultElement) {
-            try {
-                let imageUrl;
-                
-                // APIタイプに応じて画像生成
-                if (api.type === 'openai') {
-                    imageUrl = await generateWithOpenAI(prompt, api.key);
-                } else if (api.type === 'stability') {
-                    imageUrl = await generateWithStability(prompt, api.key);
-                } else if (api.type === 'gemini') {
-                    imageUrl = await generateWithGemini(prompt, api.key);
-                }
-                
-                // 結果を表示
-                const imageDiv = resultElement.querySelector('.result-image');
-                imageDiv.innerHTML = `<img src="${imageUrl}" alt="${prompt}">`;
-                
-                const statusBadge = resultElement.querySelector('.status-badge');
-                statusBadge.className = 'status-badge success';
-                statusBadge.textContent = '完成';
-                
-                const apiType = resultElement.querySelector('.api-type');
-                apiType.textContent = api.type.toUpperCase();
-                
-            } catch (error) {
-                const imageDiv = resultElement.querySelector('.result-image');
-                imageDiv.innerHTML = `<div style="color: #ff6b6b;">エラー: ${error.message}</div>`;
-                
-                const statusBadge = resultElement.querySelector('.status-badge');
-                statusBadge.className = 'status-badge error';
-                statusBadge.textContent = 'エラー';
-                
-                const apiType = resultElement.querySelector('.api-type');
-                apiType.textContent = api.type.toUpperCase();
+
+        const combinations = [];
+        for (let row of tbody.children) {
+          const rowInput = row.children[0].querySelector("input");
+          if (rowInput && rowInput.value.trim()) {
+            const rowValue = rowInput.value.trim();
+            for (let colValue of columnHeaders) {
+              combinations.push(`${rowValue}, ${colValue}`);
             }
+          }
         }
-        
-        async function generateWithOpenAI(prompt, apiKey) {
-            const response = await fetch('https://api.openai.com/v1/images/generations', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
+
+        return combinations;
+      }
+
+      function updateProgress(completed, total) {
+        document.getElementById(
+          "progressText"
+        ).textContent = `${completed}/${total}`;
+      }
+
+      async function generateImage(prompt, api, resultElement) {
+        try {
+          let imageUrl;
+
+          // APIタイプに応じて画像生成
+          if (api.type === "openai") {
+            imageUrl = await generateWithOpenAI(prompt, api.key, api.model);
+          } else if (api.type === "stability") {
+            imageUrl = await generateWithStability(prompt, api.key, api.model);
+          } else if (api.type === "imagen") {
+            imageUrl = await generateWithImagen(prompt, api.key, api.model);
+          }
+
+          // 結果を表示
+          const imageDiv = resultElement.querySelector(".result-image");
+          imageDiv.innerHTML = `<img src="${imageUrl}" alt="${prompt}">`;
+
+          const statusBadge = resultElement.querySelector(".status-badge");
+          statusBadge.className = "status-badge success";
+          statusBadge.textContent = "完成";
+
+          const apiType = resultElement.querySelector(".api-type");
+          apiType.textContent = api.type.toUpperCase();
+        } catch (error) {
+          const imageDiv = resultElement.querySelector(".result-image");
+          imageDiv.innerHTML = `<div style="color: #ff6b6b;">エラー: ${error.message}</div>`;
+
+          const statusBadge = resultElement.querySelector(".status-badge");
+          statusBadge.className = "status-badge error";
+          statusBadge.textContent = "エラー";
+
+          const apiType = resultElement.querySelector(".api-type");
+          apiType.textContent = api.type.toUpperCase();
+        }
+      }
+
+      async function generateWithOpenAI(
+        prompt,
+        apiKey,
+        model = "dall-e-3-standard-1024x1024"
+      ) {
+        // モデル設定をパース
+        let size = "1024x1024";
+        let quality = "standard";
+
+        if (model.includes("1024x1792")) {
+          size = "1024x1792";
+        } else if (model.includes("1792x1024")) {
+          size = "1792x1024";
+        }
+
+        if (model.includes("hd")) {
+          quality = "hd";
+        }
+
+        const response = await fetch(
+          "https://api.openai.com/v1/images/generations",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model: "dall-e-3",
+              prompt: prompt,
+              n: 1,
+              size: size,
+              quality: quality,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error?.message || "OpenAI API エラー");
+        }
+
+        const data = await response.json();
+        return data.data[0].url;
+      }
+
+      async function generateWithStability(prompt, apiKey, model = "sdxl-512") {
+        // Stability AI APIの実装
+        const engineId = "stable-diffusion-xl-1024-v1-0";
+        const size = model === "sdxl-512" ? 512 : 1024;
+
+        const response = await fetch(
+          `https://api.stability.ai/v1/generation/${engineId}/text-to-image`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              text_prompts: [{ text: prompt }],
+              cfg_scale: 7,
+              height: size,
+              width: size,
+              steps: 30,
+              samples: 1,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Stability AI API エラー");
+        }
+
+        const data = await response.json();
+        // Base64画像をBlobに変換してURLを作成
+        const base64 = data.artifacts[0].base64;
+        const blob = await fetch(`data:image/png;base64,${base64}`).then((r) =>
+          r.blob()
+        );
+        return URL.createObjectURL(blob);
+      }
+
+      async function generateWithImagen(prompt, apiKey, model = "imagen-4") {
+        // Google Gemini 2.0 Flash Image Generation APIを使用
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: prompt,
+                    },
+                  ],
                 },
-                body: JSON.stringify({
-                    model: 'dall-e-3',
-                    prompt: prompt,
-                    n: 1,
-                    size: '1024x1024',
-                    quality: 'standard'
-                })
-            });
-            
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error?.message || 'OpenAI API エラー');
-            }
-            
-            const data = await response.json();
-            return data.data[0].url;
+              ],
+              generationConfig: {
+                responseModalities: ["TEXT", "IMAGE"],
+                temperature: 1.0,
+                topP: 0.95,
+                topK: 40,
+                candidateCount: 1,
+              },
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(
+            error.error?.message || "Google Gemini Image Generation API エラー"
+          );
         }
-        
-        async function generateWithStability(prompt, apiKey) {
-            // Stability AI APIの実装（例）
-            const engineId = 'stable-diffusion-xl-1024-v1-0';
-            const response = await fetch(`https://api.stability.ai/v1/generation/${engineId}/text-to-image`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify({
-                    text_prompts: [{ text: prompt }],
-                    cfg_scale: 7,
-                    height: 1024,
-                    width: 1024,
-                    steps: 30,
-                    samples: 1
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error('Stability AI API エラー');
-            }
-            
-            const data = await response.json();
-            // Base64画像をBlobに変換してURLを作成
-            const base64 = data.artifacts[0].base64;
-            const blob = await fetch(`data:image/png;base64,${base64}`).then(r => r.blob());
+
+        const data = await response.json();
+        // Geminiの画像生成レスポンスから画像を取得
+        if (
+          data.candidates &&
+          data.candidates[0] &&
+          data.candidates[0].content &&
+          data.candidates[0].content.parts
+        ) {
+          const parts = data.candidates[0].content.parts;
+          const imagePart = parts.find(
+            (part) => part.inlineData && part.inlineData.data
+          );
+
+          if (imagePart) {
+            const base64 = imagePart.inlineData.data;
+            const mimeType = imagePart.inlineData.mimeType || "image/png";
+            const blob = await fetch(`data:${mimeType};base64,${base64}`).then(
+              (r) => r.blob()
+            );
             return URL.createObjectURL(blob);
+          }
         }
-        
-        async function generateWithGemini(prompt, apiKey) {
-            // Gemini APIを使用して画像生成
-            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro-vision:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [{
-                        parts: [{
-                            text: `Generate an image with the following description: ${prompt}`
-                        }]
-                    }],
-                    generationConfig: {
-                        temperature: 0.9,
-                        topK: 1,
-                        topP: 1,
-                        maxOutputTokens: 2048,
-                    }
-                })
-            });
-            
-            if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error?.message || 'Gemini API エラー');
-            }
-            
-            // 注意: Gemini Pro Visionは画像を分析できますが、画像生成はできません
-            // 実際の画像生成には、Imagen APIやVertex AI Image Generationを使用する必要があります
-            throw new Error('Gemini APIは現在画像生成をサポートしていません。代わりにVertex AI Image GenerationまたはImagin APIをご利用ください');
-        }
-        
-        // 初期化
-        updateCombinations();
+
+        throw new Error(
+          "画像の生成に失敗しました。レスポンスに画像が含まれていません。"
+        );
+      }
+
+      // 初期化
+      updateAPISettings();
+      updateCombinations();
     </script>
-</body>
+  </body>
 </html>

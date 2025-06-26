@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosmos Engine Pro - Advanced GPU Particle System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #fff;
+        }
+        
+        #canvas {
+            display: block;
+            cursor: none;
+        }
+        
+        #customCursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.8);
+            border-radius: 50%;
+            pointer-events: none;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out;
+            z-index: 10000;
+        }
+        
+        #customCursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        
+        .control-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: rgba(20, 20, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            transform: translateX(0);
+            transition: transform 0.3s ease;
+        }
+        
+        .control-panel.hidden {
+            transform: translateX(350px);
+        }
+        
+        .control-panel h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #0ff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .control-group {
+            margin-bottom: 20px;
+        }
+        
+        .control-group label {
+            display: block;
+            font-size: 12px;
+            color: #aaa;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            outline: none;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            border-radius: 2px;
+        }
+        
+        input[type="range"]:hover {
+            opacity: 1;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #0ff;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+        }
+        
+        .value-display {
+            min-width: 50px;
+            text-align: right;
+            font-size: 12px;
+            color: #0ff;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .preset-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .preset-btn {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: #0ff;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .preset-btn:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 255, 255, 0.3);
+        }
+        
+        .stats {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(20, 20, 30, 0.95);
+            padding: 15px 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        
+        .stats-item {
+            display: flex;
+            justify-content: space-between;
+            min-width: 180px;
+        }
+        
+        .stats-label {
+            color: #888;
+        }
+        
+        .stats-value {
+            color: #0ff;
+        }
+        
+        .toggle-panel {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 100;
+        }
+        
+        .toggle-panel:hover {
+            background: rgba(0, 255, 255, 0.2);
+        }
+        
+        .toggle-panel.panel-open {
+            transform: translateX(-340px);
+        }
+        
+        .help-text {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 12px;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            transition: opacity 0.5s;
+        }
+        
+        .loading-screen.loaded {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(0, 255, 255, 0.1);
+            border-top-color: #0ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            margin-top: 20px;
+            color: #0ff;
+            font-size: 14px;
+        }
+        
+        .back-link {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #0ff;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 10px 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            border-radius: 6px;
+            transition: all 0.3s;
+        }
+        
+        .back-link:hover {
+            background: rgba(0, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="customCursor"></div>
+    
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Initializing Cosmos Engine...</div>
+    </div>
+    
+    <div class="stats">
+        <div class="stats-item">
+            <span class="stats-label">FPS:</span>
+            <span class="stats-value" id="fps">60</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Particles:</span>
+            <span class="stats-value" id="particleCount">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">Attractors:</span>
+            <span class="stats-value" id="attractorCount">0</span>
+        </div>
+        <div class="stats-item">
+            <span class="stats-label">GPU Memory:</span>
+            <span class="stats-value" id="gpuMemory">0MB</span>
+        </div>
+    </div>
+    
+    <div class="toggle-panel" id="togglePanel">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="#0ff" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+    </div>
+    
+    <div class="control-panel hidden" id="controlPanel">
+        <h2>Cosmos Engine Pro</h2>
+        
+        <div class="control-group">
+            <label>Particle Count</label>
+            <div class="slider-container">
+                <input type="range" id="particleSlider" min="10000" max="1000000" value="100000" step="10000">
+                <span class="value-display" id="particleValue">100k</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Flow Strength</label>
+            <div class="slider-container">
+                <input type="range" id="flowStrength" min="0" max="2" value="0.5" step="0.01">
+                <span class="value-display" id="flowValue">0.50</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Attractor Force</label>
+            <div class="slider-container">
+                <input type="range" id="attractorForce" min="0" max="5" value="1" step="0.1">
+                <span class="value-display" id="attractorValue">1.0</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Color Speed</label>
+            <div class="slider-container">
+                <input type="range" id="colorSpeed" min="0" max="5" value="1" step="0.1">
+                <span class="value-display" id="colorSpeedValue">1.0</span>
+            </div>
+        </div>
+        
+        <div class="control-group">
+            <label>Bloom Intensity</label>
+            <div class="slider-container">
+                <input type="range" id="bloomIntensity" min="0" max="2" value="0.8" step="0.01">
+                <span class="value-display" id="bloomValue">0.80</span>
+            </div>
+        </div>
+        
+        <div class="preset-buttons">
+            <button class="preset-btn" onclick="loadPreset('cosmic')">Cosmic Flow</button>
+            <button class="preset-btn" onclick="loadPreset('quantum')">Quantum Field</button>
+            <button class="preset-btn" onclick="loadPreset('nebula')">Nebula</button>
+            <button class="preset-btn" onclick="loadPreset('vortex')">Vortex</button>
+        </div>
+    </div>
+    
+    <div class="help-text">
+        Click: Add attractor | Right-click: Remove attractor | Space: Pause | R: Reset | H: Hide UI
+    </div>
+    
+    <a href="../../index.html" class="back-link">← Back to Projects</a>
+    
+    <!-- Vertex Shader -->
+    <script id="particleVertexShader" type="x-shader/x-vertex">#version 300 es
+        precision highp float;
+        
+        in vec2 a_position;
+        in vec2 a_velocity;
+        in float a_life;
+        in float a_size;
+        
+        uniform mat4 u_projection;
+        uniform float u_time;
+        uniform vec2 u_resolution;
+        uniform sampler2D u_flowField;
+        
+        out vec2 v_velocity;
+        out float v_life;
+        out vec2 v_uv;
+        
+        void main() {
+            v_velocity = a_velocity;
+            v_life = a_life;
+            v_uv = (a_position + 1.0) * 0.5;
+            
+            vec2 pos = a_position;
+            
+            // Apply flow field distortion
+            vec2 flowCoord = (pos + 1.0) * 0.5;
+            vec3 flow = texture(u_flowField, flowCoord).rgb;
+            pos += (flow.xy - 0.5) * 0.1;
+            
+            gl_Position = u_projection * vec4(pos, 0.0, 1.0);
+            gl_PointSize = a_size * (1.0 + length(a_velocity) * 0.5) * mix(0.5, 1.0, a_life);
+        }
+    </script>
+    
+    <!-- Fragment Shader -->
+    <script id="particleFragmentShader" type="x-shader/x-fragment">#version 300 es
+        precision highp float;
+        
+        in vec2 v_velocity;
+        in float v_life;
+        in vec2 v_uv;
+        
+        uniform float u_time;
+        uniform float u_colorSpeed;
+        
+        out vec4 fragColor;
+        
+        vec3 hsv2rgb(vec3 c) {
+            vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+            vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+            return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+        }
+        
+        void main() {
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float dist = length(coord);
+            
+            if (dist > 0.5) {
+                discard;
+            }
+            
+            float speed = length(v_velocity);
+            float hue = mod(u_time * u_colorSpeed * 0.1 + speed * 0.5 + v_uv.x * 0.3, 1.0);
+            vec3 color = hsv2rgb(vec3(hue, 0.8, 1.0));
+            
+            float alpha = (1.0 - dist * 2.0) * v_life;
+            alpha *= mix(0.3, 1.0, speed * 0.2);
+            
+            // Add glow effect
+            float glow = exp(-dist * 8.0) * 0.5;
+            color += vec3(glow);
+            
+            fragColor = vec4(color, alpha);
+        }
+    </script>
+    
+    <!-- Post-processing Vertex Shader -->
+    <script id="postVertexShader" type="x-shader/x-vertex">#version 300 es
+        precision highp float;
+        
+        in vec2 a_position;
+        out vec2 v_texCoord;
+        
+        void main() {
+            v_texCoord = (a_position + 1.0) * 0.5;
+            gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+    </script>
+    
+    <!-- Bloom Fragment Shader -->
+    <script id="bloomFragmentShader" type="x-shader/x-fragment">#version 300 es
+        precision highp float;
+        
+        in vec2 v_texCoord;
+        
+        uniform sampler2D u_texture;
+        uniform vec2 u_resolution;
+        uniform float u_bloomIntensity;
+        
+        out vec4 fragColor;
+        
+        vec3 sampleBlur(vec2 uv, vec2 direction) {
+            vec3 color = vec3(0.0);
+            vec2 texelSize = 1.0 / u_resolution;
+            
+            float weights[9];
+            weights[0] = 0.013519569;
+            weights[1] = 0.047662179;
+            weights[2] = 0.115876621;
+            weights[3] = 0.194482445;
+            weights[4] = 0.226066794;
+            weights[5] = 0.194482445;
+            weights[6] = 0.115876621;
+            weights[7] = 0.047662179;
+            weights[8] = 0.013519569;
+            
+            for (int i = -4; i <= 4; i++) {
+                vec2 offset = float(i) * texelSize * direction;
+                color += texture(u_texture, uv + offset).rgb * weights[i + 4];
+            }
+            
+            return color;
+        }
+        
+        void main() {
+            vec3 color = texture(u_texture, v_texCoord).rgb;
+            
+            // Gaussian blur for bloom
+            vec3 bloomH = sampleBlur(v_texCoord, vec2(1.0, 0.0));
+            vec3 bloomV = sampleBlur(v_texCoord, vec2(0.0, 1.0));
+            vec3 bloom = (bloomH + bloomV) * 0.5;
+            
+            // Threshold bright areas
+            float brightness = dot(bloom, vec3(0.2126, 0.7152, 0.0722));
+            bloom *= smoothstep(0.3, 0.7, brightness);
+            
+            // Chromatic aberration
+            vec2 caOffset = (v_texCoord - 0.5) * 0.01;
+            vec3 colorR = texture(u_texture, v_texCoord + caOffset).rgb;
+            vec3 colorG = texture(u_texture, v_texCoord).rgb;
+            vec3 colorB = texture(u_texture, v_texCoord - caOffset).rgb;
+            color = vec3(colorR.r, colorG.g, colorB.b);
+            
+            // Combine with bloom
+            color += bloom * u_bloomIntensity;
+            
+            // Vignette
+            vec2 vignette = v_texCoord * (1.0 - v_texCoord);
+            float vig = pow(vignette.x * vignette.y * 15.0, 0.3);
+            color *= vig;
+            
+            // Tone mapping
+            color = color / (color + vec3(1.0));
+            color = pow(color, vec3(1.0 / 2.2));
+            
+            fragColor = vec4(color, 1.0);
+        }
+    </script>
+    
+    <script>
+        class CosmosEngine {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.gl = this.canvas.getContext('webgl2', {
+                    antialias: false,
+                    alpha: false,
+                    preserveDrawingBuffer: false
+                });
+                
+                if (!this.gl) {
+                    alert('WebGL2 not supported!');
+                    throw new Error('WebGL2 not supported');
+                }
+                
+                this.particleCount = 100000;
+                this.particles = null;
+                this.attractors = [];
+                this.mousePos = { x: 0, y: 0 };
+                this.isRunning = true;
+                this.startTime = performance.now();
+                
+                this.params = {
+                    flowStrength: 0.5,
+                    attractorForce: 1.0,
+                    colorSpeed: 1.0,
+                    bloomIntensity: 0.8
+                };
+                
+                this.stats = {
+                    fps: 60,
+                    frameCount: 0,
+                    lastTime: performance.now()
+                };
+                
+                this.init();
+            }
+            
+            init() {
+                this.resize();
+                this.initShaders();
+                this.initParticles();
+                this.initFramebuffers();
+                this.initFlowField();
+                this.setupEventListeners();
+                this.setupUI();
+                
+                // Hide loading screen
+                setTimeout(() => {
+                    document.getElementById('loadingScreen').classList.add('loaded');
+                }, 500);
+                
+                this.animate();
+            }
+            
+            initShaders() {
+                // Particle shader program
+                const particleVS = this.compileShader(
+                    this.gl.VERTEX_SHADER,
+                    document.getElementById('particleVertexShader').textContent
+                );
+                const particleFS = this.compileShader(
+                    this.gl.FRAGMENT_SHADER,
+                    document.getElementById('particleFragmentShader').textContent
+                );
+                this.particleProgram = this.createProgram(particleVS, particleFS);
+                
+                // Post-processing shader program
+                const postVS = this.compileShader(
+                    this.gl.VERTEX_SHADER,
+                    document.getElementById('postVertexShader').textContent
+                );
+                const bloomFS = this.compileShader(
+                    this.gl.FRAGMENT_SHADER,
+                    document.getElementById('bloomFragmentShader').textContent
+                );
+                this.bloomProgram = this.createProgram(postVS, bloomFS);
+                
+                // Get uniform locations
+                this.particleUniforms = {
+                    projection: this.gl.getUniformLocation(this.particleProgram, 'u_projection'),
+                    time: this.gl.getUniformLocation(this.particleProgram, 'u_time'),
+                    resolution: this.gl.getUniformLocation(this.particleProgram, 'u_resolution'),
+                    flowField: this.gl.getUniformLocation(this.particleProgram, 'u_flowField'),
+                    colorSpeed: this.gl.getUniformLocation(this.particleProgram, 'u_colorSpeed')
+                };
+                
+                this.bloomUniforms = {
+                    texture: this.gl.getUniformLocation(this.bloomProgram, 'u_texture'),
+                    resolution: this.gl.getUniformLocation(this.bloomProgram, 'u_resolution'),
+                    bloomIntensity: this.gl.getUniformLocation(this.bloomProgram, 'u_bloomIntensity')
+                };
+            }
+            
+            compileShader(type, source) {
+                const shader = this.gl.createShader(type);
+                this.gl.shaderSource(shader, source);
+                this.gl.compileShader(shader);
+                
+                if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+                    console.error('Shader compilation error:', this.gl.getShaderInfoLog(shader));
+                    this.gl.deleteShader(shader);
+                    return null;
+                }
+                
+                return shader;
+            }
+            
+            createProgram(vertexShader, fragmentShader) {
+                const program = this.gl.createProgram();
+                this.gl.attachShader(program, vertexShader);
+                this.gl.attachShader(program, fragmentShader);
+                this.gl.linkProgram(program);
+                
+                if (!this.gl.getProgramParameter(program, this.gl.LINK_STATUS)) {
+                    console.error('Program linking error:', this.gl.getProgramInfoLog(program));
+                    return null;
+                }
+                
+                return program;
+            }
+            
+            initParticles() {
+                const particleData = new Float32Array(this.particleCount * 6);
+                
+                for (let i = 0; i < this.particleCount; i++) {
+                    const idx = i * 6;
+                    
+                    // Position
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.sqrt(Math.random()) * 2;
+                    particleData[idx] = Math.cos(angle) * radius;
+                    particleData[idx + 1] = Math.sin(angle) * radius;
+                    
+                    // Velocity
+                    particleData[idx + 2] = (Math.random() - 0.5) * 0.01;
+                    particleData[idx + 3] = (Math.random() - 0.5) * 0.01;
+                    
+                    // Life
+                    particleData[idx + 4] = Math.random();
+                    
+                    // Size
+                    particleData[idx + 5] = Math.random() * 3 + 1;
+                }
+                
+                // Create VAO
+                this.particleVAO = this.gl.createVertexArray();
+                this.gl.bindVertexArray(this.particleVAO);
+                
+                // Create buffer
+                this.particleBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.particleBuffer);
+                this.gl.bufferData(this.gl.ARRAY_BUFFER, particleData, this.gl.DYNAMIC_DRAW);
+                
+                // Set up attributes
+                const stride = 6 * 4; // 6 floats per particle
+                
+                // Position
+                this.gl.enableVertexAttribArray(0);
+                this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, stride, 0);
+                
+                // Velocity
+                this.gl.enableVertexAttribArray(1);
+                this.gl.vertexAttribPointer(1, 2, this.gl.FLOAT, false, stride, 2 * 4);
+                
+                // Life
+                this.gl.enableVertexAttribArray(2);
+                this.gl.vertexAttribPointer(2, 1, this.gl.FLOAT, false, stride, 4 * 4);
+                
+                // Size
+                this.gl.enableVertexAttribArray(3);
+                this.gl.vertexAttribPointer(3, 1, this.gl.FLOAT, false, stride, 5 * 4);
+                
+                this.gl.bindVertexArray(null);
+                
+                this.particles = particleData;
+            }
+            
+            initFramebuffers() {
+                // Create framebuffer for first render pass
+                this.framebuffer = this.gl.createFramebuffer();
+                this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+                
+                // Create texture
+                this.renderTexture = this.gl.createTexture();
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.renderTexture);
+                this.gl.texImage2D(
+                    this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+                    this.canvas.width, this.canvas.height, 0,
+                    this.gl.RGBA, this.gl.UNSIGNED_BYTE, null
+                );
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+                
+                this.gl.framebufferTexture2D(
+                    this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0,
+                    this.gl.TEXTURE_2D, this.renderTexture, 0
+                );
+                
+                this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+                
+                // Create quad for post-processing
+                const quadVertices = new Float32Array([
+                    -1, -1,
+                     1, -1,
+                    -1,  1,
+                     1,  1
+                ]);
+                
+                this.quadVAO = this.gl.createVertexArray();
+                this.gl.bindVertexArray(this.quadVAO);
+                
+                this.quadBuffer = this.gl.createBuffer();
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.quadBuffer);
+                this.gl.bufferData(this.gl.ARRAY_BUFFER, quadVertices, this.gl.STATIC_DRAW);
+                
+                this.gl.enableVertexAttribArray(0);
+                this.gl.vertexAttribPointer(0, 2, this.gl.FLOAT, false, 0, 0);
+                
+                this.gl.bindVertexArray(null);
+            }
+            
+            initFlowField() {
+                const size = 256;
+                const flowData = new Float32Array(size * size * 4);
+                
+                for (let y = 0; y < size; y++) {
+                    for (let x = 0; x < size; x++) {
+                        const idx = (y * size + x) * 4;
+                        
+                        // Create flow field using Perlin noise simulation
+                        const scale = 0.01;
+                        const angle = this.noise(x * scale, y * scale) * Math.PI * 2;
+                        
+                        flowData[idx] = Math.cos(angle) * 0.5 + 0.5;
+                        flowData[idx + 1] = Math.sin(angle) * 0.5 + 0.5;
+                        flowData[idx + 2] = 0.5;
+                        flowData[idx + 3] = 1.0;
+                    }
+                }
+                
+                this.flowFieldTexture = this.gl.createTexture();
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.flowFieldTexture);
+                this.gl.texImage2D(
+                    this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+                    size, size, 0,
+                    this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.convertFloatToUint8(flowData)
+                );
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.REPEAT);
+                this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.REPEAT);
+            }
+            
+            noise(x, y) {
+                // Simple noise function
+                return Math.sin(x * 12.9898 + y * 78.233) * 43758.5453 % 1;
+            }
+            
+            convertFloatToUint8(floatArray) {
+                const uint8Array = new Uint8Array(floatArray.length);
+                for (let i = 0; i < floatArray.length; i++) {
+                    uint8Array[i] = Math.floor(floatArray[i] * 255);
+                }
+                return uint8Array;
+            }
+            
+            updateParticles(deltaTime) {
+                for (let i = 0; i < this.particleCount; i++) {
+                    const idx = i * 6;
+                    
+                    let px = this.particles[idx];
+                    let py = this.particles[idx + 1];
+                    let vx = this.particles[idx + 2];
+                    let vy = this.particles[idx + 3];
+                    let life = this.particles[idx + 4];
+                    
+                    // Apply flow field
+                    const flowX = (px + 1) * 0.5;
+                    const flowY = (py + 1) * 0.5;
+                    const angle = this.noise(flowX * 5, flowY * 5) * Math.PI * 2;
+                    vx += Math.cos(angle) * this.params.flowStrength * 0.0001;
+                    vy += Math.sin(angle) * this.params.flowStrength * 0.0001;
+                    
+                    // Apply attractors
+                    for (const attractor of this.attractors) {
+                        const dx = attractor.x - px;
+                        const dy = attractor.y - py;
+                        const dist = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (dist > 0.01) {
+                            const force = this.params.attractorForce * 0.0001 / (dist * dist);
+                            vx += dx * force;
+                            vy += dy * force;
+                        }
+                    }
+                    
+                    // Update position
+                    px += vx * deltaTime * 60;
+                    py += vy * deltaTime * 60;
+                    
+                    // Boundary check
+                    if (px < -2 || px > 2) vx *= -0.8;
+                    if (py < -2 || py > 2) vy *= -0.8;
+                    px = Math.max(-2, Math.min(2, px));
+                    py = Math.max(-2, Math.min(2, py));
+                    
+                    // Damping
+                    vx *= 0.99;
+                    vy *= 0.99;
+                    
+                    // Update life
+                    life -= 0.001 * deltaTime;
+                    if (life <= 0) {
+                        life = 1;
+                        const angle = Math.random() * Math.PI * 2;
+                        const radius = Math.sqrt(Math.random()) * 0.5;
+                        px = Math.cos(angle) * radius;
+                        py = Math.sin(angle) * radius;
+                        vx = (Math.random() - 0.5) * 0.01;
+                        vy = (Math.random() - 0.5) * 0.01;
+                    }
+                    
+                    this.particles[idx] = px;
+                    this.particles[idx + 1] = py;
+                    this.particles[idx + 2] = vx;
+                    this.particles[idx + 3] = vy;
+                    this.particles[idx + 4] = life;
+                }
+                
+                // Update GPU buffer
+                this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.particleBuffer);
+                this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, this.particles);
+            }
+            
+            render() {
+                const time = (performance.now() - this.startTime) / 1000;
+                
+                // Render particles to framebuffer
+                this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.framebuffer);
+                this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+                this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+                
+                this.gl.useProgram(this.particleProgram);
+                
+                // Set uniforms
+                const projection = [
+                    1, 0, 0, 0,
+                    0, 1, 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1
+                ];
+                this.gl.uniformMatrix4fv(this.particleUniforms.projection, false, projection);
+                this.gl.uniform1f(this.particleUniforms.time, time);
+                this.gl.uniform2f(this.particleUniforms.resolution, this.canvas.width, this.canvas.height);
+                this.gl.uniform1f(this.particleUniforms.colorSpeed, this.params.colorSpeed);
+                
+                // Bind flow field texture
+                this.gl.activeTexture(this.gl.TEXTURE0);
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.flowFieldTexture);
+                this.gl.uniform1i(this.particleUniforms.flowField, 0);
+                
+                // Enable blending
+                this.gl.enable(this.gl.BLEND);
+                this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE);
+                
+                // Draw particles
+                this.gl.bindVertexArray(this.particleVAO);
+                this.gl.drawArrays(this.gl.POINTS, 0, this.particleCount);
+                
+                // Post-processing pass
+                this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+                this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+                this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+                
+                this.gl.useProgram(this.bloomProgram);
+                
+                // Bind render texture
+                this.gl.activeTexture(this.gl.TEXTURE0);
+                this.gl.bindTexture(this.gl.TEXTURE_2D, this.renderTexture);
+                this.gl.uniform1i(this.bloomUniforms.texture, 0);
+                this.gl.uniform2f(this.bloomUniforms.resolution, this.canvas.width, this.canvas.height);
+                this.gl.uniform1f(this.bloomUniforms.bloomIntensity, this.params.bloomIntensity);
+                
+                // Draw fullscreen quad
+                this.gl.disable(this.gl.BLEND);
+                this.gl.bindVertexArray(this.quadVAO);
+                this.gl.drawArrays(this.gl.TRIANGLE_STRIP, 0, 4);
+            }
+            
+            animate() {
+                if (!this.isRunning) return;
+                
+                const currentTime = performance.now();
+                const deltaTime = (currentTime - this.stats.lastTime) / 1000;
+                this.stats.lastTime = currentTime;
+                
+                // Update FPS
+                this.stats.frameCount++;
+                if (this.stats.frameCount % 30 === 0) {
+                    this.stats.fps = Math.round(1 / deltaTime);
+                    this.updateStats();
+                }
+                
+                this.updateParticles(deltaTime);
+                this.render();
+                
+                requestAnimationFrame(() => this.animate());
+            }
+            
+            updateStats() {
+                document.getElementById('fps').textContent = this.stats.fps;
+                document.getElementById('particleCount').textContent = this.particleCount.toLocaleString();
+                document.getElementById('attractorCount').textContent = this.attractors.length;
+                
+                // Estimate GPU memory usage
+                const memoryMB = (this.particleCount * 6 * 4) / (1024 * 1024);
+                document.getElementById('gpuMemory').textContent = memoryMB.toFixed(1) + 'MB';
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                
+                if (this.renderTexture) {
+                    this.gl.bindTexture(this.gl.TEXTURE_2D, this.renderTexture);
+                    this.gl.texImage2D(
+                        this.gl.TEXTURE_2D, 0, this.gl.RGBA,
+                        this.canvas.width, this.canvas.height, 0,
+                        this.gl.RGBA, this.gl.UNSIGNED_BYTE, null
+                    );
+                }
+            }
+            
+            setupEventListeners() {
+                // Mouse events
+                this.canvas.addEventListener('mousemove', (e) => {
+                    this.mousePos.x = (e.clientX / this.canvas.width) * 2 - 1;
+                    this.mousePos.y = -(e.clientY / this.canvas.height) * 2 + 1;
+                    
+                    // Update custom cursor
+                    const cursor = document.getElementById('customCursor');
+                    cursor.style.left = e.clientX + 'px';
+                    cursor.style.top = e.clientY + 'px';
+                });
+                
+                this.canvas.addEventListener('click', (e) => {
+                    const x = (e.clientX / this.canvas.width) * 2 - 1;
+                    const y = -(e.clientY / this.canvas.height) * 2 + 1;
+                    
+                    this.attractors.push({ x, y, strength: 1 });
+                    if (this.attractors.length > 5) {
+                        this.attractors.shift();
+                    }
+                });
+                
+                this.canvas.addEventListener('contextmenu', (e) => {
+                    e.preventDefault();
+                    this.attractors.pop();
+                });
+                
+                // Keyboard events
+                window.addEventListener('keydown', (e) => {
+                    switch(e.key) {
+                        case ' ':
+                            e.preventDefault();
+                            this.isRunning = !this.isRunning;
+                            if (this.isRunning) this.animate();
+                            break;
+                        case 'r':
+                        case 'R':
+                            this.attractors = [];
+                            this.initParticles();
+                            break;
+                        case 'h':
+                        case 'H':
+                            document.querySelector('.stats').style.display = 
+                                document.querySelector('.stats').style.display === 'none' ? 'block' : 'none';
+                            document.querySelector('.help-text').style.display = 
+                                document.querySelector('.help-text').style.display === 'none' ? 'block' : 'none';
+                            break;
+                    }
+                });
+                
+                window.addEventListener('resize', () => this.resize());
+            }
+            
+            setupUI() {
+                // Toggle panel
+                const toggleBtn = document.getElementById('togglePanel');
+                const controlPanel = document.getElementById('controlPanel');
+                
+                toggleBtn.addEventListener('click', () => {
+                    controlPanel.classList.toggle('hidden');
+                    toggleBtn.classList.toggle('panel-open');
+                });
+                
+                // Particle count slider
+                const particleSlider = document.getElementById('particleSlider');
+                const particleValue = document.getElementById('particleValue');
+                
+                particleSlider.addEventListener('input', (e) => {
+                    this.particleCount = parseInt(e.target.value);
+                    particleValue.textContent = this.particleCount >= 1000000 ? 
+                        (this.particleCount / 1000000).toFixed(1) + 'M' : 
+                        (this.particleCount / 1000) + 'k';
+                    this.initParticles();
+                });
+                
+                // Flow strength slider
+                const flowSlider = document.getElementById('flowStrength');
+                const flowValue = document.getElementById('flowValue');
+                
+                flowSlider.addEventListener('input', (e) => {
+                    this.params.flowStrength = parseFloat(e.target.value);
+                    flowValue.textContent = this.params.flowStrength.toFixed(2);
+                });
+                
+                // Attractor force slider
+                const attractorSlider = document.getElementById('attractorForce');
+                const attractorValue = document.getElementById('attractorValue');
+                
+                attractorSlider.addEventListener('input', (e) => {
+                    this.params.attractorForce = parseFloat(e.target.value);
+                    attractorValue.textContent = this.params.attractorForce.toFixed(1);
+                });
+                
+                // Color speed slider
+                const colorSpeedSlider = document.getElementById('colorSpeed');
+                const colorSpeedValue = document.getElementById('colorSpeedValue');
+                
+                colorSpeedSlider.addEventListener('input', (e) => {
+                    this.params.colorSpeed = parseFloat(e.target.value);
+                    colorSpeedValue.textContent = this.params.colorSpeed.toFixed(1);
+                });
+                
+                // Bloom intensity slider
+                const bloomSlider = document.getElementById('bloomIntensity');
+                const bloomValue = document.getElementById('bloomValue');
+                
+                bloomSlider.addEventListener('input', (e) => {
+                    this.params.bloomIntensity = parseFloat(e.target.value);
+                    bloomValue.textContent = this.params.bloomIntensity.toFixed(2);
+                });
+            }
+        }
+        
+        // Preset configurations
+        function loadPreset(name) {
+            const engine = window.engine;
+            if (!engine) return;
+            const presets = {
+                cosmic: {
+                    particleCount: 200000,
+                    flowStrength: 0.8,
+                    attractorForce: 1.5,
+                    colorSpeed: 0.5,
+                    bloomIntensity: 1.2
+                },
+                quantum: {
+                    particleCount: 500000,
+                    flowStrength: 0.2,
+                    attractorForce: 3.0,
+                    colorSpeed: 2.0,
+                    bloomIntensity: 0.6
+                },
+                nebula: {
+                    particleCount: 300000,
+                    flowStrength: 1.5,
+                    attractorForce: 0.5,
+                    colorSpeed: 0.3,
+                    bloomIntensity: 1.5
+                },
+                vortex: {
+                    particleCount: 400000,
+                    flowStrength: 2.0,
+                    attractorForce: 2.0,
+                    colorSpeed: 1.5,
+                    bloomIntensity: 0.8
+                }
+            };
+            
+            const preset = presets[name];
+            if (!preset) return;
+            
+            // Update sliders and values
+            document.getElementById('particleSlider').value = preset.particleCount;
+            document.getElementById('particleValue').textContent = preset.particleCount >= 1000000 ? 
+                (preset.particleCount / 1000000).toFixed(1) + 'M' : 
+                (preset.particleCount / 1000) + 'k';
+            
+            document.getElementById('flowStrength').value = preset.flowStrength;
+            document.getElementById('flowValue').textContent = preset.flowStrength.toFixed(2);
+            
+            document.getElementById('attractorForce').value = preset.attractorForce;
+            document.getElementById('attractorValue').textContent = preset.attractorForce.toFixed(1);
+            
+            document.getElementById('colorSpeed').value = preset.colorSpeed;
+            document.getElementById('colorSpeedValue').textContent = preset.colorSpeed.toFixed(1);
+            
+            document.getElementById('bloomIntensity').value = preset.bloomIntensity;
+            document.getElementById('bloomValue').textContent = preset.bloomIntensity.toFixed(2);
+            
+            // Apply to engine
+            engine.particleCount = preset.particleCount;
+            engine.params.flowStrength = preset.flowStrength;
+            engine.params.attractorForce = preset.attractorForce;
+            engine.params.colorSpeed = preset.colorSpeed;
+            engine.params.bloomIntensity = preset.bloomIntensity;
+            
+            engine.initParticles();
+        }
+        
+        // Initialize engine when page loads
+        let engine;
+        window.addEventListener('load', () => {
+            engine = window.engine = new CosmosEngine();
+        });
+    </script>
+</body>
+</html>

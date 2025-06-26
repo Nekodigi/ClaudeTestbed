@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Heartbeat - Vocaloid Motion Graphics</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial', sans-serif;
+            cursor: none;
+        }
+
+        #main-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(circle at center, #0a0a0a 0%, #000 100%);
+        }
+
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Typography Animation */
+        .text-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            text-align: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .main-text {
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            letter-spacing: 0.2em;
+            color: transparent;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00, #00ffff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: gradientShift 3s ease infinite, glitch 2s infinite;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.8));
+            text-transform: uppercase;
+        }
+
+        .sub-text {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 1rem;
+            animation: fadeInOut 4s infinite, slideIn 0.8s ease-out;
+            letter-spacing: 0.3em;
+        }
+
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            pointer-events: none;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        .hex {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #00ffff 0%, #ff00ff 100%);
+            clip-path: polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%);
+            animation: rotate 10s linear infinite, pulse 2s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        .circle {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #ffff00;
+            border-radius: 50%;
+            animation: scale 3s ease-in-out infinite, rotate -8s linear infinite;
+            opacity: 0.5;
+        }
+
+        .triangle {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 43px solid #00ff88;
+            animation: rotate -12s linear infinite, flash 3s infinite;
+            opacity: 0.7;
+        }
+
+        /* Glitch Effect */
+        .glitch-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .glitch-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #00ffff, transparent);
+            animation: scanline 8s linear infinite;
+            opacity: 0.5;
+        }
+
+        /* Particle System */
+        #particle-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+        }
+
+        /* Interactive Cursor */
+        .cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ffff;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s ease;
+            mix-blend-mode: screen;
+        }
+
+        .cursor::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 5px;
+            height: 5px;
+            background: #ff00ff;
+            border-radius: 50%;
+        }
+
+        /* Animations */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes glitch {
+            0%, 90%, 100% {
+                text-shadow: 
+                    2px 2px 0 #ff00ff,
+                    -2px -2px 0 #00ffff;
+            }
+            95% {
+                text-shadow: 
+                    -5px 0 0 #ff00ff,
+                    5px 0 0 #00ffff;
+            }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(20px); }
+            50% { transform: translateY(20px) translateX(-30px); }
+            75% { transform: translateY(-20px) translateX(30px); }
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        @keyframes scale {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+        }
+
+        @keyframes flash {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.2; }
+        }
+
+        @keyframes scanline {
+            0% { 
+                top: -10%;
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.5;
+            }
+            90% {
+                opacity: 0.5;
+            }
+            100% { 
+                top: 110%;
+                opacity: 0;
+            }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .hex { width: 40px; height: 40px; }
+            .circle { width: 30px; height: 30px; }
+            .triangle { 
+                border-left: 20px solid transparent;
+                border-right: 20px solid transparent;
+                border-bottom: 35px solid #00ff88;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="main-container">
+        <canvas id="canvas-bg"></canvas>
+        <canvas id="particle-canvas"></canvas>
+        
+        <div class="text-container">
+            <h1 class="main-text" data-text="DIGITAL">DIGITAL</h1>
+            <p class="sub-text">HEARTBEAT</p>
+        </div>
+
+        <div class="floating-element hex" style="top: 10%; left: 15%;"></div>
+        <div class="floating-element circle" style="top: 20%; right: 20%;"></div>
+        <div class="floating-element triangle" style="bottom: 30%; left: 10%;"></div>
+        <div class="floating-element hex" style="bottom: 15%; right: 25%;"></div>
+        <div class="floating-element circle" style="top: 60%; left: 5%;"></div>
+        <div class="floating-element triangle" style="top: 40%; right: 10%;"></div>
+
+        <div class="glitch-container">
+            <div class="glitch-line" style="animation-delay: 0s;"></div>
+            <div class="glitch-line" style="animation-delay: 2s;"></div>
+            <div class="glitch-line" style="animation-delay: 4s;"></div>
+            <div class="glitch-line" style="animation-delay: 6s;"></div>
+        </div>
+
+        <div class="cursor"></div>
+    </div>
+
+    <script>
+        // Canvas Setup
+        const canvasBg = document.getElementById('canvas-bg');
+        const ctxBg = canvasBg.getContext('2d');
+        const particleCanvas = document.getElementById('particle-canvas');
+        const ctxParticle = particleCanvas.getContext('2d');
+
+        // Resize canvases
+        function resizeCanvas() {
+            canvasBg.width = window.innerWidth;
+            canvasBg.height = window.innerHeight;
+            particleCanvas.width = window.innerWidth;
+            particleCanvas.height = window.innerHeight;
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Background Grid Animation
+        class GridAnimation {
+            constructor(ctx) {
+                this.ctx = ctx;
+                this.gridSize = 50;
+                this.time = 0;
+            }
+
+            draw() {
+                this.ctx.clearRect(0, 0, canvasBg.width, canvasBg.height);
+                this.ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+                this.ctx.lineWidth = 1;
+
+                // Animated grid
+                for (let x = 0; x < canvasBg.width; x += this.gridSize) {
+                    for (let y = 0; y < canvasBg.height; y += this.gridSize) {
+                        const wave = Math.sin(this.time * 0.001 + x * 0.01 + y * 0.01) * 0.5 + 0.5;
+                        this.ctx.globalAlpha = wave * 0.3;
+                        this.ctx.beginPath();
+                        this.ctx.rect(x, y, this.gridSize, this.gridSize);
+                        this.ctx.stroke();
+                    }
+                }
+
+                this.time++;
+            }
+        }
+
+        // Particle System
+        class Particle {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 3 + 1;
+                this.life = 1;
+                this.decay = Math.random() * 0.01 + 0.005;
+                this.color = this.getRandomColor();
+            }
+
+            getRandomColor() {
+                const colors = ['#00ffff', '#ff00ff', '#ffff00', '#00ff88'];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life -= this.decay;
+
+                // Wrap around screen
+                if (this.x < 0) this.x = this.canvas.width;
+                if (this.x > this.canvas.width) this.x = 0;
+                if (this.y < 0) this.y = this.canvas.height;
+                if (this.y > this.canvas.height) this.y = 0;
+
+                // Reset particle if dead
+                if (this.life <= 0) {
+                    this.life = 1;
+                    this.x = Math.random() * this.canvas.width;
+                    this.y = Math.random() * this.canvas.height;
+                    this.color = this.getRandomColor();
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class ParticleSystem {
+            constructor(ctx, canvas, count = 100) {
+                this.ctx = ctx;
+                this.canvas = canvas;
+                this.particles = [];
+                for (let i = 0; i < count; i++) {
+                    this.particles.push(new Particle(canvas));
+                }
+            }
+
+            update() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                // Draw connections
+                for (let i = 0; i < this.particles.length; i++) {
+                    for (let j = i + 1; j < this.particles.length; j++) {
+                        const dx = this.particles[i].x - this.particles[j].x;
+                        const dy = this.particles[i].y - this.particles[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < 100) {
+                            this.ctx.save();
+                            this.ctx.globalAlpha = (1 - distance / 100) * 0.3;
+                            this.ctx.strokeStyle = '#00ffff';
+                            this.ctx.lineWidth = 1;
+                            this.ctx.beginPath();
+                            this.ctx.moveTo(this.particles[i].x, this.particles[i].y);
+                            this.ctx.lineTo(this.particles[j].x, this.particles[j].y);
+                            this.ctx.stroke();
+                            this.ctx.restore();
+                        }
+                    }
+                }
+
+                // Update and draw particles
+                for (let particle of this.particles) {
+                    particle.update();
+                    particle.draw(this.ctx);
+                }
+            }
+        }
+
+        // Interactive cursor
+        const cursor = document.querySelector('.cursor');
+        let mouseX = 0;
+        let mouseY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            cursor.style.left = mouseX - 10 + 'px';
+            cursor.style.top = mouseY - 10 + 'px';
+
+            // Parallax effect on floating elements
+            const elements = document.querySelectorAll('.floating-element');
+            elements.forEach((el, index) => {
+                const speed = (index + 1) * 0.5;
+                const x = (mouseX - window.innerWidth / 2) * speed / 100;
+                const y = (mouseY - window.innerHeight / 2) * speed / 100;
+                el.style.transform = `translate(${x}px, ${y}px)`;
+            });
+        });
+
+        // Text animation on click
+        const mainText = document.querySelector('.main-text');
+        const subText = document.querySelector('.sub-text');
+        const textOptions = [
+            { main: 'DIGITAL', sub: 'HEARTBEAT' },
+            { main: 'NEON', sub: 'DREAMS' },
+            { main: 'CYBER', sub: 'PULSE' },
+            { main: 'VIRTUAL', sub: 'REALITY' },
+            { main: 'ELECTRIC', sub: 'SOUL' }
+        ];
+        let textIndex = 0;
+
+        document.addEventListener('click', () => {
+            textIndex = (textIndex + 1) % textOptions.length;
+            mainText.textContent = textOptions[textIndex].main;
+            subText.textContent = textOptions[textIndex].sub;
+            
+            // Trigger animation
+            mainText.style.animation = 'none';
+            setTimeout(() => {
+                mainText.style.animation = 'gradientShift 3s ease infinite, glitch 2s infinite';
+            }, 10);
+        });
+
+        // Initialize animations
+        const gridAnimation = new GridAnimation(ctxBg);
+        const particleSystem = new ParticleSystem(ctxParticle, particleCanvas, 150);
+
+        // Animation loop
+        function animate() {
+            gridAnimation.draw();
+            particleSystem.update();
+            requestAnimationFrame(animate);
+        }
+        animate();
+
+        // Audio visualization simulation
+        let audioTime = 0;
+        function simulateAudioVisualization() {
+            audioTime += 0.05;
+            const intensity = Math.sin(audioTime) * 0.5 + 0.5;
+            
+            // Pulse floating elements based on "audio"
+            const floatingElements = document.querySelectorAll('.floating-element');
+            floatingElements.forEach((el, index) => {
+                const delay = index * 0.1;
+                const scale = 1 + intensity * 0.3 * Math.sin(audioTime + delay);
+                el.style.transform = `scale(${scale})`;
+            });
+        }
+        setInterval(simulateAudioVisualization, 50);
+
+        // Keyboard interactions
+        document.addEventListener('keydown', (e) => {
+            if (e.key === ' ') {
+                // Space bar triggers burst effect
+                for (let i = 0; i < 20; i++) {
+                    particleSystem.particles.push(new Particle(particleCanvas));
+                }
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤔 ULTRATHINK ミーム</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at center, #1a1a2e, #0f0f1e);
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .meme-container {
+            position: relative;
+            width: 400px;
+            height: 400px;
+        }
+        
+        .thinking-emoji {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            z-index: 10;
+            animation: ultrathink 2s infinite ease-in-out;
+            filter: drop-shadow(0 0 30px rgba(255, 204, 0, 0.8));
+        }
+        
+        .thought-ring {
+            position: absolute;
+            border: 3px solid;
+            border-radius: 50%;
+            opacity: 0.7;
+            animation: pulse 3s infinite ease-out;
+        }
+        
+        .ring-1 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: #ff6b6b;
+            animation-delay: 0s;
+        }
+        
+        .ring-2 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: #4ecdc4;
+            animation-delay: 0.5s;
+        }
+        
+        .ring-3 {
+            width: 400px;
+            height: 400px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-color: #45b7d1;
+            animation-delay: 1s;
+        }
+        
+        .brain-waves {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            animation: rotate 10s linear infinite;
+        }
+        
+        .wave {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #ffcc00, transparent);
+            top: 50%;
+            left: 0;
+            transform-origin: center;
+        }
+        
+        .wave:nth-child(1) { transform: rotate(0deg); }
+        .wave:nth-child(2) { transform: rotate(30deg); }
+        .wave:nth-child(3) { transform: rotate(60deg); }
+        .wave:nth-child(4) { transform: rotate(90deg); }
+        .wave:nth-child(5) { transform: rotate(120deg); }
+        .wave:nth-child(6) { transform: rotate(150deg); }
+        
+        .text-ultra {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s infinite alternate;
+            letter-spacing: 5px;
+        }
+        
+        .text-think {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            color: #fff;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.8);
+            animation: bounce 1.5s infinite ease-in-out;
+        }
+        
+        @keyframes ultrathink {
+            0%, 100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+            25% { transform: translate(-50%, -50%) scale(1.1) rotate(-5deg); }
+            50% { transform: translate(-50%, -50%) scale(1.2) rotate(5deg); }
+            75% { transform: translate(-50%, -50%) scale(1.1) rotate(-5deg); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(1); opacity: 0.7; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        
+        @keyframes rotate {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        @keyframes glow {
+            from { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            to { text-shadow: 0 0 30px rgba(255, 255, 255, 0.9), 0 0 50px rgba(255, 204, 0, 0.6); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+        
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #ffcc00;
+            border-radius: 50%;
+            opacity: 0;
+            animation: float 4s infinite linear;
+        }
+        
+        @keyframes float {
+            0% {
+                opacity: 0;
+                transform: translateY(100px) translateX(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) translateX(50px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="meme-container">
+        <div class="particles" id="particles"></div>
+        <div class="brain-waves">
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+            <div class="wave"></div>
+        </div>
+        <div class="thought-ring ring-1"></div>
+        <div class="thought-ring ring-2"></div>
+        <div class="thought-ring ring-3"></div>
+        <div class="thinking-emoji">🤔</div>
+        <div class="text-ultra">ULTRA</div>
+        <div class="text-think">考え中...</div>
+    </div>
+    
+    <script>
+        // Generate floating particles
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 20;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 4 + 's';
+            particle.style.animationDuration = (4 + Math.random() * 2) + 's';
+            particlesContainer.appendChild(particle);
+        }
+        
+        // Add random thinking sounds effect (visual)
+        setInterval(() => {
+            const emoji = document.querySelector('.thinking-emoji');
+            emoji.style.filter = `drop-shadow(0 0 ${30 + Math.random() * 20}px rgba(255, 204, 0, ${0.6 + Math.random() * 0.4}))`;
+        }, 200);
+    </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GLSL Fold Art - Ultrathink Aesthetics</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+        
+        #info h1 {
+            margin: 0 0 10px 0;
+            font-size: 20px;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        #info p {
+            margin: 5px 0;
+            opacity: 0.8;
+        }
+        
+        #info .controls {
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">
+        <h1>Ultrathink Fold</h1>
+        <p>Advanced GLSL folding operations creating infinite kaleidoscope patterns</p>
+        <div class="controls">
+            🖱️ Move mouse to interact<br>
+            🔄 Auto-rotating folds<br>
+            ✨ Infinite complexity
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!gl) {
+            alert('WebGL not supported!');
+        }
+
+        // Vertex shader - simple pass-through
+        const vertexShaderSource = `
+            attribute vec2 a_position;
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+
+        // Fragment shader - the magic happens here
+        const fragmentShaderSource = `
+            precision highp float;
+            
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform vec2 u_mouse;
+            
+            #define PI 3.14159265359
+            #define TAU 6.28318530718
+            
+            // Rotation matrix
+            mat2 rot(float a) {
+                float s = sin(a);
+                float c = cos(a);
+                return mat2(c, -s, s, c);
+            }
+            
+            // Smooth minimum function for blending
+            float smin(float a, float b, float k) {
+                float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                return mix(b, a, h) - k * h * (1.0 - h);
+            }
+            
+            // Main distance function with multiple fold operations
+            float map(vec3 p) {
+                float d = 1e10;
+                float t = u_time * 0.2;
+                
+                // Initial position modification
+                p.xy *= rot(t * 0.3);
+                p.yz *= rot(t * 0.2);
+                
+                // Kaleidoscope fold
+                float sectors = 6.0;
+                float angle = TAU / sectors;
+                
+                // Apply multiple rotation folds
+                for (int i = 0; i < 5; i++) {
+                    // Angle fold
+                    float a = atan(p.y, p.x);
+                    a = mod(a, angle) - angle * 0.5;
+                    p.xy = vec2(cos(a), sin(a)) * length(p.xy);
+                    
+                    // Reflection fold
+                    p.x = abs(p.x);
+                    
+                    // Box fold
+                    p = abs(p) - 0.8;
+                    
+                    // Rotation between iterations
+                    p.xz *= rot(t * 0.1 + float(i) * 0.3);
+                    p.xy *= rot(t * 0.15);
+                    
+                    // Scale and translate
+                    p *= 1.2;
+                    p.z += 0.5;
+                }
+                
+                // Create geometry after folding
+                float box = length(max(abs(p) - vec3(0.3), 0.0));
+                float sphere = length(p) - 0.5;
+                float torus = length(vec2(length(p.xy) - 0.5, p.z)) - 0.2;
+                
+                // Combine shapes
+                d = smin(box, sphere, 0.3);
+                d = smin(d, torus, 0.2);
+                
+                return d * 0.5;
+            }
+            
+            // Normal calculation
+            vec3 calcNormal(vec3 p) {
+                vec2 e = vec2(0.001, 0.0);
+                return normalize(vec3(
+                    map(p + e.xyy) - map(p - e.xyy),
+                    map(p + e.yxy) - map(p - e.yxy),
+                    map(p + e.yyx) - map(p - e.yyx)
+                ));
+            }
+            
+            // Raymarching
+            float trace(vec3 ro, vec3 rd) {
+                float t = 0.0;
+                for (int i = 0; i < 100; i++) {
+                    float d = map(ro + rd * t);
+                    if (d < 0.001 || t > 20.0) break;
+                    t += d * 0.8;
+                }
+                return t;
+            }
+            
+            // Main rendering function
+            void main() {
+                vec2 uv = (gl_FragCoord.xy - u_resolution.xy * 0.5) / u_resolution.y;
+                vec2 mouse = (u_mouse - 0.5) * 2.0;
+                
+                // Camera setup
+                vec3 ro = vec3(0.0, 0.0, 3.0 + sin(u_time * 0.5) * 0.5);
+                ro.xy += mouse * 0.5;
+                vec3 rd = normalize(vec3(uv, -1.5));
+                
+                // Camera rotation based on mouse
+                rd.xy *= rot(mouse.x * 0.3);
+                rd.yz *= rot(mouse.y * 0.3);
+                
+                // Trace ray
+                float t = trace(ro, rd);
+                
+                vec3 col = vec3(0.0);
+                
+                if (t < 20.0) {
+                    vec3 p = ro + rd * t;
+                    vec3 n = calcNormal(p);
+                    
+                    // Lighting
+                    vec3 lightDir = normalize(vec3(1.0, 1.0, 0.5));
+                    float diff = max(dot(n, lightDir), 0.0);
+                    float spec = pow(max(dot(reflect(-lightDir, n), -rd), 0.0), 32.0);
+                    
+                    // Colorful gradient based on position and normal
+                    vec3 baseColor = 0.5 + 0.5 * cos(u_time + p * 2.0 + vec3(0.0, 2.0, 4.0));
+                    vec3 normalColor = 0.5 + 0.5 * n;
+                    
+                    col = mix(baseColor, normalColor, 0.5);
+                    col = col * diff + vec3(1.0) * spec * 0.5;
+                    
+                    // Add rim lighting
+                    float rim = 1.0 - abs(dot(n, -rd));
+                    rim = pow(rim, 2.0);
+                    col += rim * vec3(0.5, 0.7, 1.0) * 0.5;
+                }
+                
+                // Background gradient
+                vec3 bg = mix(
+                    vec3(0.05, 0.02, 0.1),
+                    vec3(0.1, 0.05, 0.2),
+                    length(uv) * 0.5
+                );
+                
+                col = mix(bg, col, exp(-t * 0.1));
+                
+                // Post-processing
+                col = pow(col, vec3(0.4545)); // Gamma correction
+                col = smoothstep(0.0, 1.0, col); // Contrast
+                
+                // Vignette
+                col *= 1.0 - 0.3 * length(uv);
+                
+                gl_FragColor = vec4(col, 1.0);
+            }
+        `;
+
+        // Compile shader
+        function compileShader(source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+
+        // Create shader program
+        const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+        const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program linking error:', gl.getProgramInfoLog(program));
+        }
+
+        // Set up geometry (full-screen quad)
+        const positions = new Float32Array([
+            -1, -1,
+             1, -1,
+            -1,  1,
+             1,  1,
+        ]);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+        // Get uniform locations
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+        const timeLocation = gl.getUniformLocation(program, 'u_time');
+        const mouseLocation = gl.getUniformLocation(program, 'u_mouse');
+
+        // Mouse tracking
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let targetMouseX = 0.5;
+        let targetMouseY = 0.5;
+
+        canvas.addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX / window.innerWidth;
+            targetMouseY = 1.0 - e.clientY / window.innerHeight;
+        });
+
+        // Touch support
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            targetMouseX = touch.clientX / window.innerWidth;
+            targetMouseY = 1.0 - touch.clientY / window.innerHeight;
+        });
+
+        // Resize handling
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // Animation loop
+        function render(time) {
+            // Smooth mouse movement
+            mouseX += (targetMouseX - mouseX) * 0.1;
+            mouseY += (targetMouseY - mouseY) * 0.1;
+
+            // Clear and render
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(program);
+
+            // Set uniforms
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, time * 0.001);
+            gl.uniform2f(mouseLocation, mouseX, mouseY);
+
+            // Bind position buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            // Draw
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>

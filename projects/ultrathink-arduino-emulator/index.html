@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRATHINK Arduino Emulator - ブラウザで動く本格Arduinoエミュレーター</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/editor/editor.main.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --border-color: #333;
+            --text-primary: #f0f0f0;
+            --text-secondary: #aaa;
+            --accent-blue: #00d4ff;
+            --accent-purple: #8e2de2;
+            --accent-green: #39ff14;
+            --error-red: #ff3838;
+            --warning-yellow: #ffb700;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            overflow: hidden;
+            height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 50px;
+        }
+        
+        .logo {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo::before {
+            content: "⚡";
+            -webkit-text-fill-color: var(--accent-blue);
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .btn {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .btn:hover {
+            background: var(--accent-blue);
+            border-color: var(--accent-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 212, 255, 0.3);
+        }
+        
+        .btn-run {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+            color: var(--bg-primary);
+            font-weight: 600;
+        }
+        
+        .btn-run:hover {
+            background: #45ff20;
+            box-shadow: 0 2px 8px rgba(57, 255, 20, 0.4);
+        }
+        
+        .btn-stop {
+            background: var(--error-red);
+            border-color: var(--error-red);
+            color: white;
+        }
+        
+        .btn-stop:hover {
+            background: #ff4545;
+            box-shadow: 0 2px 8px rgba(255, 56, 56, 0.4);
+        }
+        
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            height: calc(100vh - 50px);
+        }
+        
+        /* Editor Panel */
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+            min-width: 400px;
+        }
+        
+        .editor-tabs {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            padding: 0 0.5rem;
+            height: 40px;
+            align-items: flex-end;
+        }
+        
+        .tab {
+            background: var(--bg-tertiary);
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-bottom: none;
+            border-radius: 6px 6px 0 0;
+            margin-right: 0.25rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+        
+        .tab.active {
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+        }
+        
+        .tab:hover:not(.active) {
+            color: var(--text-primary);
+        }
+        
+        #monaco-editor {
+            flex: 1;
+            width: 100%;
+        }
+        
+        /* Simulation Panel */
+        .simulation-panel {
+            flex: 1.5;
+            display: flex;
+            flex-direction: column;
+            background: var(--bg-primary);
+        }
+        
+        .board-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .arduino-board {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: radial-gradient(circle at center, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+        }
+        
+        /* Arduino Uno SVG Placeholder */
+        .arduino-uno {
+            width: 400px;
+            height: 280px;
+            background: #005C5F;
+            border-radius: 8px;
+            position: relative;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .arduino-uno::before {
+            content: "Arduino Uno";
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 600;
+            opacity: 0.3;
+        }
+        
+        /* Component Panel */
+        .component-panel {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .component-header {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .component-grid {
+            flex: 1;
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            overflow-y: auto;
+        }
+        
+        .component-item {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .component-item:hover {
+            border-color: var(--accent-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.2);
+        }
+        
+        .component-icon {
+            font-size: 2rem;
+        }
+        
+        .component-name {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Serial Monitor */
+        .serial-monitor {
+            height: 200px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .serial-header {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .serial-controls {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .serial-output {
+            flex: 1;
+            padding: 1rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9rem;
+            overflow-y: auto;
+            background: var(--bg-primary);
+            margin: 0.5rem;
+            border-radius: 4px;
+            color: var(--accent-green);
+        }
+        
+        .serial-input-container {
+            display: flex;
+            padding: 0.5rem;
+            gap: 0.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .serial-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.5rem;
+            border-radius: 4px;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+        
+        .serial-input:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+        }
+        
+        /* Status Bar */
+        .status-bar {
+            background: var(--bg-tertiary);
+            border-top: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-secondary);
+        }
+        
+        .status-indicator.running {
+            background: var(--accent-green);
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        
+        .loading-logo {
+            font-size: 3rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+        
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-tertiary);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-logo">⚡ ULTRATHINK Arduino</div>
+        <div class="loading-text">エミュレーターを初期化中...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">ULTRATHINK Arduino Emulator</div>
+        <div class="header-controls">
+            <button class="btn" id="btn-new">
+                📄 新規
+            </button>
+            <button class="btn" id="btn-open">
+                📂 開く
+            </button>
+            <button class="btn" id="btn-save">
+                💾 保存
+            </button>
+            <button class="btn" id="btn-examples">
+                📚 サンプル
+            </button>
+            <button class="btn btn-run" id="btn-run">
+                ▶️ 実行
+            </button>
+            <button class="btn btn-stop" id="btn-stop" style="display: none;">
+                ⏹️ 停止
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        <!-- Editor Panel -->
+        <div class="editor-panel">
+            <div class="editor-tabs">
+                <div class="tab active">sketch.ino</div>
+            </div>
+            <div id="monaco-editor"></div>
+        </div>
+
+        <!-- Simulation Panel -->
+        <div class="simulation-panel">
+            <div class="board-container">
+                <div class="arduino-board">
+                    <div class="arduino-uno" id="arduino-board">
+                        <!-- Arduino board will be rendered here -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Serial Monitor -->
+            <div class="serial-monitor">
+                <div class="serial-header">
+                    <div>シリアルモニタ</div>
+                    <div class="serial-controls">
+                        <select id="baud-rate" style="background: var(--bg-tertiary); color: var(--text-primary); border: 1px solid var(--border-color); padding: 0.25rem;">
+                            <option value="9600">9600 baud</option>
+                            <option value="115200">115200 baud</option>
+                        </select>
+                        <button class="btn" id="btn-clear-serial" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;">
+                            クリア
+                        </button>
+                    </div>
+                </div>
+                <div class="serial-output" id="serial-output"></div>
+                <div class="serial-input-container">
+                    <input type="text" class="serial-input" id="serial-input" placeholder="送信するデータを入力...">
+                    <button class="btn" id="btn-send-serial" style="padding: 0.5rem 1rem;">
+                        送信
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Component Panel -->
+        <div class="component-panel">
+            <div class="component-header">
+                🔧 コンポーネント
+            </div>
+            <div class="component-grid">
+                <div class="component-item" data-component="led">
+                    <div class="component-icon">💡</div>
+                    <div class="component-name">LED</div>
+                </div>
+                <div class="component-item" data-component="button">
+                    <div class="component-icon">🔘</div>
+                    <div class="component-name">ボタン</div>
+                </div>
+                <div class="component-item" data-component="resistor">
+                    <div class="component-icon">〰️</div>
+                    <div class="component-name">抵抗</div>
+                </div>
+                <div class="component-item" data-component="potentiometer">
+                    <div class="component-icon">🎚️</div>
+                    <div class="component-name">可変抵抗</div>
+                </div>
+                <div class="component-item" data-component="servo">
+                    <div class="component-icon">🔄</div>
+                    <div class="component-name">サーボ</div>
+                </div>
+                <div class="component-item" data-component="lcd">
+                    <div class="component-icon">📟</div>
+                    <div class="component-name">LCD</div>
+                </div>
+                <div class="component-item" data-component="buzzer">
+                    <div class="component-icon">🔊</div>
+                    <div class="component-name">ブザー</div>
+                </div>
+                <div class="component-item" data-component="sensor">
+                    <div class="component-icon">📡</div>
+                    <div class="component-name">センサー</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Status Bar -->
+    <div class="status-bar">
+        <div class="status-item">
+            <div class="status-indicator" id="status-indicator"></div>
+            <span id="status-text">準備完了</span>
+        </div>
+        <div class="status-item">
+            <span>Arduino Uno | ATmega328P | 16MHz</span>
+        </div>
+    </div>
+
+    <!-- Monaco Editor Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+    <script>
+        // Initialize Monaco Editor
+        require.config({ paths: { vs: 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs' } });
+        
+        require(['vs/editor/editor.main'], function() {
+            // Default Arduino sketch
+            const defaultCode = `// ULTRATHINK Arduino Emulator
+// LEDを点滅させる基本的なプログラム
+
+const int ledPin = 13; // 内蔵LED
+
+void setup() {
+  // LEDピンを出力モードに設定
+  pinMode(ledPin, OUTPUT);
+  
+  // シリアル通信を開始
+  Serial.begin(9600);
+  Serial.println("Arduino エミュレーター起動！");
+}
+
+void loop() {
+  // LEDを点灯
+  digitalWrite(ledPin, HIGH);
+  Serial.println("LED ON");
+  delay(1000); // 1秒待機
+  
+  // LEDを消灯
+  digitalWrite(ledPin, LOW);
+  Serial.println("LED OFF");
+  delay(1000); // 1秒待機
+}`;
+
+            // Create editor
+            window.editor = monaco.editor.create(document.getElementById('monaco-editor'), {
+                value: defaultCode,
+                language: 'cpp',
+                theme: 'vs-dark',
+                automaticLayout: true,
+                fontSize: 14,
+                fontFamily: 'Consolas, "Courier New", monospace',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                renderWhitespace: 'selection',
+                lineNumbers: 'on',
+                glyphMargin: false,
+                folding: true,
+                lineDecorationsWidth: 0,
+                lineNumbersMinChars: 3
+            });
+            
+            // Hide loading screen after editor loads
+            setTimeout(() => {
+                document.getElementById('loading-screen').style.display = 'none';
+            }, 1000);
+        });
+
+        // Emulator state
+        let emulatorRunning = false;
+        let serialOutput = '';
+
+        // Button event handlers
+        document.getElementById('btn-run').addEventListener('click', () => {
+            startEmulation();
+        });
+
+        document.getElementById('btn-stop').addEventListener('click', () => {
+            stopEmulation();
+        });
+
+        document.getElementById('btn-clear-serial').addEventListener('click', () => {
+            document.getElementById('serial-output').textContent = '';
+            serialOutput = '';
+        });
+
+        document.getElementById('btn-send-serial').addEventListener('click', () => {
+            const input = document.getElementById('serial-input');
+            if (input.value && emulatorRunning) {
+                appendToSerial(`> ${input.value}\\n`);
+                // TODO: Send to emulator
+                input.value = '';
+            }
+        });
+
+        document.getElementById('serial-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-send-serial').click();
+            }
+        });
+
+        // Component click handlers
+        document.querySelectorAll('.component-item').forEach(item => {
+            item.addEventListener('click', () => {
+                const component = item.dataset.component;
+                console.log(`Selected component: ${component}`);
+                // TODO: Add component to board
+            });
+        });
+
+        // Emulation functions
+        function startEmulation() {
+            if (emulatorRunning) return;
+            
+            emulatorRunning = true;
+            document.getElementById('btn-run').style.display = 'none';
+            document.getElementById('btn-stop').style.display = 'inline-flex';
+            document.getElementById('status-indicator').classList.add('running');
+            document.getElementById('status-text').textContent = '実行中';
+            
+            appendToSerial('\\n=== エミュレーション開始 ===\\n');
+            
+            // TODO: Start actual emulation
+            // For now, just show a demo message
+            setTimeout(() => {
+                if (emulatorRunning) {
+                    appendToSerial('Arduino エミュレーター起動！\\n');
+                }
+            }, 500);
+        }
+
+        function stopEmulation() {
+            if (!emulatorRunning) return;
+            
+            emulatorRunning = false;
+            document.getElementById('btn-run').style.display = 'inline-flex';
+            document.getElementById('btn-stop').style.display = 'none';
+            document.getElementById('status-indicator').classList.remove('running');
+            document.getElementById('status-text').textContent = '停止';
+            
+            appendToSerial('\\n=== エミュレーション停止 ===\\n');
+            
+            // TODO: Stop actual emulation
+        }
+
+        function appendToSerial(text) {
+            const output = document.getElementById('serial-output');
+            serialOutput += text;
+            output.textContent = serialOutput;
+            output.scrollTop = output.scrollHeight;
+        }
+
+        // Window resize handler
+        window.addEventListener('resize', () => {
+            if (window.editor) {
+                window.editor.layout();
+            }
+        });
+    </script>
+</body>
+</html>

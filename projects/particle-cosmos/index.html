@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Cosmos - インタラクティブ宇宙</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+        
+        #canvas {
+            display: block;
+            background: radial-gradient(ellipse at center, #0a0a2e 0%, #000 100%);
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 20px;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px 30px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls button {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .controls button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="info">
+        <div>Particles: <span id="particleCount">0</span></div>
+        <div>FPS: <span id="fps">60</span></div>
+    </div>
+    
+    <div class="controls">
+        <button onclick="changeMode('gravity')">重力モード</button>
+        <button onclick="changeMode('repel')">反発モード</button>
+        <button onclick="changeMode('vortex')">渦巻きモード</button>
+        <button onclick="changeMode('normal')">通常モード</button>
+        <button onclick="toggleTrails()">軌跡: <span id="trailStatus">ON</span></button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let particles = [];
+        let mouse = { x: canvas.width / 2, y: canvas.height / 2 };
+        let mode = 'normal';
+        let trails = true;
+        let lastTime = performance.now();
+        let fps = 60;
+        
+        class Particle {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 3 - 1.5;
+                this.speedY = Math.random() * 3 - 1.5;
+                this.color = `hsl(${Math.random() * 60 + 180}, 100%, ${Math.random() * 50 + 50}%)`;
+                this.life = 1;
+                this.decay = Math.random() * 0.01 + 0.005;
+                this.angle = Math.random() * Math.PI * 2;
+                this.angleSpeed = Math.random() * 0.02 - 0.01;
+            }
+            
+            update() {
+                const dx = mouse.x - this.x;
+                const dy = mouse.y - this.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                const force = Math.max(0, 200 - distance) / 200;
+                
+                switch(mode) {
+                    case 'gravity':
+                        if (distance > 5) {
+                            this.speedX += (dx / distance) * force * 0.5;
+                            this.speedY += (dy / distance) * force * 0.5;
+                        }
+                        break;
+                    case 'repel':
+                        if (distance < 200) {
+                            this.speedX -= (dx / distance) * force * 2;
+                            this.speedY -= (dy / distance) * force * 2;
+                        }
+                        break;
+                    case 'vortex':
+                        this.angle += this.angleSpeed + force * 0.1;
+                        const vortexX = Math.cos(this.angle) * distance * 0.01;
+                        const vortexY = Math.sin(this.angle) * distance * 0.01;
+                        this.speedX += vortexX;
+                        this.speedY += vortexY;
+                        break;
+                }
+                
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life -= this.decay;
+                
+                this.speedX *= 0.98;
+                this.speedY *= 0.98;
+                
+                if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        function createParticles(x, y, count = 5) {
+            for (let i = 0; i < count; i++) {
+                particles.push(new Particle(x, y));
+            }
+        }
+        
+        function animate() {
+            const currentTime = performance.now();
+            const deltaTime = currentTime - lastTime;
+            fps = Math.round(1000 / deltaTime);
+            lastTime = currentTime;
+            
+            if (trails) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            
+            particles = particles.filter(particle => {
+                particle.update();
+                particle.draw();
+                return particle.life > 0;
+            });
+            
+            if (Math.random() > 0.8) {
+                createParticles(mouse.x, mouse.y, 2);
+            }
+            
+            document.getElementById('particleCount').textContent = particles.length;
+            document.getElementById('fps').textContent = fps;
+            
+            requestAnimationFrame(animate);
+        }
+        
+        function changeMode(newMode) {
+            mode = newMode;
+        }
+        
+        function toggleTrails() {
+            trails = !trails;
+            document.getElementById('trailStatus').textContent = trails ? 'ON' : 'OFF';
+        }
+        
+        canvas.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            createParticles(mouse.x, mouse.y, 3);
+        });
+        
+        canvas.addEventListener('click', (e) => {
+            createParticles(e.clientX, e.clientY, 50);
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        for (let i = 0; i < 100; i++) {
+            createParticles(
+                Math.random() * canvas.width,
+                Math.random() * canvas.height,
+                1
+            );
+        }
+        
+        animate();
+    </script>
+</body>
+</html>

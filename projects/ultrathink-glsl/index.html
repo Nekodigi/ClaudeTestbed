@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrathink GLSL - Ethereal Fog Dimensions</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        #canvas {
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+        
+        #info {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(10, 10, 20, 0.8);
+            padding: 20px;
+            border-radius: 12px;
+            backdrop-filter: blur(20px);
+            max-width: 320px;
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+        
+        #info h1 {
+            margin: 0 0 15px 0;
+            font-size: 24px;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 50%, #a8c0ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        #info p {
+            margin: 8px 0;
+            opacity: 0.9;
+            line-height: 1.5;
+        }
+        
+        #info .controls {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(100, 100, 255, 0.2);
+            font-size: 13px;
+            opacity: 0.8;
+        }
+        
+        #info .japanese {
+            margin-top: 10px;
+            font-size: 12px;
+            opacity: 0.7;
+            font-style: italic;
+        }
+        
+        #controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10, 10, 20, 0.8);
+            padding: 15px;
+            border-radius: 8px;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(100, 100, 255, 0.2);
+            color: #fff;
+            font-size: 12px;
+        }
+        
+        #controls label {
+            display: block;
+            margin: 10px 0 5px;
+            opacity: 0.8;
+        }
+        
+        #controls input[type="range"] {
+            width: 150px;
+            margin: 0;
+        }
+        
+        #performance {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="info">
+        <h1>Ultrathink Ethereal</h1>
+        <p>神秘的な霧の次元への旅<br>Journey through mystical fog dimensions</p>
+        <p class="japanese">雄大で幻想的な雰囲気を表現した最高峰のGLSL作品</p>
+        <div class="controls">
+            🌫️ Volumetric fog with light scattering<br>
+            🎨 Dynamic fractal transformations<br>
+            ✨ Ethereal atmosphere effects<br>
+            🖱️ Mouse/touch interactive camera<br>
+            ⚡ Optimized raymarching
+        </div>
+    </div>
+    
+    <div id="controls">
+        <label for="fogDensity">Fog Density</label>
+        <input type="range" id="fogDensity" min="0" max="2" step="0.01" value="0.8">
+        
+        <label for="glowIntensity">Glow Intensity</label>
+        <input type="range" id="glowIntensity" min="0" max="2" step="0.01" value="1">
+        
+        <label for="fractalComplexity">Fractal Complexity</label>
+        <input type="range" id="fractalComplexity" min="1" max="8" step="1" value="5">
+    </div>
+    
+    <div id="performance"></div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const gl = canvas.getContext('webgl2') || canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+
+        if (!gl) {
+            alert('WebGL not supported!');
+        }
+
+        const vertexShaderSource = `#version 300 es
+            in vec2 a_position;
+            void main() {
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+
+        const fragmentShaderSource = `#version 300 es
+            precision highp float;
+            
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform vec2 u_mouse;
+            uniform float u_fogDensity;
+            uniform float u_glowIntensity;
+            uniform float u_fractalComplexity;
+            
+            out vec4 fragColor;
+            
+            #define PI 3.14159265359
+            #define TAU 6.28318530718
+            #define MAX_STEPS 120
+            #define MAX_DIST 80.0
+            #define SURF_DIST 0.001
+            
+            // Rotation matrices
+            mat3 rotX(float a) {
+                float s = sin(a), c = cos(a);
+                return mat3(1, 0, 0, 0, c, -s, 0, s, c);
+            }
+            
+            mat3 rotY(float a) {
+                float s = sin(a), c = cos(a);
+                return mat3(c, 0, s, 0, 1, 0, -s, 0, c);
+            }
+            
+            mat3 rotZ(float a) {
+                float s = sin(a), c = cos(a);
+                return mat3(c, -s, 0, s, c, 0, 0, 0, 1);
+            }
+            
+            // Smooth minimum for blending
+            float smin(float a, float b, float k) {
+                float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                return mix(b, a, h) - k * h * (1.0 - h);
+            }
+            
+            // Noise functions for fog
+            float hash(vec3 p) {
+                p = fract(p * 0.3183099 + 0.1);
+                p *= 17.0;
+                return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+            }
+            
+            float noise(vec3 p) {
+                vec3 i = floor(p);
+                vec3 f = fract(p);
+                f = f * f * (3.0 - 2.0 * f);
+                
+                return mix(mix(mix(hash(i + vec3(0,0,0)), hash(i + vec3(1,0,0)), f.x),
+                              mix(hash(i + vec3(0,1,0)), hash(i + vec3(1,1,0)), f.x), f.y),
+                          mix(mix(hash(i + vec3(0,0,1)), hash(i + vec3(1,0,1)), f.x),
+                              mix(hash(i + vec3(0,1,1)), hash(i + vec3(1,1,1)), f.x), f.y), f.z);
+            }
+            
+            float fbm(vec3 p) {
+                float value = 0.0;
+                float amplitude = 0.5;
+                float frequency = 0.0;
+                
+                for (int i = 0; i < 6; i++) {
+                    value += amplitude * noise(p);
+                    p *= 2.0;
+                    amplitude *= 0.5;
+                }
+                
+                return value;
+            }
+            
+            // Main distance function with fantastical fractals
+            float map(vec3 p) {
+                float d = 1e10;
+                float t = u_time * 0.15;
+                
+                // Save original position for fog calculation
+                vec3 originalP = p;
+                
+                // Global transformations
+                p *= rotY(t * 0.2) * rotX(t * 0.1);
+                
+                // Fractal folding operations
+                float scale = 1.0;
+                int complexity = int(u_fractalComplexity);
+                
+                for (int i = 0; i < 8; i++) {
+                    if (i >= complexity) break;
+                    
+                    // Kaleidoscope fold
+                    float sectors = 6.0 + sin(t * 0.3) * 2.0;
+                    float angle = TAU / sectors;
+                    float a = atan(p.z, p.x);
+                    a = mod(a, angle) - angle * 0.5;
+                    p.xz = vec2(cos(a), sin(a)) * length(p.xz);
+                    
+                    // Box fold with variation
+                    vec3 foldSize = vec3(1.0, 0.8, 1.2) * (1.0 + 0.2 * sin(t + float(i)));
+                    p = clamp(p, -foldSize, foldSize) * 2.0 - p;
+                    
+                    // Sphere fold
+                    float r2 = dot(p, p);
+                    float minRad = 0.5;
+                    float maxRad = 1.2;
+                    if (r2 < minRad * minRad) {
+                        float temp = (maxRad * maxRad) / (minRad * minRad);
+                        p *= temp;
+                        scale *= temp;
+                    } else if (r2 < maxRad * maxRad) {
+                        float temp = (maxRad * maxRad) / r2;
+                        p *= temp;
+                        scale *= temp;
+                    }
+                    
+                    // Rotation between iterations
+                    p *= rotZ(t * 0.05 + float(i) * 0.2);
+                    p *= rotX(sin(t * 0.1 + float(i)) * 0.3);
+                    
+                    // Translation
+                    p += vec3(0.1, -0.2, 0.15) * sin(t * 0.2 + float(i));
+                }
+                
+                // Create base geometry
+                float box = length(max(abs(p) - vec3(0.3), 0.0)) - 0.05;
+                float sphere = length(p) - 0.4;
+                float torus = length(vec2(length(p.xy) - 0.5, p.z)) - 0.15;
+                
+                // Combine shapes
+                d = smin(box, sphere, 0.3);
+                d = smin(d, torus, 0.2);
+                
+                // Add smaller detail spheres
+                vec3 q = p;
+                q = mod(q, 2.0) - 1.0;
+                float smallSpheres = length(q) - 0.1;
+                d = smin(d, smallSpheres, 0.1);
+                
+                // Scale back
+                d = d / scale;
+                
+                // Add organic variation using noise
+                d += fbm(originalP * 2.0 + vec3(t * 0.5)) * 0.05;
+                
+                return d * 0.8;
+            }
+            
+            // Enhanced normal calculation
+            vec3 calcNormal(vec3 p) {
+                vec2 e = vec2(0.0001, 0.0);
+                return normalize(vec3(
+                    map(p + e.xyy) - map(p - e.xyy),
+                    map(p + e.yxy) - map(p - e.yxy),
+                    map(p + e.yyx) - map(p - e.yyx)
+                ));
+            }
+            
+            // Volumetric fog density
+            float fogDensity(vec3 p) {
+                float base = exp(-p.y * 0.3) * u_fogDensity;
+                float noise1 = fbm(p * 0.5 + vec3(u_time * 0.1, 0, u_time * 0.05));
+                float noise2 = fbm(p * 1.5 - vec3(0, u_time * 0.2, 0));
+                return base * (0.5 + 0.5 * noise1) * (0.7 + 0.3 * noise2);
+            }
+            
+            // Advanced raymarching with volumetric fog
+            vec4 raymarch(vec3 ro, vec3 rd) {
+                float t = 0.0;
+                vec3 fogColor = vec3(0.0);
+                float transmittance = 1.0;
+                
+                // Volumetric integration
+                for (int i = 0; i < MAX_STEPS; i++) {
+                    vec3 p = ro + rd * t;
+                    float d = map(p);
+                    
+                    if (d < SURF_DIST) {
+                        // Hit surface
+                        return vec4(fogColor, t);
+                    }
+                    
+                    if (t > MAX_DIST) break;
+                    
+                    // Volumetric fog accumulation
+                    float fogAmount = fogDensity(p) * min(d, 0.5);
+                    vec3 lightDir = normalize(vec3(1, 2, -0.5));
+                    float lightDensity = fogDensity(p + lightDir * 0.5);
+                    
+                    // Fog color with light scattering
+                    vec3 fogTint = mix(
+                        vec3(0.4, 0.5, 0.7),  // Blue fog
+                        vec3(0.9, 0.7, 0.5),  // Warm light color
+                        0.5 + 0.5 * dot(rd, lightDir)
+                    );
+                    
+                    fogTint *= 1.0 + u_glowIntensity * exp(-lightDensity * 2.0);
+                    
+                    // Height-based color variation
+                    fogTint = mix(fogTint, vec3(0.8, 0.6, 0.9), 
+                                 clamp(p.y * 0.1 + 0.5, 0.0, 1.0));
+                    
+                    // Accumulate fog
+                    fogColor += fogTint * fogAmount * transmittance * 0.1;
+                    transmittance *= exp(-fogAmount * 0.5);
+                    
+                    t += max(d * 0.5, 0.02);
+                }
+                
+                return vec4(fogColor, -1.0);
+            }
+            
+            void main() {
+                vec2 uv = (gl_FragCoord.xy - u_resolution.xy * 0.5) / u_resolution.y;
+                vec2 mouse = (u_mouse - 0.5) * 2.0;
+                
+                // Camera setup
+                float camDist = 5.0 + sin(u_time * 0.3) * 1.0;
+                vec3 ro = vec3(
+                    sin(u_time * 0.1 + mouse.x * PI) * camDist,
+                    2.0 + mouse.y * 2.0,
+                    cos(u_time * 0.1 + mouse.x * PI) * camDist
+                );
+                vec3 lookAt = vec3(0, 0, 0);
+                
+                // Camera matrix
+                vec3 forward = normalize(lookAt - ro);
+                vec3 right = normalize(cross(vec3(0, 1, 0), forward));
+                vec3 up = cross(forward, right);
+                vec3 rd = normalize(forward + uv.x * right + uv.y * up);
+                
+                // Raymarch with volumetrics
+                vec4 result = raymarch(ro, rd);
+                vec3 col = result.rgb;
+                
+                if (result.w > 0.0) {
+                    // Hit surface
+                    vec3 p = ro + rd * result.w;
+                    vec3 n = calcNormal(p);
+                    
+                    // Complex lighting
+                    vec3 lightPos = vec3(2, 5, -3);
+                    vec3 lightDir = normalize(lightPos - p);
+                    float diff = max(dot(n, lightDir), 0.0);
+                    float spec = pow(max(dot(reflect(-lightDir, n), -rd), 0.0), 32.0);
+                    
+                    // Surface color based on position and normal
+                    vec3 baseColor = 0.5 + 0.5 * cos(u_time * 0.5 + p * 1.5 + vec3(0, 2, 4));
+                    baseColor = mix(baseColor, vec3(0.8, 0.6, 1.0), 0.3);
+                    
+                    vec3 surfaceCol = baseColor * (diff * 0.8 + 0.2) + vec3(1) * spec * 0.5;
+                    
+                    // Rim lighting
+                    float rim = 1.0 - abs(dot(n, -rd));
+                    rim = pow(rim, 2.0);
+                    surfaceCol += rim * vec3(0.6, 0.8, 1.0) * u_glowIntensity;
+                    
+                    // Blend with fog
+                    col = mix(col, surfaceCol, exp(-result.w * 0.05));
+                }
+                
+                // Background gradient
+                vec3 skyColor = mix(
+                    vec3(0.05, 0.08, 0.15),
+                    vec3(0.15, 0.1, 0.25),
+                    pow(abs(rd.y), 0.5)
+                );
+                
+                // Stars
+                vec3 stars = vec3(0);
+                if (result.w < 0.0) {
+                    vec2 starUV = rd.xy / rd.z * 1000.0;
+                    float star = smoothstep(0.99, 1.0, noise(vec3(starUV * 0.1, u_time * 0.01)));
+                    stars = vec3(star) * 0.5;
+                }
+                
+                col = mix(skyColor + stars, col, min(1.0, length(col)));
+                
+                // Post-processing
+                col = pow(col, vec3(0.4545)); // Gamma correction
+                col = mix(col, smoothstep(0.0, 1.0, col), 0.5); // Contrast
+                
+                // Chromatic aberration for ethereal effect
+                vec2 caOffset = (uv * 0.02) * u_glowIntensity;
+                col.r = mix(col.r, pow(texture(sampler2D(gl_FragColor.r, 0), gl_FragCoord.xy + caOffset).r, 0.4545), 0.1);
+                col.b = mix(col.b, pow(texture(sampler2D(gl_FragColor.b, 0), gl_FragCoord.xy - caOffset).b, 0.4545), 0.1);
+                
+                // Vignette
+                float vignette = 1.0 - smoothstep(0.5, 1.5, length(uv));
+                col *= vignette;
+                
+                // Subtle color grading
+                col = mix(col, col * vec3(0.9, 0.95, 1.1), 0.3);
+                
+                fragColor = vec4(col, 1.0);
+            }
+        `;
+
+        // Compile shader function
+        function compileShader(source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                
+                // Fallback for WebGL1
+                if (source.includes('#version 300 es')) {
+                    console.log('Falling back to WebGL1 shader...');
+                    const webgl1Source = source
+                        .replace('#version 300 es\n', '')
+                        .replace(/\bin\b/g, 'attribute')
+                        .replace(/\bout\s+vec4\s+fragColor;/g, '')
+                        .replace(/fragColor/g, 'gl_FragColor')
+                        .replace(/texture\(/g, 'texture2D(');
+                    return compileShader(webgl1Source, type);
+                }
+                
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+
+        // Create shader program
+        const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+        const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program linking error:', gl.getProgramInfoLog(program));
+        }
+
+        // Set up geometry
+        const positions = new Float32Array([
+            -1, -1,
+             1, -1,
+            -1,  1,
+             1,  1,
+        ]);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+        // Get locations
+        const positionLocation = gl.getAttribLocation(program, 'a_position');
+        const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+        const timeLocation = gl.getUniformLocation(program, 'u_time');
+        const mouseLocation = gl.getUniformLocation(program, 'u_mouse');
+        const fogDensityLocation = gl.getUniformLocation(program, 'u_fogDensity');
+        const glowIntensityLocation = gl.getUniformLocation(program, 'u_glowIntensity');
+        const fractalComplexityLocation = gl.getUniformLocation(program, 'u_fractalComplexity');
+
+        // Mouse tracking
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let targetMouseX = 0.5;
+        let targetMouseY = 0.5;
+
+        canvas.addEventListener('mousemove', (e) => {
+            targetMouseX = e.clientX / window.innerWidth;
+            targetMouseY = 1.0 - e.clientY / window.innerHeight;
+        });
+
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+            targetMouseX = touch.clientX / window.innerWidth;
+            targetMouseY = 1.0 - touch.clientY / window.innerHeight;
+        });
+
+        // Control elements
+        const fogDensitySlider = document.getElementById('fogDensity');
+        const glowIntensitySlider = document.getElementById('glowIntensity');
+        const fractalComplexitySlider = document.getElementById('fractalComplexity');
+        const performanceDisplay = document.getElementById('performance');
+
+        // Resize handling
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+
+        window.addEventListener('resize', resize);
+        resize();
+
+        // FPS tracking
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fps = 0;
+
+        // Animation loop
+        function render(time) {
+            // FPS calculation
+            frameCount++;
+            if (time - lastTime > 1000) {
+                fps = frameCount;
+                frameCount = 0;
+                lastTime = time;
+                performanceDisplay.textContent = `FPS: ${fps}`;
+            }
+
+            // Smooth mouse movement
+            mouseX += (targetMouseX - mouseX) * 0.08;
+            mouseY += (targetMouseY - mouseY) * 0.08;
+
+            // Clear and render
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(program);
+
+            // Set uniforms
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, time * 0.001);
+            gl.uniform2f(mouseLocation, mouseX, mouseY);
+            gl.uniform1f(fogDensityLocation, parseFloat(fogDensitySlider.value));
+            gl.uniform1f(glowIntensityLocation, parseFloat(glowIntensitySlider.value));
+            gl.uniform1f(fractalComplexityLocation, parseFloat(fractalComplexitySlider.value));
+
+            // Bind position buffer
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(positionLocation);
+            gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+            // Draw
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            requestAnimationFrame(render);
+        }
+
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>

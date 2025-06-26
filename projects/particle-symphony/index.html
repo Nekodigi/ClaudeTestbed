@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Particle Symphony - 粒子の交響曲</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            overflow: hidden;
+            cursor: crosshair;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        #canvas {
+            display: block;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+        
+        #ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        #loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 24px;
+            text-align: center;
+            transition: opacity 0.5s;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+        
+        #phase {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            opacity: 0.8;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="loading" class="pulse">初期化中...</div>
+    <div id="ui">
+        <div>粒子数: <span id="particleCount">0</span></div>
+        <div>FPS: <span id="fps">0</span></div>
+    </div>
+    <div id="phase"></div>
+    <canvas id="canvas"></canvas>
+    
+    <script id="vertexShader" type="x-shader/x-vertex">
+        precision highp float;
+        
+        attribute vec2 a_position;
+        attribute vec4 a_color;
+        attribute float a_size;
+        
+        uniform mat3 u_matrix;
+        uniform float u_time;
+        
+        varying vec4 v_color;
+        
+        void main() {
+            vec3 position = u_matrix * vec3(a_position, 1.0);
+            gl_Position = vec4(position.xy, 0.0, 1.0);
+            gl_PointSize = a_size;
+            v_color = a_color;
+        }
+    </script>
+    
+    <script id="fragmentShader" type="x-shader/x-fragment">
+        precision highp float;
+        
+        varying vec4 v_color;
+        
+        void main() {
+            vec2 coord = gl_PointCoord - vec2(0.5);
+            float dist = length(coord);
+            
+            if (dist > 0.5) {
+                discard;
+            }
+            
+            float alpha = 1.0 - smoothstep(0.0, 0.5, dist);
+            gl_FragColor = vec4(v_color.rgb, v_color.a * alpha);
+        }
+    </script>
+    
+    <script>
+        class ParticleSymphony {
+            constructor() {
+                this.canvas = document.getElementById('canvas');
+                this.gl = this.canvas.getContext('webgl', {
+                    alpha: true,
+                    antialias: true,
+                    preserveDrawingBuffer: true
+                });
+                
+                if (!this.gl) {
+                    alert('WebGLがサポートされていません');
+                    return;
+                }
+                
+                this.particles = [];
+                this.maxParticles = 10000;
+                this.time = 0;
+                this.phase = 0;
+                this.mouse = { x: 0, y: 0, active: false };
+                this.fps = 0;
+                this.lastTime = 0;
+                this.frameCount = 0;
+                
+                this.phases = [
+                    { name: "第1幕: 誕生", duration: 5000 },
+                    { name: "第2幕: 増殖", duration: 10000 },
+                    { name: "第3幕: 調和", duration: 10000 },
+                    { name: "第4幕: 爆発と再生", duration: 5000 }
+                ];
+                
+                this.init();
+            }
+            
+            init() {
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+                this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
+                this.canvas.addEventListener('mousedown', () => this.mouse.active = true);
+                this.canvas.addEventListener('mouseup', () => this.mouse.active = false);
+                
+                this.setupShaders();
+                this.setupBuffers();
+                
+                // 初期粒子を作成
+                this.createInitialParticle();
+                
+                // ローディング画面を消す
+                setTimeout(() => {
+                    document.getElementById('loading').style.opacity = '0';
+                    setTimeout(() => {
+                        document.getElementById('loading').style.display = 'none';
+                    }, 500);
+                }, 1000);
+                
+                this.animate();
+            }
+            
+            resize() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.gl.viewport(0, 0, this.canvas.width, this.canvas.height);
+            }
+            
+            onMouseMove(e) {
+                this.mouse.x = (e.clientX / this.canvas.width) * 2 - 1;
+                this.mouse.y = -(e.clientY / this.canvas.height) * 2 + 1;
+            }
+            
+            setupShaders() {
+                const vertexShaderSource = document.getElementById('vertexShader').textContent;
+                const fragmentShaderSource = document.getElementById('fragmentShader').textContent;
+                
+                const vertexShader = this.createShader(this.gl.VERTEX_SHADER, vertexShaderSource);
+                const fragmentShader = this.createShader(this.gl.FRAGMENT_SHADER, fragmentShaderSource);
+                
+                this.program = this.gl.createProgram();
+                this.gl.attachShader(this.program, vertexShader);
+                this.gl.attachShader(this.program, fragmentShader);
+                this.gl.linkProgram(this.program);
+                
+                if (!this.gl.getProgramParameter(this.program, this.gl.LINK_STATUS)) {
+                    console.error('シェーダープログラムのリンクに失敗しました');
+                    return;
+                }
+                
+                this.locations = {
+                    position: this.gl.getAttribLocation(this.program, 'a_position'),
+                    color: this.gl.getAttribLocation(this.program, 'a_color'),
+                    size: this.gl.getAttribLocation(this.program, 'a_size'),
+                    matrix: this.gl.getUniformLocation(this.program, 'u_matrix'),
+                    time: this.gl.getUniformLocation(this.program, 'u_time')
+                };
+            }
+            
+            createShader(type, source) {
+                const shader = this.gl.createShader(type);
+                this.gl.shaderSource(shader, source);
+                this.gl.compileShader(shader);
+                
+                if (!this.gl.getShaderParameter(shader, this.gl.COMPILE_STATUS)) {
+                    console.error('シェーダーのコンパイルに失敗しました:', this.gl.getShaderInfoLog(shader));
+                    this.gl.deleteShader(shader);
+                    return null;
+                }
+                
+                return shader;
+            }
+            
+            setupBuffers() {
+                this.positionBuffer = this.gl.createBuffer();
+                this.colorBuffer = this.gl.createBuffer();
+                this.sizeBuffer = this.gl.createBuffer();
+            }
+            
+            createInitialParticle() {
+                this.particles.push({
+                    x: 0,
+                    y: 0,
+                    vx: 0,
+                    vy: 0,
+                    life: 1,
+                    size: 20,
+                    color: { r: 0.5, g: 0.8, b: 1, a: 1 },
+                    age: 0,
+                    maxAge: Infinity
+                });
+            }
+            
+            updatePhase(deltaTime) {
+                const totalPhaseTime = this.phases.reduce((sum, phase) => sum + phase.duration, 0);
+                const currentTime = this.time % totalPhaseTime;
+                
+                let accumulatedTime = 0;
+                for (let i = 0; i < this.phases.length; i++) {
+                    if (currentTime < accumulatedTime + this.phases[i].duration) {
+                        this.phase = i;
+                        document.getElementById('phase').textContent = this.phases[i].name;
+                        break;
+                    }
+                    accumulatedTime += this.phases[i].duration;
+                }
+            }
+            
+            updateParticles(deltaTime) {
+                const dt = deltaTime * 0.001;
+                
+                // フェーズごとの処理
+                switch (this.phase) {
+                    case 0: // 誕生
+                        this.phaseBirth(dt);
+                        break;
+                    case 1: // 増殖
+                        this.phaseMultiply(dt);
+                        break;
+                    case 2: // 調和
+                        this.phaseHarmony(dt);
+                        break;
+                    case 3: // 爆発と再生
+                        this.phaseExplosion(dt);
+                        break;
+                }
+                
+                // パーティクルの更新
+                for (let i = this.particles.length - 1; i >= 0; i--) {
+                    const p = this.particles[i];
+                    
+                    p.x += p.vx * dt;
+                    p.y += p.vy * dt;
+                    p.age += dt;
+                    
+                    if (p.age > p.maxAge || p.life <= 0) {
+                        this.particles.splice(i, 1);
+                        continue;
+                    }
+                    
+                    // 減衰
+                    p.vx *= 0.99;
+                    p.vy *= 0.99;
+                    
+                    // 境界処理
+                    if (Math.abs(p.x) > 1.2 || Math.abs(p.y) > 1.2) {
+                        p.vx *= -0.8;
+                        p.vy *= -0.8;
+                    }
+                }
+                
+                // UI更新
+                document.getElementById('particleCount').textContent = this.particles.length;
+            }
+            
+            phaseBirth(dt) {
+                if (this.particles.length > 0) {
+                    const p = this.particles[0];
+                    p.size = 20 + Math.sin(this.time * 0.002) * 10;
+                    p.color.a = 0.8 + Math.sin(this.time * 0.003) * 0.2;
+                }
+            }
+            
+            phaseMultiply(dt) {
+                if (Math.random() < 0.1 && this.particles.length < this.maxParticles / 2) {
+                    const parent = this.particles[Math.floor(Math.random() * this.particles.length)];
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 0.5 + Math.random() * 1;
+                    
+                    this.particles.push({
+                        x: parent.x,
+                        y: parent.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        life: 1,
+                        size: 5 + Math.random() * 10,
+                        color: {
+                            r: 0.2 + Math.random() * 0.3,
+                            g: 0.5 + Math.random() * 0.3,
+                            b: 0.8 + Math.random() * 0.2,
+                            a: 0.8
+                        },
+                        age: 0,
+                        maxAge: 10 + Math.random() * 20
+                    });
+                }
+            }
+            
+            phaseHarmony(dt) {
+                const centerX = Math.sin(this.time * 0.0005) * 0.3;
+                const centerY = Math.cos(this.time * 0.0007) * 0.3;
+                
+                for (let p of this.particles) {
+                    // 中心への引力
+                    const dx = centerX - p.x;
+                    const dy = centerY - p.y;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (dist > 0.01) {
+                        p.vx += dx / dist * 0.1;
+                        p.vy += dy / dist * 0.1;
+                    }
+                    
+                    // マウスインタラクション
+                    if (this.mouse.active) {
+                        const mdx = this.mouse.x - p.x;
+                        const mdy = this.mouse.y - p.y;
+                        const mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+                        
+                        if (mdist < 0.3 && mdist > 0.01) {
+                            p.vx += mdx / mdist * 0.5;
+                            p.vy += mdy / mdist * 0.5;
+                        }
+                    }
+                    
+                    // 色の調和
+                    p.color.r = 0.5 + Math.sin(this.time * 0.001 + p.age) * 0.5;
+                    p.color.g = 0.5 + Math.sin(this.time * 0.001 + p.age + 2) * 0.5;
+                    p.color.b = 0.5 + Math.sin(this.time * 0.001 + p.age + 4) * 0.5;
+                }
+            }
+            
+            phaseExplosion(dt) {
+                const phaseProgress = (this.time % 30000 - 25000) / 5000;
+                
+                if (phaseProgress < 0.5) {
+                    // 収束
+                    for (let p of this.particles) {
+                        p.vx *= 0.95;
+                        p.vy *= 0.95;
+                        p.vx += p.x * -2;
+                        p.vy += p.y * -2;
+                    }
+                } else if (phaseProgress < 0.6 && this.particles.length < this.maxParticles) {
+                    // 爆発
+                    for (let i = 0; i < 100; i++) {
+                        const angle = Math.random() * Math.PI * 2;
+                        const speed = 2 + Math.random() * 3;
+                        
+                        this.particles.push({
+                            x: 0,
+                            y: 0,
+                            vx: Math.cos(angle) * speed,
+                            vy: Math.sin(angle) * speed,
+                            life: 1,
+                            size: 3 + Math.random() * 15,
+                            color: {
+                                r: 0.8 + Math.random() * 0.2,
+                                g: 0.5 + Math.random() * 0.3,
+                                b: 0.2 + Math.random() * 0.3,
+                                a: 0.9
+                            },
+                            age: 0,
+                            maxAge: 3 + Math.random() * 2
+                        });
+                    }
+                }
+            }
+            
+            render() {
+                const gl = this.gl;
+                
+                gl.clearColor(0, 0, 0, 1);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                
+                if (this.particles.length === 0) return;
+                
+                // ブレンディング設定
+                gl.enable(gl.BLEND);
+                gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+                
+                gl.useProgram(this.program);
+                
+                // 行列の設定
+                const matrix = [
+                    1, 0, 0,
+                    0, 1, 0,
+                    0, 0, 1
+                ];
+                gl.uniformMatrix3fv(this.locations.matrix, false, matrix);
+                gl.uniform1f(this.locations.time, this.time);
+                
+                // バッファデータの準備
+                const positions = new Float32Array(this.particles.length * 2);
+                const colors = new Float32Array(this.particles.length * 4);
+                const sizes = new Float32Array(this.particles.length);
+                
+                for (let i = 0; i < this.particles.length; i++) {
+                    const p = this.particles[i];
+                    positions[i * 2] = p.x;
+                    positions[i * 2 + 1] = p.y;
+                    colors[i * 4] = p.color.r;
+                    colors[i * 4 + 1] = p.color.g;
+                    colors[i * 4 + 2] = p.color.b;
+                    colors[i * 4 + 3] = p.color.a * p.life;
+                    sizes[i] = p.size;
+                }
+                
+                // 位置バッファ
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.positionBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
+                gl.enableVertexAttribArray(this.locations.position);
+                gl.vertexAttribPointer(this.locations.position, 2, gl.FLOAT, false, 0, 0);
+                
+                // 色バッファ
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.colorBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, colors, gl.DYNAMIC_DRAW);
+                gl.enableVertexAttribArray(this.locations.color);
+                gl.vertexAttribPointer(this.locations.color, 4, gl.FLOAT, false, 0, 0);
+                
+                // サイズバッファ
+                gl.bindBuffer(gl.ARRAY_BUFFER, this.sizeBuffer);
+                gl.bufferData(gl.ARRAY_BUFFER, sizes, gl.DYNAMIC_DRAW);
+                gl.enableVertexAttribArray(this.locations.size);
+                gl.vertexAttribPointer(this.locations.size, 1, gl.FLOAT, false, 0, 0);
+                
+                // 描画
+                gl.drawArrays(gl.POINTS, 0, this.particles.length);
+            }
+            
+            animate() {
+                const currentTime = performance.now();
+                const deltaTime = currentTime - this.lastTime;
+                this.lastTime = currentTime;
+                
+                this.time += deltaTime;
+                
+                // FPS計算
+                this.frameCount++;
+                if (this.frameCount % 30 === 0) {
+                    this.fps = Math.round(1000 / deltaTime);
+                    document.getElementById('fps').textContent = this.fps;
+                }
+                
+                this.updatePhase(deltaTime);
+                this.updateParticles(deltaTime);
+                this.render();
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+        
+        // アプリケーション開始
+        window.addEventListener('load', () => {
+            new ParticleSymphony();
+        });
+    </script>
+</body>
+</html>

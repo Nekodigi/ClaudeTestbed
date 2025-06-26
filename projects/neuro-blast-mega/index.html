@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEURO BLAST MEGA - 脳汁ドバドバ超連鎖爆発ゲーム</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        #gameCanvas {
+            display: block;
+            cursor: crosshair;
+            image-rendering: pixelated;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 32px;
+            font-weight: 900;
+            text-shadow: 0 0 20px #00ffff;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+        
+        #combo {
+            position: absolute;
+            top: 70px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff00ff;
+            text-shadow: 0 0 15px #ff00ff;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        #combo.active {
+            opacity: 1;
+        }
+        
+        #multiplier {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 48px;
+            font-weight: 900;
+            color: #ffff00;
+            text-shadow: 0 0 30px #ffff00;
+            transform: scale(1);
+            transition: transform 0.2s;
+        }
+        
+        #level {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            font-size: 20px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+        
+        #startScreen h1 {
+            font-size: 64px;
+            font-weight: 900;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #ffff00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        #startButton {
+            padding: 20px 60px;
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #00ffff, #ff00ff);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.5);
+            pointer-events: all;
+        }
+        
+        #startButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.8);
+        }
+        
+        #feverBar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 400px;
+            height: 30px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #fff;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        
+        #feverFill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #ff00ff, #00ffff, #ffff00);
+            transition: width 0.3s;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        .floatingScore {
+            position: absolute;
+            font-size: 36px;
+            font-weight: 900;
+            pointer-events: none;
+            animation: floatUp 1s ease-out forwards;
+            text-shadow: 0 0 20px currentColor;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes glow {
+            0%, 100% { filter: brightness(1) drop-shadow(0 0 20px rgba(255, 255, 255, 0.5)); }
+            50% { filter: brightness(1.2) drop-shadow(0 0 40px rgba(255, 255, 255, 0.8)); }
+        }
+        
+        @keyframes floatUp {
+            0% { 
+                opacity: 1; 
+                transform: translateY(0) scale(1);
+            }
+            100% { 
+                opacity: 0; 
+                transform: translateY(-100px) scale(1.5);
+            }
+        }
+        
+        .shake {
+            animation: shake 0.5s;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
+            20%, 40%, 60%, 80% { transform: translateX(10px); }
+        }
+        
+        #powerUps {
+            position: absolute;
+            top: 120px;
+            left: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .powerUp {
+            width: 50px;
+            height: 50px;
+            border: 2px solid #fff;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            pointer-events: all;
+        }
+        
+        .powerUp.active {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            transform: scale(1.1);
+        }
+        
+        .powerUp.cooldown {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui">
+        <div id="score">SCORE: 0</div>
+        <div id="combo">COMBO x0</div>
+        <div id="multiplier">x1</div>
+        <div id="level">LEVEL 1</div>
+        
+        <div id="powerUps">
+            <div class="powerUp" id="timePower" title="時間停止">⏰</div>
+            <div class="powerUp" id="megaPower" title="メガブラスト">💥</div>
+            <div class="powerUp" id="chainPower" title="チェインモード">⚡</div>
+        </div>
+        
+        <div id="feverBar">
+            <div id="feverFill"></div>
+        </div>
+    </div>
+    
+    <div id="startScreen">
+        <h1>NEURO BLAST MEGA</h1>
+        <p style="margin-bottom: 30px; font-size: 18px; opacity: 0.8;">脳汁ドバドバ！超連鎖爆発ゲーム</p>
+        <button id="startButton">START GAME</button>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        // ゲーム状態
+        let gameState = {
+            score: 0,
+            combo: 0,
+            multiplier: 1,
+            level: 1,
+            fever: 0,
+            neurons: [],
+            particles: [],
+            explosions: [],
+            powerUps: {
+                time: false,
+                mega: false,
+                chain: false
+            },
+            cooldowns: {
+                time: 0,
+                mega: 0,
+                chain: 0
+            }
+        };
+        
+        // サウンドシステム
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playSound(frequency, duration, type = 'sine', volume = 0.5) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        function playExplosionSound(size) {
+            const baseFreq = 100 + size * 50;
+            playSound(baseFreq, 0.3, 'sawtooth', 0.3);
+            playSound(baseFreq * 2, 0.2, 'square', 0.2);
+            playSound(baseFreq * 0.5, 0.4, 'sine', 0.4);
+        }
+        
+        function playComboSound(combo) {
+            const freq = 440 + combo * 50;
+            playSound(freq, 0.1, 'sine', 0.6);
+            setTimeout(() => playSound(freq * 1.5, 0.1, 'sine', 0.4), 50);
+        }
+        
+        // ニューロンクラス
+        class Neuron {
+            constructor(x, y, type = 'normal') {
+                this.x = x;
+                this.y = y;
+                this.type = type;
+                this.radius = type === 'mega' ? 40 : 25;
+                this.color = this.getColor();
+                this.energy = 1;
+                this.pulsePhase = Math.random() * Math.PI * 2;
+                this.connections = [];
+                this.exploding = false;
+                this.explosionRadius = 0;
+                this.chainDelay = 0;
+            }
+            
+            getColor() {
+                const colors = {
+                    normal: '#00ffff',
+                    mega: '#ff00ff',
+                    super: '#ffff00',
+                    chaos: '#ff0000'
+                };
+                return colors[this.type] || '#00ffff';
+            }
+            
+            update(deltaTime) {
+                this.pulsePhase += deltaTime * 0.003;
+                
+                if (this.exploding) {
+                    this.explosionRadius += deltaTime * 0.5;
+                    this.energy -= deltaTime * 0.003;
+                    
+                    if (this.energy <= 0) {
+                        return false;
+                    }
+                }
+                
+                if (this.chainDelay > 0) {
+                    this.chainDelay -= deltaTime;
+                }
+                
+                return true;
+            }
+            
+            draw() {
+                if (this.exploding) {
+                    ctx.globalAlpha = this.energy;
+                    ctx.strokeStyle = this.color;
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.explosionRadius, 0, Math.PI * 2);
+                    ctx.stroke();
+                    
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.energy * 0.3;
+                    ctx.fill();
+                } else {
+                    const pulse = Math.sin(this.pulsePhase) * 0.2 + 1;
+                    
+                    ctx.globalAlpha = 0.8;
+                    ctx.fillStyle = this.color;
+                    ctx.shadowBlur = 20;
+                    ctx.shadowColor = this.color;
+                    
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius * pulse, 0, Math.PI * 2);
+                    ctx.fill();
+                    
+                    ctx.globalAlpha = 1;
+                    ctx.strokeStyle = '#fff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+                
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+            }
+            
+            explode() {
+                if (this.exploding) return;
+                
+                this.exploding = true;
+                playExplosionSound(this.type === 'mega' ? 2 : 1);
+                
+                const explosionPower = this.type === 'mega' ? 200 : 120;
+                
+                // チェイン反応
+                gameState.neurons.forEach(other => {
+                    if (other !== this && !other.exploding) {
+                        const dx = other.x - this.x;
+                        const dy = other.y - this.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        
+                        if (distance < explosionPower) {
+                            other.chainDelay = distance * 2;
+                            setTimeout(() => {
+                                if (!other.exploding) {
+                                    other.explode();
+                                    gameState.combo++;
+                                    updateCombo();
+                                }
+                            }, other.chainDelay);
+                        }
+                    }
+                });
+                
+                // パーティクル生成
+                for (let i = 0; i < 30; i++) {
+                    gameState.particles.push(new Particle(
+                        this.x, 
+                        this.y, 
+                        this.color,
+                        this.type === 'mega' ? 2 : 1
+                    ));
+                }
+                
+                // スコア計算
+                const baseScore = this.type === 'mega' ? 500 : 100;
+                const comboBonus = gameState.combo * 50;
+                const totalScore = (baseScore + comboBonus) * gameState.multiplier;
+                
+                gameState.score += totalScore;
+                updateScore();
+                
+                // フローティングスコア
+                showFloatingScore(this.x, this.y, totalScore);
+                
+                // フィーバーゲージ増加
+                gameState.fever = Math.min(100, gameState.fever + 5);
+                updateFeverBar();
+            }
+        }
+        
+        // パーティクルクラス
+        class Particle {
+            constructor(x, y, color, size = 1) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * 10 * size;
+                this.vy = (Math.random() - 0.5) * 10 * size;
+                this.color = color;
+                this.size = Math.random() * 5 + 3;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+            }
+            
+            update(deltaTime) {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.3;
+                this.life -= this.decay;
+                
+                return this.life > 0;
+            }
+            
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = this.color;
+                
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * this.life, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+            }
+        }
+        
+        // ゲーム初期化
+        function initGame() {
+            gameState.neurons = [];
+            gameState.particles = [];
+            gameState.explosions = [];
+            
+            spawnNeurons();
+        }
+        
+        function spawnNeurons() {
+            const count = 15 + gameState.level * 2;
+            
+            for (let i = 0; i < count; i++) {
+                const type = Math.random() < 0.1 ? 'mega' : 'normal';
+                const margin = 50;
+                
+                gameState.neurons.push(new Neuron(
+                    margin + Math.random() * (canvas.width - margin * 2),
+                    margin + Math.random() * (canvas.height - margin * 2),
+                    type
+                ));
+            }
+        }
+        
+        // UI更新
+        function updateScore() {
+            document.getElementById('score').textContent = `SCORE: ${gameState.score.toLocaleString()}`;
+            document.getElementById('score').classList.add('shake');
+            setTimeout(() => document.getElementById('score').classList.remove('shake'), 500);
+        }
+        
+        function updateCombo() {
+            const comboEl = document.getElementById('combo');
+            comboEl.textContent = `COMBO x${gameState.combo}`;
+            comboEl.classList.add('active');
+            
+            if (gameState.combo > 10) {
+                gameState.multiplier = Math.floor(gameState.combo / 10) + 1;
+                document.getElementById('multiplier').textContent = `x${gameState.multiplier}`;
+                document.getElementById('multiplier').style.transform = 'scale(1.2)';
+                setTimeout(() => document.getElementById('multiplier').style.transform = 'scale(1)', 200);
+            }
+            
+            playComboSound(gameState.combo);
+        }
+        
+        function updateFeverBar() {
+            document.getElementById('feverFill').style.width = `${gameState.fever}%`;
+            
+            if (gameState.fever >= 100) {
+                activateFeverMode();
+            }
+        }
+        
+        function activateFeverMode() {
+            gameState.fever = 0;
+            canvas.style.filter = 'hue-rotate(180deg) saturate(2)';
+            
+            // 全ニューロン爆発
+            gameState.neurons.forEach((neuron, index) => {
+                setTimeout(() => neuron.explode(), index * 50);
+            });
+            
+            setTimeout(() => {
+                canvas.style.filter = 'none';
+                nextLevel();
+            }, 3000);
+        }
+        
+        function nextLevel() {
+            gameState.level++;
+            gameState.combo = 0;
+            document.getElementById('level').textContent = `LEVEL ${gameState.level}`;
+            document.getElementById('combo').classList.remove('active');
+            
+            initGame();
+        }
+        
+        function showFloatingScore(x, y, score) {
+            const el = document.createElement('div');
+            el.className = 'floatingScore';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.style.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            el.textContent = `+${score}`;
+            
+            document.getElementById('ui').appendChild(el);
+            
+            setTimeout(() => el.remove(), 1000);
+        }
+        
+        // パワーアップ
+        document.getElementById('timePower').addEventListener('click', () => {
+            if (gameState.cooldowns.time <= 0) {
+                gameState.powerUps.time = true;
+                gameState.cooldowns.time = 10000;
+                document.getElementById('timePower').classList.add('active');
+                
+                setTimeout(() => {
+                    gameState.powerUps.time = false;
+                    document.getElementById('timePower').classList.remove('active');
+                }, 3000);
+            }
+        });
+        
+        document.getElementById('megaPower').addEventListener('click', () => {
+            if (gameState.cooldowns.mega <= 0) {
+                gameState.cooldowns.mega = 15000;
+                
+                // メガニューロンを3つ追加
+                for (let i = 0; i < 3; i++) {
+                    gameState.neurons.push(new Neuron(
+                        Math.random() * canvas.width,
+                        Math.random() * canvas.height,
+                        'mega'
+                    ));
+                }
+            }
+        });
+        
+        document.getElementById('chainPower').addEventListener('click', () => {
+            if (gameState.cooldowns.chain <= 0) {
+                gameState.powerUps.chain = true;
+                gameState.cooldowns.chain = 20000;
+                document.getElementById('chainPower').classList.add('active');
+                
+                setTimeout(() => {
+                    gameState.powerUps.chain = false;
+                    document.getElementById('chainPower').classList.remove('active');
+                }, 5000);
+            }
+        });
+        
+        // ゲームループ
+        let lastTime = 0;
+        function gameLoop(currentTime) {
+            const deltaTime = currentTime - lastTime;
+            lastTime = currentTime;
+            
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // ニューロン更新
+            gameState.neurons = gameState.neurons.filter(neuron => {
+                const alive = neuron.update(deltaTime);
+                if (alive) neuron.draw();
+                return alive;
+            });
+            
+            // パーティクル更新
+            gameState.particles = gameState.particles.filter(particle => {
+                const alive = particle.update(deltaTime);
+                if (alive) particle.draw();
+                return alive;
+            });
+            
+            // クールダウン更新
+            Object.keys(gameState.cooldowns).forEach(key => {
+                if (gameState.cooldowns[key] > 0) {
+                    gameState.cooldowns[key] -= deltaTime;
+                    if (gameState.cooldowns[key] <= 0) {
+                        document.getElementById(`${key}Power`).classList.remove('cooldown');
+                    } else {
+                        document.getElementById(`${key}Power`).classList.add('cooldown');
+                    }
+                }
+            });
+            
+            // レベルクリアチェック
+            if (gameState.neurons.length === 0) {
+                nextLevel();
+            }
+            
+            // コンボリセット
+            if (gameState.combo > 0 && deltaTime > 100) {
+                gameState.combo = Math.max(0, gameState.combo - 1);
+                if (gameState.combo === 0) {
+                    gameState.multiplier = 1;
+                    document.getElementById('combo').classList.remove('active');
+                    document.getElementById('multiplier').textContent = 'x1';
+                }
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // イベントリスナー
+        canvas.addEventListener('click', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // クリックした位置のニューロンを探す
+            const clicked = gameState.neurons.find(neuron => {
+                const dx = neuron.x - x;
+                const dy = neuron.y - y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+                return distance < neuron.radius && !neuron.exploding;
+            });
+            
+            if (clicked) {
+                clicked.explode();
+                gameState.combo = 1;
+                updateCombo();
+            }
+        });
+        
+        // ゲーム開始
+        document.getElementById('startButton').addEventListener('click', () => {
+            const startScreen = document.getElementById('startScreen');
+            startScreen.style.opacity = '0';
+            setTimeout(() => startScreen.style.display = 'none', 500);
+            
+            initGame();
+            requestAnimationFrame(gameLoop);
+        });
+        
+        // リサイズ対応
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+    </script>
+</body>
+</html>

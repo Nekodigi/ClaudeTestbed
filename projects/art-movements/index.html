@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Art & Design Movements Showcase</title>
+    <style>
+        :root {
+            --primary-color: #333;
+            --secondary-color: #666;
+            --bg-color: #f5f5f5;
+            --text-color: #333;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .style-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .style-switcher h3 {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        
+        .style-switcher button {
+            display: block;
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border: 2px solid #ddd;
+            background: white;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .style-switcher button:hover {
+            background: #f0f0f0;
+            transform: translateX(-5px);
+        }
+        
+        .style-switcher button.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 60px 0;
+            margin-bottom: 60px;
+        }
+        
+        h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .subtitle {
+            font-size: 20px;
+            color: var(--secondary-color);
+        }
+        
+        .content-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+        
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        .card h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .card p {
+            margin-bottom: 15px;
+        }
+        
+        .decorative-element {
+            width: 100px;
+            height: 100px;
+            margin: 30px auto;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+        
+        .quote-section {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 60px;
+        }
+        
+        blockquote {
+            font-size: 24px;
+            font-style: italic;
+            margin-bottom: 20px;
+        }
+        
+        .author {
+            font-size: 18px;
+            color: var(--secondary-color);
+        }
+        
+        /* Art Nouveau Style */
+        body.art-nouveau {
+            font-family: 'Times New Roman', serif;
+            background: #f4f1e8;
+            background-image: 
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(218,165,32,.03) 10px, rgba(218,165,32,.03) 20px),
+                repeating-linear-gradient(-45deg, transparent, transparent 10px, rgba(218,165,32,.03) 10px, rgba(218,165,32,.03) 20px);
+        }
+        
+        .art-nouveau h1, .art-nouveau h2 {
+            font-weight: 300;
+            letter-spacing: 3px;
+            position: relative;
+        }
+        
+        .art-nouveau h1::after {
+            content: '❦';
+            display: block;
+            font-size: 30px;
+            color: #daa520;
+            margin-top: 10px;
+        }
+        
+        .art-nouveau .card {
+            border: 3px solid #daa520;
+            border-radius: 50px 20px;
+            background: ivory;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .art-nouveau .card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, transparent 30%, #daa520 31%, #daa520 33%, transparent 34%);
+            opacity: 0.2;
+        }
+        
+        .art-nouveau .decorative-element {
+            background: linear-gradient(135deg, #daa520, #b8860b);
+            border-radius: 50% 0;
+            transform: rotate(45deg);
+        }
+        
+        /* Baroque Style */
+        body.baroque {
+            font-family: 'Palatino', 'Book Antiqua', serif;
+            background: #1a1a1a;
+            color: #f0e6d2;
+        }
+        
+        .baroque h1, .baroque h2 {
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.7);
+            font-weight: bold;
+        }
+        
+        .baroque .card {
+            background: linear-gradient(135deg, #2c2416, #3d3226);
+            border: 5px solid #d4af37;
+            box-shadow: 
+                0 10px 30px rgba(0,0,0,0.5),
+                inset 0 1px 0 rgba(255,255,255,0.1);
+            position: relative;
+        }
+        
+        .baroque .card::before,
+        .baroque .card::after {
+            content: '✦';
+            position: absolute;
+            font-size: 30px;
+            color: #d4af37;
+        }
+        
+        .baroque .card::before {
+            top: 20px;
+            left: 20px;
+        }
+        
+        .baroque .card::after {
+            bottom: 20px;
+            right: 20px;
+        }
+        
+        .baroque .decorative-element {
+            background: radial-gradient(circle at 30% 30%, #d4af37, #b8860b);
+            box-shadow: 0 0 30px #d4af37;
+        }
+        
+        /* Rococo Style */
+        body.rococo {
+            font-family: 'Brush Script MT', cursive;
+            background: #fef0f5;
+            color: #5a3a4e;
+        }
+        
+        .rococo h1, .rococo h2 {
+            font-weight: normal;
+            color: #d4a5c7;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .rococo .card {
+            background: linear-gradient(to bottom, #fff5fb, #ffe0f0);
+            border: 3px solid #f8b8d4;
+            border-radius: 30px;
+            box-shadow: 0 8px 25px rgba(248,184,212,0.3);
+            position: relative;
+        }
+        
+        .rococo .card::before {
+            content: '❀ ❀ ❀';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #f8b8d4;
+            font-size: 20px;
+        }
+        
+        .rococo .decorative-element {
+            background: radial-gradient(circle at 40% 40%, #ffc0e5, #f8b8d4);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: rococo-float 6s ease-in-out infinite;
+        }
+        
+        @keyframes rococo-float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        
+        /* Impressionism Style */
+        body.impressionism {
+            font-family: 'Georgia', serif;
+            background: #e8f4f8;
+            position: relative;
+        }
+        
+        .impressionism::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(ellipse at top left, rgba(255,223,186,0.4), transparent 40%),
+                radial-gradient(ellipse at bottom right, rgba(186,223,255,0.4), transparent 40%),
+                radial-gradient(ellipse at center, rgba(255,186,223,0.3), transparent 50%);
+            pointer-events: none;
+        }
+        
+        .impressionism h1, .impressionism h2 {
+            color: #4a7c8c;
+            text-shadow: 2px 2px 4px rgba(74,124,140,0.2);
+        }
+        
+        .impressionism .card {
+            background: rgba(255,255,255,0.8);
+            backdrop-filter: blur(10px);
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(74,124,140,0.2);
+        }
+        
+        .impressionism .decorative-element {
+            background: conic-gradient(from 0deg, #ffdeba, #bae3ff, #ffbae3, #ffdeba);
+            filter: blur(2px);
+            animation: impressionism-pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes impressionism-pulse {
+            0%, 100% { transform: scale(1); filter: blur(2px); }
+            50% { transform: scale(1.1); filter: blur(4px); }
+        }
+        
+        /* Superflat Pop Style */
+        body.superflat-pop {
+            font-family: 'Arial Black', sans-serif;
+            background: #ff1744;
+            color: #ffffff;
+        }
+        
+        .superflat-pop h1, .superflat-pop h2 {
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 4px 4px 0 #000;
+        }
+        
+        .superflat-pop .card {
+            background: #ffeb3b;
+            color: #000;
+            border: 5px solid #000;
+            border-radius: 0;
+            box-shadow: 10px 10px 0 #000;
+            transform: rotate(-1deg);
+            transition: all 0.3s ease;
+        }
+        
+        .superflat-pop .card:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 15px 15px 0 #000;
+        }
+        
+        .superflat-pop .card:nth-child(even) {
+            background: #00e676;
+            transform: rotate(1deg);
+        }
+        
+        .superflat-pop .decorative-element {
+            background: #2196f3;
+            border: 5px solid #000;
+            border-radius: 0;
+            animation: pop-bounce 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pop-bounce {
+            from { transform: translateY(0) scale(1); }
+            to { transform: translateY(-20px) scale(1.1); }
+        }
+        
+        /* Ink/Brush Style */
+        body.ink-brush {
+            font-family: 'Times New Roman', serif;
+            background: #faf8f3;
+            color: #1a1a1a;
+        }
+        
+        .ink-brush h1, .ink-brush h2 {
+            font-weight: 300;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .ink-brush h1::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: #1a1a1a;
+            transform: scaleX(0.8) skewX(-20deg);
+            filter: blur(1px);
+        }
+        
+        .ink-brush .card {
+            background: #fff;
+            border: 2px solid #1a1a1a;
+            border-radius: 5px;
+            position: relative;
+            box-shadow: none;
+        }
+        
+        .ink-brush .card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, transparent 30%, #1a1a1a 30%, #1a1a1a 31%, transparent 31%);
+            opacity: 0.1;
+            z-index: -1;
+        }
+        
+        .ink-brush .decorative-element {
+            background: #1a1a1a;
+            border-radius: 50% 0;
+            filter: blur(0.5px);
+            position: relative;
+        }
+        
+        .ink-brush .decorative-element::after {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 10%;
+            right: 10%;
+            bottom: 10%;
+            background: #faf8f3;
+            border-radius: 50% 0;
+        }
+        
+        /* Letterpress/Blueprint Style */
+        body.letterpress-blueprint {
+            font-family: 'Courier New', monospace;
+            background: #003d6b;
+            color: #e0f2ff;
+            position: relative;
+        }
+        
+        .letterpress-blueprint::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 49px, rgba(255,255,255,0.05) 49px, rgba(255,255,255,0.05) 50px),
+                repeating-linear-gradient(90deg, transparent, transparent 49px, rgba(255,255,255,0.05) 49px, rgba(255,255,255,0.05) 50px);
+            pointer-events: none;
+        }
+        
+        .letterpress-blueprint h1, .letterpress-blueprint h2 {
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            font-weight: normal;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .letterpress-blueprint .card {
+            background: rgba(0,92,151,0.8);
+            border: 2px solid #e0f2ff;
+            border-radius: 0;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        
+        .letterpress-blueprint .card::before {
+            content: attr(data-section);
+            position: absolute;
+            top: -15px;
+            left: 20px;
+            background: #003d6b;
+            padding: 0 10px;
+            font-size: 12px;
+            letter-spacing: 2px;
+        }
+        
+        .letterpress-blueprint .decorative-element {
+            background: transparent;
+            border: 3px solid #e0f2ff;
+            position: relative;
+        }
+        
+        .letterpress-blueprint .decorative-element::before,
+        .letterpress-blueprint .decorative-element::after {
+            content: '';
+            position: absolute;
+            background: #e0f2ff;
+        }
+        
+        .letterpress-blueprint .decorative-element::before {
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            transform: translateY(-50%);
+        }
+        
+        .letterpress-blueprint .decorative-element::after {
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            transform: translateX(-50%);
+        }
+    </style>
+</head>
+<body class="art-nouveau">
+    <div class="style-switcher">
+        <h3>Choose Style</h3>
+        <button class="active" data-style="art-nouveau">Art Nouveau</button>
+        <button data-style="baroque">Baroque</button>
+        <button data-style="rococo">Rococo</button>
+        <button data-style="impressionism">Impressionism</button>
+        <button data-style="superflat-pop">Superflat Pop</button>
+        <button data-style="ink-brush">Ink/Brush</button>
+        <button data-style="letterpress-blueprint">Letterpress/Blueprint</button>
+    </div>
+    
+    <div class="container">
+        <header>
+            <h1>Art & Design Movements</h1>
+            <p class="subtitle">Experience the visual language of different artistic eras</p>
+        </header>
+        
+        <div class="content-section">
+            <div class="card" data-section="HISTORY">
+                <h2>Historical Context</h2>
+                <p>Each art movement represents a unique response to its time, reflecting the social, political, and cultural forces that shaped human creativity.</p>
+                <p>From the organic forms of Art Nouveau to the digital aesthetics of Superflat Pop, these styles continue to influence contemporary design.</p>
+                <div class="decorative-element"></div>
+            </div>
+            
+            <div class="card" data-section="PHILOSOPHY">
+                <h2>Design Philosophy</h2>
+                <p>Every movement carries its own visual vocabulary, color theory, and compositional principles that define its aesthetic identity.</p>
+                <p>Understanding these foundations allows us to appreciate the intentionality behind each artistic choice.</p>
+                <div class="decorative-element"></div>
+            </div>
+            
+            <div class="card" data-section="INFLUENCE">
+                <h2>Modern Influence</h2>
+                <p>Contemporary design often draws from these historical movements, reinterpreting classic elements for modern contexts.</p>
+                <p>The cyclical nature of design ensures that past aesthetics find new life in digital mediums.</p>
+                <div class="decorative-element"></div>
+            </div>
+        </div>
+        
+        <div class="quote-section">
+            <blockquote>
+                "Art is not what you see, but what you make others see."
+            </blockquote>
+            <p class="author">— Edgar Degas</p>
+        </div>
+        
+        <div class="content-section">
+            <div class="card" data-section="TECHNIQUE">
+                <h2>Visual Techniques</h2>
+                <p>Each style employs distinct techniques: from the flowing lines of Art Nouveau to the mathematical precision of Blueprint design.</p>
+                <p>These techniques create visual harmony and communicate specific moods and messages.</p>
+                <div class="decorative-element"></div>
+            </div>
+            
+            <div class="card" data-section="COLOR">
+                <h2>Color Theory</h2>
+                <p>Color palettes define the emotional resonance of each movement, from Rococo's pastels to Pop Art's bold primaries.</p>
+                <p>The strategic use of color creates atmosphere and guides the viewer's experience.</p>
+                <div class="decorative-element"></div>
+            </div>
+            
+            <div class="card" data-section="LEGACY">
+                <h2>Lasting Legacy</h2>
+                <p>These movements continue to inspire creators across disciplines, from architecture to user interface design.</p>
+                <p>Their principles remain relevant, offering timeless lessons in visual communication.</p>
+                <div class="decorative-element"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const styleButtons = document.querySelectorAll('[data-style]');
+        const body = document.body;
+        
+        styleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const style = button.dataset.style;
+                
+                // Remove all style classes
+                body.className = '';
+                
+                // Add selected style
+                body.classList.add(style);
+                
+                // Update active button
+                styleButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Add animation effect
+                body.style.opacity = '0';
+                setTimeout(() => {
+                    body.style.opacity = '1';
+                }, 100);
+            });
+        });
+        
+        // Add hover effects for cards
+        const cards = document.querySelectorAll('.card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.transform = 'translateY(-5px)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>

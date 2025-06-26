@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨ Kawaii Explorer ✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Klee One', 'Hiragino Maru Gothic ProN', cursive;
+            transition: all 0.8s cubic-bezier(0.4, 0.0, 0.2, 1);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Navigation Bubbles */
+        .nav-container {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 100px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .style-bubble {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            background: white;
+            border: 3px solid transparent;
+        }
+
+        .style-bubble:hover {
+            transform: translateY(-10px) scale(1.1);
+        }
+
+        .style-bubble.active {
+            animation: bounce 0.6s ease;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .bubble-emoji {
+            font-size: 32px;
+            margin-bottom: 5px;
+        }
+
+        .bubble-label {
+            font-size: 10px;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Main Container */
+        .kawaii-world {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* Central Character */
+        .character-container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+        }
+
+        .main-character {
+            font-size: 150px;
+            animation: float 3s ease-in-out infinite;
+            display: inline-block;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .style-name {
+            font-size: 48px;
+            font-weight: 600;
+            margin-top: 20px;
+            text-shadow: 3px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .style-description {
+            font-size: 20px;
+            margin-top: 10px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+
+        /* Decorative Elements */
+        .decoration {
+            position: absolute;
+            pointer-events: none;
+            animation: floatAround 20s infinite linear;
+        }
+
+        @keyframes floatAround {
+            from { transform: rotate(0deg) translateX(200px) rotate(0deg); }
+            to { transform: rotate(360deg) translateX(200px) rotate(-360deg); }
+        }
+
+        /* Fairy Kei Style ✨🦄✨ */
+        body.fairy-kei {
+            background: linear-gradient(135deg, #FFE5F1 0%, #E6E6FA 25%, #FFE5F1 50%, #F0E6FF 75%, #FFE5F1 100%);
+        }
+
+        .fairy-kei .nav-container {
+            background: rgba(255, 229, 241, 0.95);
+            box-shadow: 0 10px 40px rgba(255, 182, 193, 0.3);
+        }
+
+        .fairy-kei .style-bubble {
+            background: linear-gradient(145deg, #FFF0F5, #F0E6FF);
+            border-color: #FFB6C1;
+        }
+
+        .fairy-kei .style-bubble.active {
+            border-color: #FF69B4;
+            box-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+        }
+
+        .fairy-kei .style-name {
+            color: #FF69B4;
+        }
+
+        .fairy-kei .style-description {
+            color: #D8BFD8;
+        }
+
+        .fairy-kei .decoration {
+            color: #FFB6C1;
+            font-size: 40px;
+        }
+
+        /* Decora Style 🌈🍭🎪 */
+        body.decora {
+            background: 
+                repeating-linear-gradient(45deg, #FF69B4 0px, #FF69B4 20px, #00CED1 20px, #00CED1 40px, 
+                                        #FFD700 40px, #FFD700 60px, #98FB98 60px, #98FB98 80px),
+                repeating-linear-gradient(-45deg, rgba(255,255,255,0.8) 0px, rgba(255,255,255,0.8) 40px, 
+                                        transparent 40px, transparent 80px);
+            background-size: 200px 200px, 200px 200px;
+            animation: decoraMove 10s linear infinite;
+        }
+
+        @keyframes decoraMove {
+            from { background-position: 0 0, 0 0; }
+            to { background-position: 200px 0, -200px 0; }
+        }
+
+        .decora .nav-container {
+            background: white;
+            border: 5px solid #FF1493;
+            box-shadow: 8px 8px 0 #00CED1, 16px 16px 0 #FFD700;
+        }
+
+        .decora .style-bubble {
+            background: white;
+            border: 4px solid #FF69B4;
+        }
+
+        .decora .style-bubble.active {
+            background: #FF69B4;
+            transform: translateY(-10px) scale(1.1) rotate(10deg);
+        }
+
+        .decora .style-bubble.active .bubble-emoji {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
+        }
+
+        .decora .style-name {
+            color: #FF1493;
+            text-shadow: 4px 4px 0 #00CED1, 8px 8px 0 #FFD700;
+            animation: rainbow 3s linear infinite;
+        }
+
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        .decora .style-description {
+            color: #FF69B4;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            border: 3px solid #00CED1;
+            display: inline-block;
+        }
+
+        .decora .decoration {
+            font-size: 60px;
+            animation: spin 5s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Kawaii Gamer Style 🎮💜🌌 */
+        body.kawaii-gamer {
+            background: #0A0A0A;
+            position: relative;
+        }
+
+        .kawaii-gamer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(255, 110, 199, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(157, 78, 221, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(110, 199, 255, 0.3) 0%, transparent 50%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .kawaii-gamer .nav-container {
+            background: rgba(10, 10, 10, 0.9);
+            border: 2px solid #FF6EC7;
+            box-shadow: 0 0 40px rgba(255, 110, 199, 0.5);
+        }
+
+        .kawaii-gamer .style-bubble {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #9D4EDD;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .kawaii-gamer .style-bubble::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, #FF6EC7, transparent);
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            from { transform: translateX(-100%) translateY(-100%); }
+            to { transform: translateX(100%) translateY(100%); }
+        }
+
+        .kawaii-gamer .style-bubble.active {
+            border-color: #FF6EC7;
+            box-shadow: 0 0 30px #FF6EC7, inset 0 0 20px rgba(255, 110, 199, 0.5);
+        }
+
+        .kawaii-gamer .bubble-emoji,
+        .kawaii-gamer .bubble-label {
+            position: relative;
+            z-index: 1;
+        }
+
+        .kawaii-gamer .bubble-label {
+            color: #C77DFF;
+        }
+
+        .kawaii-gamer .style-name {
+            color: #FF6EC7;
+            text-shadow: 0 0 30px #FF6EC7, 0 0 60px #FF6EC7;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 3px;
+        }
+
+        .kawaii-gamer .style-description {
+            color: #C77DFF;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 1px solid #FF6EC7;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 110, 199, 0.3);
+        }
+
+        .kawaii-gamer .main-character {
+            filter: drop-shadow(0 0 30px #FF6EC7);
+        }
+
+        .kawaii-gamer .decoration {
+            color: #9D4EDD;
+            font-size: 30px;
+            text-shadow: 0 0 10px currentColor;
+        }
+
+        /* Yume Kawaii Style ☁️🌙✨ */
+        body.yume-kawaii {
+            background: linear-gradient(to bottom, #FFEEF8 0%, #E6CCFF 30%, #CCF2FF 60%, #FFE6F7 100%);
+            position: relative;
+        }
+
+        .yume-kawaii::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.8) 0%, transparent 20%),
+                radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.8) 0%, transparent 20%),
+                radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.6) 0%, transparent 30%);
+            pointer-events: none;
+        }
+
+        .yume-kawaii .nav-container {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(224, 179, 255, 0.3);
+        }
+
+        .yume-kawaii .style-bubble {
+            background: rgba(255, 255, 255, 0.6);
+            border: 2px solid rgba(224, 179, 255, 0.5);
+        }
+
+        .yume-kawaii .style-bubble.active {
+            background: linear-gradient(145deg, rgba(255, 238, 248, 0.9), rgba(230, 204, 255, 0.9));
+            border-color: #E0B3FF;
+        }
+
+        .yume-kawaii .style-name {
+            color: #E0B3FF;
+            font-style: italic;
+        }
+
+        .yume-kawaii .style-description {
+            color: #B3D9FF;
+        }
+
+        .yume-kawaii .decoration {
+            color: rgba(224, 179, 255, 0.6);
+            font-size: 50px;
+            animation: twinkle 3s ease-in-out infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* Yami Kawaii Style 🖤💊🌸 */
+        body.yami-kawaii {
+            background: linear-gradient(135deg, #1A1A1A 0%, #2D1B2E 50%, #1A1A1A 100%);
+        }
+
+        .yami-kawaii .nav-container {
+            background: rgba(45, 27, 46, 0.95);
+            border: 2px solid #FF1493;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.3);
+        }
+
+        .yami-kawaii .style-bubble {
+            background: #2D1B2E;
+            border: 2px solid #FF69B4;
+        }
+
+        .yami-kawaii .style-bubble.active {
+            background: #FF1493;
+            box-shadow: 0 0 20px #FF1493;
+        }
+
+        .yami-kawaii .style-name {
+            color: #FF1493;
+            text-shadow: 0 0 20px #FF1493;
+        }
+
+        .yami-kawaii .style-description {
+            color: #FF69B4;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px 30px;
+            border-radius: 30px;
+            border: 1px solid #FF1493;
+        }
+
+        .yami-kawaii .decoration {
+            color: #FF1493;
+            font-size: 35px;
+            opacity: 0.7;
+        }
+
+        /* Mizuiro Kawaii Style 💧🌊🐬 */
+        body.mizuiro-kawaii {
+            background: linear-gradient(180deg, #E0F7FF 0%, #B3E5FF 30%, #80D4FF 60%, #B3E5FF 100%);
+            position: relative;
+        }
+
+        .mizuiro-kawaii::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 20px,
+                rgba(255, 255, 255, 0.1) 20px,
+                rgba(255, 255, 255, 0.1) 40px
+            );
+            animation: wave 10s linear infinite;
+        }
+
+        @keyframes wave {
+            from { transform: translateX(0); }
+            to { transform: translateX(40px); }
+        }
+
+        .mizuiro-kawaii .nav-container {
+            background: rgba(255, 255, 255, 0.9);
+            border: 3px solid #80D4FF;
+        }
+
+        .mizuiro-kawaii .style-bubble {
+            background: white;
+            border: 3px solid #B3E5FF;
+        }
+
+        .mizuiro-kawaii .style-bubble.active {
+            background: linear-gradient(145deg, #E0F7FF, #B3E5FF);
+            border-color: #0099CC;
+            animation: ripple 1s ease-out;
+        }
+
+        @keyframes ripple {
+            from { box-shadow: 0 0 0 0 rgba(0, 153, 204, 0.4); }
+            to { box-shadow: 0 0 0 20px rgba(0, 153, 204, 0); }
+        }
+
+        .mizuiro-kawaii .style-name {
+            color: #0099CC;
+            text-shadow: 2px 2px 0 white;
+        }
+
+        .mizuiro-kawaii .style-description {
+            color: #66C2FF;
+        }
+
+        .mizuiro-kawaii .decoration {
+            color: #80D4FF;
+            font-size: 45px;
+        }
+
+        /* Kirakira Kei Style ✨💎👑 */
+        body.kirakira-kei {
+            background: radial-gradient(ellipse at center, #FFF8DC 0%, #FFE4E1 40%, #FFD4FF 80%, #FFF8DC 100%);
+            position: relative;
+        }
+
+        .kirakira-kei::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                radial-gradient(circle at 20% 80%, rgba(255, 215, 0, 0.3) 0%, transparent 10%),
+                radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.3) 0%, transparent 10%),
+                radial-gradient(circle at 60% 60%, rgba(255, 215, 0, 0.3) 0%, transparent 10%);
+            animation: sparkleMove 20s linear infinite;
+        }
+
+        @keyframes sparkleMove {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .kirakira-kei .nav-container {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(255, 248, 220, 0.9));
+            border: 2px solid #FFD700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+        }
+
+        .kirakira-kei .style-bubble {
+            background: linear-gradient(145deg, white, #FFF8DC);
+            border: 2px solid #FFD700;
+        }
+
+        .kirakira-kei .style-bubble.active {
+            box-shadow: 0 0 30px #FFD700;
+            animation: shine 1s ease;
+        }
+
+        @keyframes shine {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+
+        .kirakira-kei .style-name {
+            color: #FF69B4;
+            text-shadow: 0 0 20px #FFD700, 0 0 40px #FFD700;
+            animation: glitter 2s ease-in-out infinite;
+        }
+
+        @keyframes glitter {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.3); }
+        }
+
+        .kirakira-kei .style-description {
+            color: #DAA520;
+            text-shadow: 1px 1px 2px rgba(255, 215, 0, 0.5);
+        }
+
+        .kirakira-kei .decoration {
+            color: #FFD700;
+            font-size: 40px;
+            animation: sparkle 1s ease-in-out infinite;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: scale(1); opacity: 0.6; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+
+        /* Menhera Kei Style 💊🩹🏥 */
+        body.menhera-kei {
+            background: linear-gradient(45deg, #FFCCDD 0%, #FFDDEE 50%, #FFCCDD 100%);
+            background-size: 400% 400%;
+            animation: gentleShift 20s ease infinite;
+        }
+
+        @keyframes gentleShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .menhera-kei .nav-container {
+            background: white;
+            border: 3px dashed #FF69B4;
+        }
+
+        .menhera-kei .style-bubble {
+            background: white;
+            border: 3px solid #FFCCDD;
+            position: relative;
+        }
+
+        .menhera-kei .style-bubble::after {
+            content: '💊';
+            position: absolute;
+            top: -10px;
+            right: -5px;
+            font-size: 20px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .menhera-kei .style-bubble.active::after {
+            opacity: 1;
+        }
+
+        .menhera-kei .style-bubble.active {
+            border-color: #FF69B4;
+            border-style: dashed;
+        }
+
+        .menhera-kei .style-name {
+            color: #FF69B4;
+            font-family: 'Times New Roman', serif;
+        }
+
+        .menhera-kei .style-description {
+            color: #D14A6B;
+            background: white;
+            padding: 15px 25px;
+            border: 2px dashed #FF69B4;
+            border-radius: 20px;
+        }
+
+        .menhera-kei .decoration {
+            color: #FFCCDD;
+            font-size: 35px;
+        }
+
+        /* Neko Style 🐱🐾🎀 */
+        body.neko {
+            background: linear-gradient(135deg, #FFEAA7 0%, #FDCB6E 50%, #F8B500 100%);
+        }
+
+        .neko .nav-container {
+            background: rgba(255, 255, 255, 0.95);
+            border: 3px solid #6C5CE7;
+            box-shadow: 0 10px 40px rgba(108, 92, 231, 0.3);
+        }
+
+        .neko .style-bubble {
+            background: white;
+            border: 3px solid #A29BFE;
+        }
+
+        .neko .style-bubble.active {
+            border-color: #6C5CE7;
+            animation: wiggle 0.5s ease;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+
+        .neko .style-name {
+            color: #6C5CE7;
+            text-shadow: 2px 2px 0 white;
+        }
+
+        .neko .style-name::after {
+            content: ' にゃん～';
+            font-size: 0.6em;
+            color: #A29BFE;
+        }
+
+        .neko .style-description {
+            color: #A29BFE;
+        }
+
+        .neko .main-character {
+            position: relative;
+        }
+
+        .neko .main-character::after {
+            content: '🐾';
+            position: absolute;
+            bottom: -30px;
+            right: -30px;
+            font-size: 40px;
+            animation: pawPrint 2s ease-in-out infinite;
+        }
+
+        @keyframes pawPrint {
+            0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+            50% { opacity: 1; transform: scale(1) rotate(20deg); }
+        }
+
+        .neko .decoration {
+            color: #A29BFE;
+            font-size: 40px;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .nav-container {
+                bottom: 20px;
+                padding: 15px;
+                gap: 10px;
+                max-width: 90vw;
+                overflow-x: auto;
+            }
+
+            .style-bubble {
+                width: 60px;
+                height: 60px;
+                min-width: 60px;
+            }
+
+            .bubble-emoji {
+                font-size: 24px;
+            }
+
+            .bubble-label {
+                font-size: 8px;
+            }
+
+            .main-character {
+                font-size: 100px;
+            }
+
+            .style-name {
+                font-size: 32px;
+            }
+
+            .style-description {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body class="fairy-kei">
+    <!-- Navigation -->
+    <nav class="nav-container">
+        <div class="style-bubble active" onclick="switchStyle('fairy-kei')" data-style="fairy-kei">
+            <span class="bubble-emoji">🦄</span>
+            <span class="bubble-label">Fairy<br>Kei</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('decora')" data-style="decora">
+            <span class="bubble-emoji">🍭</span>
+            <span class="bubble-label">Decora</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('kawaii-gamer')" data-style="kawaii-gamer">
+            <span class="bubble-emoji">🎮</span>
+            <span class="bubble-label">Kawaii<br>Gamer</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('yume-kawaii')" data-style="yume-kawaii">
+            <span class="bubble-emoji">☁️</span>
+            <span class="bubble-label">Yume<br>Kawaii</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('yami-kawaii')" data-style="yami-kawaii">
+            <span class="bubble-emoji">🖤</span>
+            <span class="bubble-label">Yami<br>Kawaii</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('mizuiro-kawaii')" data-style="mizuiro-kawaii">
+            <span class="bubble-emoji">💧</span>
+            <span class="bubble-label">Mizuiro<br>Kawaii</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('kirakira-kei')" data-style="kirakira-kei">
+            <span class="bubble-emoji">✨</span>
+            <span class="bubble-label">Kirakira<br>Kei</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('menhera-kei')" data-style="menhera-kei">
+            <span class="bubble-emoji">💊</span>
+            <span class="bubble-label">Menhera<br>Kei</span>
+        </div>
+        <div class="style-bubble" onclick="switchStyle('neko')" data-style="neko">
+            <span class="bubble-emoji">🐱</span>
+            <span class="bubble-label">Neko</span>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="kawaii-world">
+        <div class="character-container">
+            <div class="main-character" id="mainCharacter">🦄</div>
+            <h1 class="style-name" id="styleName">Fairy Kei</h1>
+            <p class="style-description" id="styleDescription">
+                80年代のパステルカラーと妖精のような夢見がちな世界観 ✨
+            </p>
+        </div>
+
+        <!-- Decorative Elements -->
+        <div class="decoration" style="top: 10%; left: 10%;" id="deco1">✨</div>
+        <div class="decoration" style="top: 20%; right: 15%;" id="deco2">🌈</div>
+        <div class="decoration" style="bottom: 30%; left: 20%;" id="deco3">⭐</div>
+        <div class="decoration" style="bottom: 20%; right: 10%;" id="deco4">🎀</div>
+    </div>
+
+    <script>
+        const styles = {
+            'fairy-kei': {
+                character: '🦄',
+                name: 'Fairy Kei',
+                description: '80年代のパステルカラーと妖精のような夢見がちな世界観 ✨',
+                decorations: ['✨', '🌈', '⭐', '🎀']
+            },
+            'decora': {
+                character: '🎪',
+                name: 'Decora',
+                description: 'もっと！もっと！デコレーション！カラフルで楽しい原宿スタイル 🌈',
+                decorations: ['🍭', '🎨', '🎁', '🎈']
+            },
+            'kawaii-gamer': {
+                character: '👾',
+                name: 'Kawaii Gamer',
+                description: 'ゲームの世界でかわいく輝く！ネオンとパステルの融合 💜',
+                decorations: ['🎮', '💜', '🏆', '⚡']
+            },
+            'yume-kawaii': {
+                character: '🌙',
+                name: 'Yume Kawaii',
+                description: '夢のようにふわふわ、儚くて美しい幻想的な世界 ☁️',
+                decorations: ['✨', '☁️', '🦋', '🌸']
+            },
+            'yami-kawaii': {
+                character: '🌸',
+                name: 'Yami Kawaii',
+                description: '病みとかわいいの融合、ダークでキュートな表現 🖤',
+                decorations: ['💊', '🩹', '🖤', '🌸']
+            },
+            'mizuiro-kawaii': {
+                character: '🐬',
+                name: 'Mizuiro Kawaii',
+                description: '爽やかな水色の世界、海と空の優しさに包まれて 💧',
+                decorations: ['💧', '🌊', '🧊', '🐚']
+            },
+            'kirakira-kei': {
+                character: '👑',
+                name: 'Kirakira Kei',
+                description: 'キラキラ輝く宝石のような、ゴージャスでかわいい世界 ✨',
+                decorations: ['💎', '✨', '🌟', '💫']
+            },
+            'menhera-kei': {
+                character: '🏥',
+                name: 'Menhera Kei',
+                description: 'メンタルヘルスをかわいく表現、優しさと理解の世界 💊',
+                decorations: ['💉', '💊', '🩺', '🩹']
+            },
+            'neko': {
+                character: '🐱',
+                name: 'Neko',
+                description: 'にゃんにゃん王国！猫のようにかわいく自由に 🐾',
+                decorations: ['🐾', '🎀', '🐈', '🍣']
+            }
+        };
+
+        let currentStyle = 'fairy-kei';
+
+        function switchStyle(styleName) {
+            // Remove active class from all bubbles
+            document.querySelectorAll('.style-bubble').forEach(bubble => {
+                bubble.classList.remove('active');
+            });
+
+            // Add active class to clicked bubble
+            document.querySelector(`[data-style="${styleName}"]`).classList.add('active');
+
+            // Change body class
+            document.body.className = styleName;
+
+            // Update content
+            const style = styles[styleName];
+            document.getElementById('mainCharacter').textContent = style.character;
+            document.getElementById('styleName').textContent = style.name;
+            document.getElementById('styleDescription').textContent = style.description;
+
+            // Update decorations
+            style.decorations.forEach((deco, index) => {
+                const decoElement = document.getElementById(`deco${index + 1}`);
+                if (decoElement) {
+                    decoElement.textContent = deco;
+                }
+            });
+
+            // Add animation to main character
+            const character = document.getElementById('mainCharacter');
+            character.style.animation = 'none';
+            setTimeout(() => {
+                character.style.animation = 'float 3s ease-in-out infinite';
+            }, 10);
+
+            currentStyle = styleName;
+        }
+
+        // Add floating decorations dynamically
+        function addFloatingDecorations() {
+            const world = document.querySelector('.kawaii-world');
+            const currentDecorations = styles[currentStyle].decorations;
+            
+            for (let i = 0; i < 3; i++) {
+                const deco = document.createElement('div');
+                deco.className = 'decoration';
+                deco.textContent = currentDecorations[Math.floor(Math.random() * currentDecorations.length)];
+                deco.style.top = Math.random() * 80 + '%';
+                deco.style.left = Math.random() * 80 + '%';
+                deco.style.animationDelay = Math.random() * 20 + 's';
+                deco.style.animationDuration = (15 + Math.random() * 10) + 's';
+                world.appendChild(deco);
+                
+                // Remove after animation
+                setTimeout(() => deco.remove(), 25000);
+            }
+        }
+
+        // Add new decorations periodically
+        setInterval(addFloatingDecorations, 10000);
+    </script>
+</body>
+</html>

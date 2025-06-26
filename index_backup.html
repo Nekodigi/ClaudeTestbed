@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Testbed - Experimental Projects Hub</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary-color: #6366f1;
+            --secondary-color: #8b5cf6;
+            --accent-color: #ec4899;
+            --bg-dark: #0f172a;
+            --bg-light: #1e293b;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --card-bg: #1e293b;
+            --card-hover: #334155;
+            --border-color: #334155;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, var(--bg-dark) 0%, var(--bg-light) 100%);
+            padding: 3rem 0;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--primary-color) 0%, transparent 70%);
+            opacity: 0.1;
+            animation: pulse 15s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.2); opacity: 0.05; }
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Controls */
+        .controls {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+        
+        /* Category Filter */
+        .category-filter {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 0.6rem 1.2rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .filter-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+        
+        .filter-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+        
+        /* Stats */
+        .stats {
+            text-align: center;
+            padding: 1rem 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        /* Projects Grid */
+        .projects-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .category-section {
+            margin-bottom: 3rem;
+        }
+        
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .category-icon {
+            font-size: 1.5rem;
+        }
+        
+        .category-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+        }
+        
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .project-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary-color);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+        
+        .project-card:hover::before {
+            transform: translateX(0);
+        }
+        
+        .project-header {
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+        }
+        
+        .project-emoji {
+            font-size: 2rem;
+            line-height: 1;
+        }
+        
+        .project-info {
+            flex: 1;
+        }
+        
+        .project-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+        
+        .project-description {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+        
+        .project-tags {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .tag {
+            padding: 0.25rem 0.75rem;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary-color);
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+        
+        /* No results */
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            margin-top: 4rem;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .search-box {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>Claude Testbed</h1>
+        <p class="subtitle">Experimental Projects & Creative Coding Hub</p>
+    </header>
+    
+    <div class="controls">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="プロジェクトを検索..." id="searchInput">
+        </div>
+        <div class="category-filter">
+            <button class="filter-btn active" data-category="all">すべて</button>
+            <button class="filter-btn" data-category="ultrathink">ULTRATHINK</button>
+            <button class="filter-btn" data-category="webgl">WebGL & Shaders</button>
+            <button class="filter-btn" data-category="interactive">Interactive Art</button>
+            <button class="filter-btn" data-category="creative">Creative</button>
+        </div>
+    </div>
+    
+    <div class="stats" id="stats">
+        18個のプロジェクト
+    </div>
+    
+    <div class="projects-container" id="projectsContainer">
+        <!-- Projects will be dynamically inserted here -->
+    </div>
+    
+    <footer class="footer">
+        <p>🧪 Claude Testbed - Built for rapid prototyping and experimentation</p>
+    </footer>
+    
+    <script>
+        // This will be updated as projects are added
+        const projects = [
+            // Example format:
+            // { name: "Project Name", description: "Brief description", path: "projects/project-name/" }
+            { name: "君の名は - Twilight Sky Art", description: "Beautiful interactive art inspired by Your Name anime", path: "projects/kimi-no-na-wa-art/" },
+            { name: "ULTRATHINK Aesthetics", description: "Minimalist design philosophy - where less becomes more", path: "projects/ultrathink-aesthetics/" },
+            { name: "🤔 ULTRATHINK ミーム", description: "究極の思考状態を表現するアニメーションミーム", path: "projects/ultrathink-meme/" },
+            { name: "Particle Cosmos", description: "インタラクティブな粒子アニメーション - マウスに反応する美しい宇宙", path: "projects/particle-cosmos/" },
+            { name: "生成的アート - Generative Art", description: "マウスに反応する流れるパーティクルとカラーグラデーションのインタラクティブアート", path: "projects/generative-art/" },
+            { name: "Ultrathink 哲学", description: "深淵なる思考の探求 - 哲学的な問いとパラドックスを探る", path: "projects/ultrathink/" },
+            { name: "ULTRATHINK EXPLOSION", description: "超爽快連鎖爆発ゲーム - クリックで連鎖反応を起こす派手なアクションゲーム", path: "projects/ultrathink-explosion/" },
+            { name: "Ray Marching Demo", description: "3D レイマーチング技術による美しいビジュアライゼーション - ドラッグで回転可能", path: "projects/ray-marching/" },
+            { name: "GLSL Fold Art", description: "Ultrathink GLSLフォールディング - 無限に折り畳まれる万華鏡パターン", path: "projects/glsl-fold-art/" },
+            { name: "🌊 GLSL Plasma Waves", description: "インタラクティブなプラズマ波とフラクタルパターン - マウスで操作可能な美しいシェーダーアート", path: "projects/glsl-plasma-waves/" },
+            { name: "⚛️ Quantum Particle Field", description: "高度な物理シミュレーションとWebGLレンダリングによる量子粒子場 - 数千の相互接続された粒子が織りなす美しいビジュアル", path: "projects/quantum-particle-field/" },
+            { name: "🎨 Shader Workshop", description: "GLSLプログラミングの深層へ - インタラクティブなシェーダー学習環境で4つの実例を編集・実行", path: "projects/shader-workshop/" },
+            { name: "🌌 Cosmos Engine Pro", description: "プロ級WebGL2パーティクルエンジン - 100万個の粒子をGPUで高速レンダリング、フロー場物理シミュレーション搭載", path: "projects/cosmos-engine-pro/" },
+            { name: "▲ VECTOR//CORE™", description: "Vectorheartトレンドに基づく超美麗デジタルアート - 数学的精度で構築された幾何学的心臓とインタラクティブなベクターパターン", path: "projects/vectorheart-core/" },
+            { name: "🌫️ Ultrathink Ethereal", description: "神秘的な霧の次元への旅 - ボリューメトリックフォグと幻想的なフラクタルが織りなす雄大な世界", path: "projects/ultrathink-glsl/" },
+            { name: "🌌 Cosmic Fractal Journey", description: "無限のフラクタル宇宙への壮大な旅 - WebGL2による最先端レイマーチング、PBRマテリアル、リアルタイムポストプロセッシング搭載のプロフェッショナル作品", path: "projects/cosmic-fractal-journey/" },
+            { name: "🧠 NEURO BLAST MEGA", description: "脳汁ドバドバ！超連鎖爆発ゲーム - ニューロンを爆発させて連鎖反応を起こす超爽快アクションゲーム", path: "projects/neuro-blast-mega/" },
+            { name: "🎨 Aesthetics Transformer", description: "10種類のデザイン哲学を瞬時に切り替え - 同じコンテンツが異なる美学でどう変化するかを体験できるインタラクティブポートフォリオ", path: "projects/aesthetics-transformer/" }
+        ];
+        
+        function renderProjects() {
+            const container = document.getElementById('projectsContainer');
+            
+            if (!container || projects.length === 0) {
+                return;
+            }
+            
+            container.innerHTML = projects.map(project => `
+                <div class="project-card">
+                    <h2>${project.name}</h2>
+                    <p>${project.description}</p>
+                    <a href="${project.path}">プロジェクトを開く →</a>
+                </div>
+            `).join('');
+        }
+        
+        renderProjects();
+    </script>
+</body>
+</html>

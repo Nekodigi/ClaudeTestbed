@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Japanese Fashion Culture Transformer ✨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Kosugi+Maru&family=M+PLUS+1p:wght@300;500;800&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Noto Sans JP', sans-serif;
+            overflow-x: hidden;
+            background: linear-gradient(45deg, #ff6b9d, #c44569);
+            min-height: 100vh;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+        
+        .title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 900;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .style-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 40px;
+        }
+        
+        .style-btn {
+            padding: 15px 20px;
+            border: none;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255,255,255,0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .style-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        
+        .style-btn.active {
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            transform: scale(1.05);
+        }
+        
+        .content-area {
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            border: 2px solid rgba(255,255,255,0.2);
+            min-height: 500px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .style-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .style-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .style-header {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            font-weight: 900;
+        }
+        
+        .style-description {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .elements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+        
+        .element-card {
+            background: rgba(255,255,255,0.2);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s ease;
+        }
+        
+        .element-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.3);
+        }
+        
+        /* Gyaru Style */
+        .gyaru {
+            background: linear-gradient(135deg, #ff6b9d, #ffd700, #ff9ff3);
+            animation: gyaru-sparkle 3s infinite;
+        }
+        
+        .gyaru .content-area {
+            border-radius: 50px 20px 50px 20px;
+            border: 4px solid #ffd700;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            transform: rotate(-1deg);
+        }
+        
+        .gyaru .style-header {
+            color: #fff;
+            text-shadow: 3px 3px 0px #ff1493, 6px 6px 0px #ff69b4;
+            font-family: 'Kosugi Maru', cursive;
+        }
+        
+        .gyaru .element-card {
+            background: linear-gradient(45deg, #ff69b4, #ffd700);
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Jiraikei Style */
+        .jiraikei {
+            background: linear-gradient(135deg, #2c2c54, #40407a, #706fd3);
+            position: relative;
+        }
+        
+        .jiraikei .content-area {
+            border-radius: 10px;
+            border: 3px solid #e74c3c;
+            box-shadow: inset 0 0 20px rgba(231, 76, 60, 0.3), 0 0 25px rgba(231, 76, 60, 0.4);
+            transform: skew(-2deg, 1deg);
+        }
+        
+        .jiraikei::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💀</text></svg>') repeat;
+            opacity: 0.1;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .jiraikei .style-header {
+            color: #e74c3c;
+            text-shadow: 2px 2px 4px #000;
+            font-weight: 900;
+        }
+        
+        .jiraikei .element-card {
+            background: linear-gradient(45deg, #2c2c54, #e74c3c);
+            color: white;
+            border: 2px solid #e74c3c;
+        }
+        
+        /* Party Kei Style */
+        .party-kei {
+            background: linear-gradient(45deg, #ff006e, #fb5607, #ffbe0b, #8338ec, #3a86ff);
+            background-size: 400% 400%;
+            animation: party-gradient 4s ease infinite;
+        }
+        
+        .party-kei .content-area {
+            border-radius: 70px 30px 70px 30px;
+            border: 5px dashed #ff006e;
+            box-shadow: 0 0 40px rgba(255, 0, 110, 0.7);
+            animation: party-bounce-container 2s infinite;
+            transform: rotate(1deg);
+        }
+        
+        .party-kei .style-header {
+            color: white;
+            font-family: 'M PLUS 1p', sans-serif;
+            font-weight: 800;
+            animation: party-bounce 2s infinite;
+        }
+        
+        .party-kei .element-card {
+            background: linear-gradient(45deg, #ff006e, #3a86ff);
+            animation: party-pulse 2s infinite alternate;
+        }
+        
+        /* Wafuu Kei Style */
+        .wafuu-kei {
+            background: linear-gradient(135deg, #f4f3ee, #e8ddd4, #d6c7ae);
+            position: relative;
+        }
+        
+        .wafuu-kei .content-area {
+            border-radius: 20px 80px 20px 80px;
+            border: 2px solid #8b4513;
+            box-shadow: 0 0 20px rgba(139, 69, 19, 0.3);
+            background: linear-gradient(135deg, rgba(244, 243, 238, 0.9), rgba(214, 199, 174, 0.9));
+        }
+        
+        .wafuu-kei::before {
+            content: '🌸';
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.3;
+            animation: sakura-fall 8s linear infinite;
+            top: -50px;
+            left: 50%;
+        }
+        
+        .wafuu-kei .style-header {
+            color: #8b4513;
+            font-family: 'Noto Sans JP', serif;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+        }
+        
+        .wafuu-kei .element-card {
+            background: linear-gradient(45deg, #f4f3ee, #d6c7ae);
+            color: #8b4513;
+            border: 2px solid #8b4513;
+        }
+        
+        /* Iryou Kei Style */
+        .iryou-kei {
+            background: linear-gradient(135deg, #e8f5e8, #ffffff, #f0f8ff);
+        }
+        
+        .iryou-kei .content-area {
+            border-radius: 15px;
+            border: 3px solid #2e8b57;
+            box-shadow: 0 0 30px rgba(46, 139, 87, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(232, 245, 232, 0.95));
+        }
+        
+        .iryou-kei .style-btn {
+            background: rgba(255,255,255,0.9) !important;
+            color: #2e8b57 !important;
+            border: 2px solid #2e8b57 !important;
+        }
+        
+        .iryou-kei .style-btn.active {
+            background: #2e8b57 !important;
+            color: white !important;
+        }
+        
+        .iryou-kei .style-header {
+            color: #2e8b57;
+            font-weight: 400;
+            position: relative;
+        }
+        
+        .iryou-kei .style-header::after {
+            content: '💉';
+            position: absolute;
+            right: -50px;
+            animation: pulse 2s infinite;
+        }
+        
+        .iryou-kei .element-card {
+            background: linear-gradient(45deg, #ffffff, #e8f5e8);
+            color: #2e8b57;
+            border: 2px solid #2e8b57;
+        }
+        
+        /* Otaku Style */
+        .otaku {
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+        }
+        
+        .otaku .content-area {
+            border-radius: 5px 40px 5px 40px;
+            border: 4px solid #667eea;
+            box-shadow: 0 0 35px rgba(102, 126, 234, 0.6), inset 0 0 20px rgba(240, 147, 251, 0.2);
+            transform: perspective(1000px) rotateY(2deg);
+        }
+        
+        .otaku .style-header {
+            color: #fff;
+            font-family: 'M PLUS 1p', sans-serif;
+            font-weight: 800;
+            position: relative;
+            animation: otaku-glow 3s ease-in-out infinite alternate;
+        }
+        
+        .otaku .element-card {
+            background: linear-gradient(45deg, #667eea, #f093fb);
+            color: white;
+            animation: otaku-float 4s ease-in-out infinite;
+        }
+        
+        /* Japanese High School Style */
+        .japanese-hs {
+            background: linear-gradient(135deg, #87ceeb, #98fb98, #f0e68c);
+        }
+        
+        .japanese-hs .content-area {
+            border-radius: 25px;
+            border: 3px solid #191970;
+            box-shadow: 0 0 25px rgba(25, 25, 112, 0.4);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(135, 206, 235, 0.1));
+        }
+        
+        .japanese-hs .style-header {
+            color: #191970;
+            font-weight: 700;
+            position: relative;
+        }
+        
+        .japanese-hs .style-header::before {
+            content: '🎒';
+            position: absolute;
+            left: -50px;
+            animation: bounce 2s infinite;
+        }
+        
+        .japanese-hs .element-card {
+            background: linear-gradient(45deg, #87ceeb, #98fb98);
+            color: #191970;
+            border: 2px solid #191970;
+        }
+        
+        /* Heisei Retro Style */
+        .heisei-retro {
+            background: linear-gradient(135deg, #ff9a9e, #fecfef, #fecfef);
+            position: relative;
+        }
+        
+        .heisei-retro .content-area {
+            border-radius: 0px 30px 0px 30px;
+            border: 4px solid #ff1493;
+            box-shadow: 8px 8px 0px #ff69b4, 0 0 30px rgba(255, 20, 147, 0.5);
+            transform: rotate(-0.5deg);
+        }
+        
+        .heisei-retro::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(255,255,255,0.1) 10px,
+                rgba(255,255,255,0.1) 20px
+            );
+        }
+        
+        .heisei-retro .style-header {
+            color: #ff1493;
+            font-family: 'M PLUS 1p', sans-serif;
+            font-weight: 800;
+            text-shadow: 2px 2px 0px #fff, 4px 4px 0px #ff69b4;
+        }
+        
+        .heisei-retro .element-card {
+            background: linear-gradient(45deg, #ff9a9e, #fecfef);
+            color: #ff1493;
+            border: 2px solid #ff1493;
+        }
+        
+        /* Taisho Roman Style */
+        .taisho-roman {
+            background: linear-gradient(135deg, #8b4513, #daa520, #f4e4c1);
+        }
+        
+        .taisho-roman .content-area {
+            border-radius: 60px 20px 60px 20px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 0 30px rgba(139, 69, 19, 0.5);
+            background: linear-gradient(135deg, rgba(244, 228, 193, 0.9), rgba(218, 165, 32, 0.1));
+            animation: gentle-sway-container 4s ease-in-out infinite;
+        }
+        
+        .taisho-roman .style-header {
+            color: #8b4513;
+            font-family: 'Noto Sans JP', serif;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+            position: relative;
+        }
+        
+        .taisho-roman .style-header::after {
+            content: '🎭';
+            position: absolute;
+            right: -50px;
+            animation: gentle-sway 4s ease-in-out infinite;
+        }
+        
+        .taisho-roman .element-card {
+            background: linear-gradient(45deg, #daa520, #f4e4c1);
+            color: #8b4513;
+            border: 2px solid #8b4513;
+        }
+        
+        /* Showa Kayou Kei Style */
+        .showa-kayou {
+            background: linear-gradient(135deg, #ff6b35, #f7931e, #ffd700);
+        }
+        
+        .showa-kayou .content-area {
+            border-radius: 80px 40px 80px 40px;
+            border: 4px solid #8b0000;
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 107, 53, 0.2);
+            transform: rotate(0.5deg);
+            animation: vintage-glow-container 3s ease-in-out infinite;
+        }
+        
+        .showa-kayou .style-header {
+            color: #8b0000;
+            font-family: 'Kosugi Maru', cursive;
+            font-weight: 700;
+            position: relative;
+            animation: vintage-glow 3s ease-in-out infinite;
+        }
+        
+        .showa-kayou .element-card {
+            background: linear-gradient(45deg, #ff6b35, #ffd700);
+            color: #8b0000;
+            border: 2px solid #8b0000;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes gyaru-sparkle {
+            0%, 100% { filter: hue-rotate(0deg) brightness(1); }
+            50% { filter: hue-rotate(60deg) brightness(1.2); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        @keyframes party-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        @keyframes party-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        @keyframes party-pulse {
+            0% { transform: scale(1); filter: brightness(1); }
+            100% { transform: scale(1.05); filter: brightness(1.2); }
+        }
+        
+        @keyframes sakura-fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+        
+        @keyframes otaku-glow {
+            0% { text-shadow: 0 0 5px #667eea; }
+            100% { text-shadow: 0 0 20px #f093fb, 0 0 30px #f093fb; }
+        }
+        
+        @keyframes otaku-float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(2deg); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes gentle-sway {
+            0%, 100% { transform: rotate(-5deg); }
+            50% { transform: rotate(5deg); }
+        }
+        
+        @keyframes vintage-glow {
+            0%, 100% { text-shadow: 2px 2px 4px rgba(139,0,0,0.5); }
+            50% { text-shadow: 2px 2px 20px rgba(255,215,0,0.8); }
+        }
+        
+        @keyframes party-bounce-container {
+            0%, 100% { transform: rotate(1deg) scale(1); }
+            50% { transform: rotate(-1deg) scale(1.02); }
+        }
+        
+        @keyframes gentle-sway-container {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(1deg); }
+        }
+        
+        @keyframes vintage-glow-container {
+            0%, 100% { box-shadow: 0 0 40px rgba(255, 215, 0, 0.7), inset 0 0 20px rgba(255, 107, 53, 0.2); }
+            50% { box-shadow: 0 0 60px rgba(255, 215, 0, 0.9), inset 0 0 30px rgba(255, 107, 53, 0.4); }
+        }
+        
+        .floating-elements {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .floating-emoji {
+            position: absolute;
+            font-size: 2rem;
+            opacity: 0.6;
+            animation: float-around 15s linear infinite;
+        }
+        
+        @keyframes float-around {
+            0% { 
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.6; }
+            90% { opacity: 0.6; }
+            100% { 
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="floating-elements" id="floatingElements"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1 class="title">Japanese Fashion Culture Transformer</h1>
+            <p>体験してください、10の異なるファッション文化の世界を ✨</p>
+        </div>
+        
+        <div class="style-selector">
+            <button class="style-btn active" data-style="gyaru">ギャル (Gyaru)</button>
+            <button class="style-btn" data-style="jiraikei">地雷系 (Jiraikei)</button>
+            <button class="style-btn" data-style="party-kei">パーティー系 (Party Kei)</button>
+            <button class="style-btn" data-style="wafuu-kei">和風系 (Wafuu Kei)</button>
+            <button class="style-btn" data-style="iryou-kei">医療系 (Iryou Kei)</button>
+            <button class="style-btn" data-style="otaku">オタク (Otaku)</button>
+            <button class="style-btn" data-style="japanese-hs">日本の高校生 (Japanese HS)</button>
+            <button class="style-btn" data-style="heisei-retro">平成レトロ (Heisei Retro)</button>
+            <button class="style-btn" data-style="taisho-roman">大正ロマン (Taisho Roman)</button>
+            <button class="style-btn" data-style="showa-kayou">昭和歌謡系 (Showa Kayou)</button>
+        </div>
+        
+        <div class="content-area">
+            <!-- Gyaru Content -->
+            <div class="style-content gyaru active" id="gyaru">
+                <h2 class="style-header">ギャル (Gyaru) ✨</h2>
+                <p class="style-description">
+                    派手で大胆、自分らしさを最大限に表現するファッション文化。明るい色彩と自信に満ちたスタイルが特徴です。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>💄 メイク</h3>
+                        <p>濃いアイメイク、つけまつげ、コンタクトレンズで目を大きく強調</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>👗 ファッション</h3>
+                        <p>明るい色、ブランド品、露出度の高い服装で自己表現</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>💇‍♀️ ヘアスタイル</h3>
+                        <p>明るい髪色、巻き髪、エクステンションで華やかに</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎯 価値観</h3>
+                        <p>自分らしさを大切に、楽しむことを重視するライフスタイル</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Jiraikei Content -->
+            <div class="style-content jiraikei" id="jiraikei">
+                <h2 class="style-header">地雷系 (Jiraikei) 💀</h2>
+                <p class="style-description">
+                    内面的な闇や感情を表現するダークなファッション。病みかわいい要素と危険な美しさを兼ね備えています。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🖤 カラー</h3>
+                        <p>黒、赤、紫を基調とした暗めの色彩でミステリアスに</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>💊 アクセサリー</h3>
+                        <p>十字架、薬のモチーフ、包帯などダークなアイテム</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>😈 メイク</h3>
+                        <p>涙袋強調、血色の悪い唇、病的な白さで儚げな美しさ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🌙 心境</h3>
+                        <p>感情の起伏や内面の複雑さを外見で表現</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Party Kei Content -->
+            <div class="style-content party-kei" id="party-kei">
+                <h2 class="style-header">パーティー系 (Party Kei) 🎉</h2>
+                <p class="style-description">
+                    毎日がパーティーのように楽しく、カラフルで派手なファッション。エネルギッシュで陽気な雰囲気を演出します。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🌈 カラフル</h3>
+                        <p>虹色、ネオンカラー、蛍光色で目立つことを恐れない</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>✨ キラキラ</h3>
+                        <p>スパンコール、グリッター、ホログラムで華やかに</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎵 音楽</h3>
+                        <p>EDM、ポップス、パーティーミュージックが似合うスタイル</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎭 エンターテイメント</h3>
+                        <p>楽しむことが最優先、周りを明るくする存在感</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Wafuu Kei Content -->
+            <div class="style-content wafuu-kei" id="wafuu-kei">
+                <h2 class="style-header">和風系 (Wafuu Kei) 🌸</h2>
+                <p class="style-description">
+                    日本の伝統的な美しさと現代的なファッションを融合。上品で優雅な和の心を表現します。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🎋 伝統模様</h3>
+                        <p>桜、菊、波紋などの和柄を現代風にアレンジ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🍃 自然色</h3>
+                        <p>抹茶、桜色、藍色など日本の自然を表現した色彩</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>👘 和装要素</h3>
+                        <p>着物の襟元、帯、和装小物を洋服に取り入れる</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🧘‍♀️ 精神性</h3>
+                        <p>おもてなしの心、謙虚さ、内面の美しさを重視</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Iryou Kei Content -->
+            <div class="style-content iryou-kei" id="iryou-kei">
+                <h2 class="style-header">医療系 (Iryou Kei) 💉</h2>
+                <p class="style-description">
+                    清潔感と専門性を表現する医療をモチーフにしたファッション。清楚で知的な印象を与えます。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🤍 清潔感</h3>
+                        <p>白、水色、薄緑など清潔で爽やかな色合い</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🩺 医療モチーフ</h3>
+                        <p>聴診器、注射器、十字マークなどのアクセサリー</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>📝 知的要素</h3>
+                        <p>眼鏡、クリップボード、ペンなどで知性をアピール</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>💪 使命感</h3>
+                        <p>人を助ける、守るという責任感のあるライフスタイル</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Otaku Content -->
+            <div class="style-content otaku" id="otaku">
+                <h2 class="style-header">オタク (Otaku) 🎮</h2>
+                <p class="style-description">
+                    アニメ、ゲーム、マンガなどのサブカルチャーを愛する文化。情熱と知識を外見で表現します。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🎌 アニメ要素</h3>
+                        <p>キャラクターグッズ、コスプレ要素、萌え袖など</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎯 推し活</h3>
+                        <p>好きなキャラクターやアイドルのグッズを身につける</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🔮 ファンタジー</h3>
+                        <p>魔法少女、RPG、SF要素を日常に取り入れる</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>💝 コレクション</h3>
+                        <p>限定品、レアアイテムを集める情熱的な趣味</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Japanese High School Content -->
+            <div class="style-content japanese-hs" id="japanese-hs">
+                <h2 class="style-header">日本の高校生 (Japanese HS) 🎒</h2>
+                <p class="style-description">
+                    青春の象徴である日本の高校生ファッション。制服をベースにした清楚で健康的なスタイルです。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>👔 制服</h3>
+                        <p>セーラー服、ブレザー、プリーツスカートの組み合わせ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎀 アクセサリー</h3>
+                        <p>リボン、ヘアピン、バッジで個性を表現</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>📚 学生要素</h3>
+                        <p>スクールバッグ、文房具、参考書で学生らしさ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🌱 青春</h3>
+                        <p>初々しさ、純粋さ、将来への希望を表現</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Heisei Retro Content -->
+            <div class="style-content heisei-retro" id="heisei-retro">
+                <h2 class="style-header">平成レトロ (Heisei Retro) 📱</h2>
+                <p class="style-description">
+                    90年代〜2000年代の平成時代を懐かしむレトロファッション。ノスタルジックで可愛らしいスタイルです。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>📻 90sアイテム</h3>
+                        <p>ポケベル、ルーズソックス、厚底ブーツで時代を再現</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎨 原色使い</h3>
+                        <p>ビビッドピンク、水色、黄色など鮮やかな色彩</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎪 ポップ文化</h3>
+                        <p>プリクラ、カラオケ、ゲーセン文化の影響</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>💫 ノスタルジア</h3>
+                        <p>懐かしさと新鮮さを同時に感じる独特の魅力</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Taisho Roman Content -->
+            <div class="style-content taisho-roman" id="taisho-roman">
+                <h2 class="style-header">大正ロマン (Taisho Roman) 🎭</h2>
+                <p class="style-description">
+                    大正時代（1912-1926）の和洋折衷文化を現代に再現。クラシカルで上品な美しさを表現します。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🎨 和洋折衷</h3>
+                        <p>着物と洋服の融合、袴にブーツなどの組み合わせ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🖼️ アートデコ</h3>
+                        <p>幾何学模様、金彩、アール・デコ調のデザイン</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎪 文化活動</h3>
+                        <p>文学、演劇、音楽などの芸術活動への憧れ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🌹 ロマンティック</h3>
+                        <p>情緒的で詩的な美意識、恋愛への憧憬</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Showa Kayou Kei Content -->
+            <div class="style-content showa-kayou" id="showa-kayou">
+                <h2 class="style-header">昭和歌謡系 (Showa Kayou) 🎤</h2>
+                <p class="style-description">
+                    昭和時代の歌謡界をイメージした華やかなファッション。ステージ映えする派手で情熱的なスタイルです。
+                </p>
+                <div class="elements-grid">
+                    <div class="element-card">
+                        <h3>🎵 歌謡界</h3>
+                        <p>演歌、歌謡曲のステージ衣装をイメージした華やかさ</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>✨ キラキラ</h3>
+                        <p>スパンコール、ビーズ、金糸銀糸で豪華に装飾</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🌅 情熱</h3>
+                        <p>赤、金、オレンジなど情熱的で温かい色彩</p>
+                    </div>
+                    <div class="element-card">
+                        <h3>🎭 ドラマティック</h3>
+                        <p>感情豊かで表現力のあるパフォーマンス性</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Style switching functionality
+        const styleButtons = document.querySelectorAll('.style-btn');
+        const styleContents = document.querySelectorAll('.style-content');
+        const body = document.body;
+        const floatingElements = document.getElementById('floatingElements');
+        
+        // Emoji sets for different styles
+        const emojiSets = {
+            'gyaru': ['💄', '✨', '💅', '👑', '💎', '🌟'],
+            'jiraikei': ['💀', '🖤', '⚡', '💊', '🗡️', '🌙'],
+            'party-kei': ['🎉', '🎊', '🌈', '✨', '💫', '🎈'],
+            'wafuu-kei': ['🌸', '🍃', '🎋', '🌺', '🦋', '🌙'],
+            'iryou-kei': ['💉', '🩺', '💊', '🏥', '💙', '🤍'],
+            'otaku': ['🎮', '📱', '🎌', '⭐', '🔮', '💝'],
+            'japanese-hs': ['🎒', '📚', '🎀', '🌸', '💝', '📝'],
+            'heisei-retro': ['📱', '💿', '🎮', '🌈', '⭐', '💫'],
+            'taisho-roman': ['🎭', '🌹', '🎨', '📜', '💄', '🎪'],
+            'showa-kayou': ['🎤', '🎵', '✨', '🌅', '💃', '🎭']
+        };
+        
+        function createFloatingEmojis(style) {
+            floatingElements.innerHTML = '';
+            const emojis = emojiSets[style] || ['✨'];
+            
+            // Create 5 floating emojis
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => {
+                    const emoji = document.createElement('div');
+                    emoji.className = 'floating-emoji';
+                    emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                    emoji.style.left = Math.random() * 100 + '%';
+                    emoji.style.animationDelay = Math.random() * 2 + 's';
+                    emoji.style.animationDuration = (10 + Math.random() * 10) + 's';
+                    floatingElements.appendChild(emoji);
+                    
+                    // Remove emoji after animation
+                    setTimeout(() => {
+                        if (emoji.parentNode) {
+                            emoji.parentNode.removeChild(emoji);
+                        }
+                    }, 20000);
+                }, i * 300);
+            }
+        }
+        
+        function switchStyle(targetStyle) {
+            // Remove active class from all buttons and contents
+            styleButtons.forEach(btn => btn.classList.remove('active'));
+            styleContents.forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            const activeButton = document.querySelector(`[data-style="${targetStyle}"]`);
+            activeButton.classList.add('active');
+            
+            // Show target content with animation
+            setTimeout(() => {
+                const targetContent = document.getElementById(targetStyle);
+                targetContent.classList.add('active');
+                
+                // Apply body class for background
+                body.className = targetStyle;
+                
+                // Create floating emojis
+                createFloatingEmojis(targetStyle);
+            }, 100);
+        }
+        
+        // Add click event listeners to style buttons
+        styleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const targetStyle = button.getAttribute('data-style');
+                switchStyle(targetStyle);
+            });
+        });
+        
+        // Initialize with gyaru style
+        body.className = 'gyaru';
+        createFloatingEmojis('gyaru');
+        
+        // Continuously create floating emojis
+        setInterval(() => {
+            const currentStyle = body.className;
+            if (currentStyle && emojiSets[currentStyle]) {
+                createFloatingEmojis(currentStyle);
+            }
+        }, 8000);
+    </script>
+</body>
+</html>

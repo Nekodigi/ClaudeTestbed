@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NUMBER FUSION CLICKER DELUXE - 究極の数字融合クリッカー</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            font-family: 'Arial Black', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            height: 100vh;
+        }
+        
+        .game-container {
+            display: flex;
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 20px;
+            padding: 20px;
+        }
+        
+        .main-game {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .score-display {
+            font-size: 48px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            animation: glow 2s ease-in-out infinite;
+        }
+        
+        @keyframes glow {
+            0%, 100% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            50% { text-shadow: 0 0 40px rgba(255, 255, 255, 0.8); }
+        }
+        
+        .coins-display {
+            font-size: 24px;
+            margin-bottom: 20px;
+            color: #ffd700;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(6, 80px);
+            grid-template-rows: repeat(6, 80px);
+            gap: 5px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .cell {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cell:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .cell.filled {
+            animation: drop 0.3s ease-out;
+        }
+        
+        @keyframes drop {
+            from {
+                transform: translateY(-50px) scale(0.5);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+        
+        .cell.merging {
+            animation: merge 0.5s ease-out;
+        }
+        
+        @keyframes merge {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.3) rotate(180deg); }
+            100% { transform: scale(1) rotate(360deg); }
+        }
+        
+        .number-2 { background: #eee4da; color: #776e65; }
+        .number-4 { background: #ede0c8; color: #776e65; }
+        .number-8 { background: #f2b179; color: #f9f6f2; }
+        .number-16 { background: #f59563; color: #f9f6f2; }
+        .number-32 { background: #f67c5f; color: #f9f6f2; }
+        .number-64 { background: #f65e3b; color: #f9f6f2; }
+        .number-128 { background: #edcf72; color: #f9f6f2; font-size: 20px; }
+        .number-256 { background: #edcc61; color: #f9f6f2; font-size: 20px; }
+        .number-512 { background: #edc850; color: #f9f6f2; font-size: 20px; }
+        .number-1024 { background: #edc53f; color: #f9f6f2; font-size: 18px; }
+        .number-2048 { background: #edc22e; color: #f9f6f2; font-size: 18px; }
+        .number-4096 { background: #ff0000; color: #fff; font-size: 18px; }
+        .number-8192 { background: #ff00ff; color: #fff; font-size: 18px; }
+        
+        .click-button {
+            margin-top: 20px;
+            padding: 20px 40px;
+            font-size: 24px;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .click-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .click-button:active {
+            transform: translateY(0);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+        
+        .upgrades-panel {
+            width: 300px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            overflow-y: auto;
+            max-height: calc(100vh - 40px);
+        }
+        
+        .upgrades-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .upgrade-item {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .upgrade-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.02);
+        }
+        
+        .upgrade-item.purchased {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: rgba(0, 255, 0, 0.5);
+        }
+        
+        .upgrade-item.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .upgrade-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .upgrade-description {
+            font-size: 14px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+        
+        .upgrade-cost {
+            font-size: 16px;
+            color: #ffd700;
+        }
+        
+        .upgrade-level {
+            float: right;
+            color: #4ecdc4;
+        }
+        
+        .combo-display {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 80px;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 40px rgba(255, 255, 255, 0.8);
+            pointer-events: none;
+            opacity: 0;
+            animation: combo-pop 1s ease-out;
+        }
+        
+        @keyframes combo-pop {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            50% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1.2);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        
+        .particles {
+            position: fixed;
+            pointer-events: none;
+        }
+        
+        .particle {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            animation: float-up 2s ease-out forwards;
+        }
+        
+        @keyframes float-up {
+            to {
+                transform: translateY(-100px);
+                opacity: 0;
+            }
+        }
+        
+        .stats {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="main-game">
+            <div class="score-display" id="score">0</div>
+            <div class="coins-display" id="coins">💰 0 コイン</div>
+            
+            <div class="game-board" id="gameBoard"></div>
+            
+            <button class="click-button" id="clickButton">CLICK!</button>
+            
+            <div class="stats">
+                <div>クリック/秒: <span id="cps">0</span></div>
+                <div>総マージ数: <span id="totalMerges">0</span></div>
+                <div>最高数字: <span id="highestNumber">2</span></div>
+            </div>
+        </div>
+        
+        <div class="upgrades-panel">
+            <h2 class="upgrades-title">アップグレード</h2>
+            
+            <div class="upgrade-item" id="autoClicker">
+                <div class="upgrade-name">オートクリッカー <span class="upgrade-level">Lv.0</span></div>
+                <div class="upgrade-description">毎秒自動でクリック</div>
+                <div class="upgrade-cost">💰 10 コイン</div>
+            </div>
+            
+            <div class="upgrade-item" id="multiplier">
+                <div class="upgrade-name">スコア倍率 <span class="upgrade-level">x1</span></div>
+                <div class="upgrade-description">マージ時の獲得スコアが増加</div>
+                <div class="upgrade-cost">💰 25 コイン</div>
+            </div>
+            
+            <div class="upgrade-item" id="biggerNumbers">
+                <div class="upgrade-name">大きい数字 <span class="upgrade-level">Lv.0</span></div>
+                <div class="upgrade-description">より大きな数字が出現</div>
+                <div class="upgrade-cost">💰 50 コイン</div>
+            </div>
+            
+            <div class="upgrade-item" id="comboMaster">
+                <div class="upgrade-name">コンボマスター <span class="upgrade-level">Lv.0</span></div>
+                <div class="upgrade-description">連鎖ボーナスが増加</div>
+                <div class="upgrade-cost">💰 100 コイン</div>
+            </div>
+            
+            <div class="upgrade-item" id="goldRush">
+                <div class="upgrade-name">ゴールドラッシュ <span class="upgrade-level">Lv.0</span></div>
+                <div class="upgrade-description">コイン獲得量が増加</div>
+                <div class="upgrade-cost">💰 200 コイン</div>
+            </div>
+            
+            <div class="upgrade-item" id="megaMerge">
+                <div class="upgrade-name">メガマージ <span class="upgrade-level">OFF</span></div>
+                <div class="upgrade-description">3つ以上の数字が同時マージ</div>
+                <div class="upgrade-cost">💰 500 コイン</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="combo-display" id="comboDisplay"></div>
+    <div class="particles" id="particles"></div>
+    
+    <script>
+        const BOARD_SIZE = 6;
+        let board = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(0));
+        let score = 0;
+        let coins = 0;
+        let totalMerges = 0;
+        let highestNumber = 2;
+        let combo = 0;
+        let lastMergeTime = 0;
+        
+        // アップグレード
+        let upgrades = {
+            autoClicker: { level: 0, cost: 10, multiplier: 1.5 },
+            multiplier: { level: 1, cost: 25, multiplier: 2 },
+            biggerNumbers: { level: 0, cost: 50, multiplier: 3 },
+            comboMaster: { level: 0, cost: 100, multiplier: 2.5 },
+            goldRush: { level: 0, cost: 200, multiplier: 3 },
+            megaMerge: { level: 0, cost: 500, multiplier: 5 }
+        };
+        
+        // ゲームボード初期化
+        function initBoard() {
+            const gameBoard = document.getElementById('gameBoard');
+            gameBoard.innerHTML = '';
+            
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    cell.onclick = () => handleCellClick(i, j);
+                    gameBoard.appendChild(cell);
+                }
+            }
+        }
+        
+        // セルクリック処理
+        function handleCellClick(row, col) {
+            if (board[row][col] !== 0) return;
+            
+            addNumber(row, col);
+            checkAndMerge();
+            updateDisplay();
+        }
+        
+        // 数字追加
+        function addNumber(row, col) {
+            const maxNumber = 2 + upgrades.biggerNumbers.level * 2;
+            const number = Math.pow(2, Math.floor(Math.random() * Math.min(maxNumber, 4)) + 1);
+            board[row][col] = number;
+            
+            const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            cell.textContent = number;
+            cell.className = `cell filled number-${number}`;
+            
+            createParticle(cell, '+' + number, '#4ecdc4');
+        }
+        
+        // マージチェック
+        function checkAndMerge() {
+            let merged = false;
+            let mergeCount = 0;
+            
+            // 横方向チェック
+            for (let i = 0; i < BOARD_SIZE; i++) {
+                for (let j = 0; j < BOARD_SIZE - 1; j++) {
+                    if (board[i][j] !== 0 && board[i][j] === board[i][j + 1]) {
+                        merge(i, j, i, j + 1);
+                        merged = true;
+                        mergeCount++;
+                    }
+                }
+            }
+            
+            // 縦方向チェック
+            for (let i = 0; i < BOARD_SIZE - 1; i++) {
+                for (let j = 0; j < BOARD_SIZE; j++) {
+                    if (board[i][j] !== 0 && board[i][j] === board[i + 1][j]) {
+                        merge(i, j, i + 1, j);
+                        merged = true;
+                        mergeCount++;
+                    }
+                }
+            }
+            
+            if (merged) {
+                const now = Date.now();
+                if (now - lastMergeTime < 1000) {
+                    combo++;
+                    if (combo > 2) {
+                        showCombo();
+                    }
+                } else {
+                    combo = 1;
+                }
+                lastMergeTime = now;
+                
+                setTimeout(() => checkAndMerge(), 300);
+            }
+        }
+        
+        // マージ実行
+        function merge(r1, c1, r2, c2) {
+            const value = board[r1][c1] * 2;
+            board[r1][c1] = value;
+            board[r2][c2] = 0;
+            
+            if (value > highestNumber) {
+                highestNumber = value;
+            }
+            
+            const cell1 = document.querySelector(`[data-row="${r1}"][data-col="${c1}"]`);
+            const cell2 = document.querySelector(`[data-row="${r2}"][data-col="${c2}"]`);
+            
+            cell1.textContent = value;
+            cell1.className = `cell filled merging number-${value}`;
+            cell2.textContent = '';
+            cell2.className = 'cell';
+            
+            // スコア計算
+            const baseScore = value * upgrades.multiplier.level;
+            const comboBonus = combo * (1 + upgrades.comboMaster.level * 0.5);
+            const totalScore = Math.floor(baseScore * comboBonus);
+            score += totalScore;
+            
+            // コイン獲得
+            const coinAmount = Math.floor(Math.log2(value) * (1 + upgrades.goldRush.level * 0.5));
+            coins += coinAmount;
+            
+            totalMerges++;
+            
+            createParticle(cell1, '+' + totalScore, '#ffd700');
+            playMergeSound(value);
+        }
+        
+        // コンボ表示
+        function showCombo() {
+            const display = document.getElementById('comboDisplay');
+            display.textContent = `${combo}x COMBO!`;
+            display.style.opacity = '1';
+            display.style.animation = 'none';
+            setTimeout(() => {
+                display.style.animation = 'combo-pop 1s ease-out';
+            }, 10);
+        }
+        
+        // パーティクル作成
+        function createParticle(element, text, color) {
+            const rect = element.getBoundingClientRect();
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.textContent = text;
+            particle.style.left = rect.left + rect.width / 2 + 'px';
+            particle.style.top = rect.top + 'px';
+            particle.style.color = color;
+            
+            document.getElementById('particles').appendChild(particle);
+            setTimeout(() => particle.remove(), 2000);
+        }
+        
+        // 音再生
+        function playMergeSound(value) {
+            const audio = new AudioContext();
+            const oscillator = audio.createOscillator();
+            const gainNode = audio.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audio.destination);
+            
+            const frequency = 220 * Math.pow(2, Math.log2(value) / 12);
+            oscillator.frequency.value = frequency;
+            oscillator.type = 'sine';
+            
+            gainNode.gain.setValueAtTime(0.3, audio.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audio.currentTime + 0.2);
+            
+            oscillator.start(audio.currentTime);
+            oscillator.stop(audio.currentTime + 0.2);
+        }
+        
+        // 表示更新
+        function updateDisplay() {
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('coins').textContent = `💰 ${coins.toLocaleString()} コイン`;
+            document.getElementById('totalMerges').textContent = totalMerges.toLocaleString();
+            document.getElementById('highestNumber').textContent = highestNumber.toLocaleString();
+            
+            // アップグレードボタン更新
+            updateUpgradeButtons();
+        }
+        
+        // アップグレードボタン更新
+        function updateUpgradeButtons() {
+            Object.keys(upgrades).forEach(key => {
+                const upgrade = upgrades[key];
+                const element = document.getElementById(key);
+                const cost = Math.floor(upgrade.cost * Math.pow(upgrade.multiplier, upgrade.level));
+                
+                element.querySelector('.upgrade-cost').textContent = `💰 ${cost.toLocaleString()} コイン`;
+                
+                if (key === 'multiplier') {
+                    element.querySelector('.upgrade-level').textContent = `x${upgrade.level}`;
+                } else if (key === 'megaMerge') {
+                    element.querySelector('.upgrade-level').textContent = upgrade.level > 0 ? 'ON' : 'OFF';
+                } else {
+                    element.querySelector('.upgrade-level').textContent = `Lv.${upgrade.level}`;
+                }
+                
+                if (coins >= cost) {
+                    element.classList.remove('disabled');
+                } else {
+                    element.classList.add('disabled');
+                }
+            });
+        }
+        
+        // アップグレード購入
+        function purchaseUpgrade(upgradeKey) {
+            const upgrade = upgrades[upgradeKey];
+            const cost = Math.floor(upgrade.cost * Math.pow(upgrade.multiplier, upgrade.level));
+            
+            if (coins >= cost) {
+                coins -= cost;
+                upgrade.level++;
+                updateDisplay();
+                
+                const element = document.getElementById(upgradeKey);
+                element.classList.add('purchased');
+                setTimeout(() => element.classList.remove('purchased'), 500);
+                
+                // オートクリッカー開始
+                if (upgradeKey === 'autoClicker' && upgrade.level === 1) {
+                    startAutoClicker();
+                }
+            }
+        }
+        
+        // オートクリッカー
+        function startAutoClicker() {
+            setInterval(() => {
+                if (upgrades.autoClicker.level > 0) {
+                    for (let i = 0; i < upgrades.autoClicker.level; i++) {
+                        const emptyCells = [];
+                        for (let r = 0; r < BOARD_SIZE; r++) {
+                            for (let c = 0; c < BOARD_SIZE; c++) {
+                                if (board[r][c] === 0) {
+                                    emptyCells.push({ row: r, col: c });
+                                }
+                            }
+                        }
+                        
+                        if (emptyCells.length > 0) {
+                            const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                            handleCellClick(cell.row, cell.col);
+                        }
+                    }
+                }
+            }, 1000);
+        }
+        
+        // クリック/秒計算
+        let clicks = 0;
+        setInterval(() => {
+            document.getElementById('cps').textContent = clicks;
+            clicks = 0;
+        }, 1000);
+        
+        // イベントリスナー
+        document.getElementById('clickButton').onclick = () => {
+            clicks++;
+            const emptyCells = [];
+            for (let r = 0; r < BOARD_SIZE; r++) {
+                for (let c = 0; c < BOARD_SIZE; c++) {
+                    if (board[r][c] === 0) {
+                        emptyCells.push({ row: r, col: c });
+                    }
+                }
+            }
+            
+            if (emptyCells.length > 0) {
+                const cell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                handleCellClick(cell.row, cell.col);
+            }
+        };
+        
+        // アップグレードクリック
+        Object.keys(upgrades).forEach(key => {
+            document.getElementById(key).onclick = () => purchaseUpgrade(key);
+        });
+        
+        // ゲーム開始
+        initBoard();
+        updateDisplay();
+    </script>
+</body>
+</html>

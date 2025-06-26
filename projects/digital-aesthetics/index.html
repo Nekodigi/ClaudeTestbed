@@ -1,0 +1,1357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Aesthetics Explorer</title>
+    <style>
+        :root {
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --bg-color: #000;
+            --text-color: #fff;
+            --accent-color: #ffff00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: var(--bg-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+            transition: all 0.5s ease;
+        }
+
+        .style-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid var(--primary-color);
+            border-radius: 10px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .style-switcher h3 {
+            margin-bottom: 10px;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 14px;
+        }
+
+        .style-btn {
+            display: block;
+            width: 100%;
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .style-btn:hover {
+            background: var(--primary-color);
+            color: #000;
+            transform: translateX(-5px);
+        }
+
+        .style-btn.active {
+            background: var(--primary-color);
+            color: #000;
+            box-shadow: 0 0 20px var(--primary-color);
+        }
+
+        .main-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .content {
+            max-width: 800px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 5vw, 4rem);
+            margin-bottom: 20px;
+            letter-spacing: 0.1em;
+        }
+
+        .description {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            padding: 20px;
+            border: 2px solid var(--primary-color);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 255, 0.3);
+        }
+
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* Vectorheart Style - ARCHITECTURAL VECTOR STREAMS */
+        body.vectorheart {
+            --primary-color: #000000;
+            --secondary-color: #ff3300;
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --accent-color: #0066ff;
+            background: #ffffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Dynamic intersecting vector lines - Zaha Hadid inspired */
+        body.vectorheart::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                linear-gradient(15deg, transparent 49%, #000 49%, #000 49.5%, transparent 49.5%),
+                linear-gradient(45deg, transparent 49%, #ff3300 49%, #ff3300 49.5%, transparent 49.5%),
+                linear-gradient(75deg, transparent 49.5%, #0066ff 49.5%, #0066ff 50%, transparent 50%),
+                linear-gradient(-15deg, transparent 49%, #000 49%, #000 49.5%, transparent 49.5%),
+                linear-gradient(-45deg, transparent 49.5%, #ff3300 49.5%, #ff3300 50%, transparent 50%),
+                linear-gradient(-75deg, transparent 49%, #0066ff 49%, #0066ff 49.5%, transparent 49.5%);
+            background-size: 200px 200px, 300px 300px, 400px 400px, 250px 250px, 350px 350px, 450px 450px;
+            animation: vectorFlow 30s linear infinite;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        @keyframes vectorFlow {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-100px, 100px) scale(1); }
+        }
+
+        body.vectorheart .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: 
+                repeating-linear-gradient(30deg, transparent, transparent 100px, rgba(0,0,0,0.02) 100px, rgba(0,0,0,0.02) 101px),
+                repeating-linear-gradient(60deg, transparent, transparent 100px, rgba(255,51,0,0.02) 100px, rgba(255,51,0,0.02) 101px),
+                repeating-linear-gradient(-30deg, transparent, transparent 100px, rgba(0,102,255,0.02) 100px, rgba(0,102,255,0.02) 101px);
+            animation: vectorGrid 40s linear infinite;
+        }
+
+        body.vectorheart .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 120%;
+            height: 120%;
+            top: -10%;
+            left: -10%;
+            background: 
+                radial-gradient(circle at 20% 50%, transparent 40%, rgba(255,51,0,0.1) 40%, rgba(255,51,0,0.1) 40.5%, transparent 40.5%),
+                radial-gradient(circle at 80% 50%, transparent 40%, rgba(0,102,255,0.1) 40%, rgba(0,102,255,0.1) 40.5%, transparent 40.5%),
+                radial-gradient(circle at 50% 20%, transparent 30%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.1) 30.5%, transparent 30.5%),
+                radial-gradient(circle at 50% 80%, transparent 35%, rgba(0,0,0,0.1) 35%, rgba(0,0,0,0.1) 35.5%, transparent 35.5%);
+            animation: vectorPulse 15s ease-in-out infinite;
+        }
+
+        @keyframes vectorGrid {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes vectorPulse {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.1) rotate(180deg); }
+        }
+
+        body.vectorheart h1 {
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+            font-weight: 100;
+            text-transform: uppercase;
+            font-size: clamp(3rem, 8vw, 5rem);
+            letter-spacing: 0.3em;
+            line-height: 0.8;
+            color: #000;
+            position: relative;
+            display: inline-block;
+            mix-blend-mode: multiply;
+        }
+
+        body.vectorheart h1::before,
+        body.vectorheart h1::after {
+            content: attr(data-text);
+            position: absolute;
+            left: 0;
+            top: 0;
+            mix-blend-mode: multiply;
+        }
+
+        body.vectorheart h1::before {
+            color: #ff3300;
+            transform: translate(2px, 2px);
+        }
+
+        body.vectorheart h1::after {
+            color: #0066ff;
+            transform: translate(-2px, -2px);
+        }
+
+        body.vectorheart .content {
+            position: relative;
+            z-index: 10;
+        }
+
+        body.vectorheart .feature-card {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #000;
+            position: relative;
+            clip-path: polygon(
+                0 20%,
+                20% 0,
+                80% 0,
+                100% 20%,
+                100% 80%,
+                80% 100%,
+                20% 100%,
+                0 80%
+            );
+            padding: 40px;
+            margin: 30px;
+            transition: all 0.3s ease;
+        }
+
+        body.vectorheart .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: -1px;
+            right: -1px;
+            bottom: -1px;
+            background: linear-gradient(45deg, #ff3300, #0066ff, #000);
+            z-index: -1;
+            clip-path: polygon(
+                0 20%,
+                20% 0,
+                80% 0,
+                100% 20%,
+                100% 80%,
+                80% 100%,
+                20% 100%,
+                0 80%
+            );
+            opacity: 0.5;
+        }
+
+        body.vectorheart .feature-card:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        body.vectorheart .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 100px;
+            height: 1px;
+            background: #ff3300;
+            transform: rotate(45deg);
+            transform-origin: right center;
+        }
+
+        body.vectorheart .feature-card h3 {
+            color: #000;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            font-size: 1.2rem;
+            position: relative;
+        }
+
+        body.vectorheart .feature-card h3::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 50px;
+            height: 1px;
+            background: #ff3300;
+        }
+
+        body.vectorheart .description {
+            font-family: 'Helvetica Neue', sans-serif;
+            color: #000;
+            font-weight: 300;
+            line-height: 1.6;
+            font-size: 0.9rem;
+        }
+
+        body.vectorheart .style-switcher {
+            background: rgba(255,255,255,0.95);
+            border: 1px solid #000;
+            backdrop-filter: none;
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 0 100%);
+        }
+
+        body.vectorheart .style-btn {
+            background: transparent;
+            color: #000;
+            border: 1px solid #000;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.vectorheart .style-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        body.vectorheart .style-btn:hover {
+            color: #fff;
+            transform: none;
+        }
+
+        body.vectorheart .style-btn:hover::before {
+            left: 0;
+        }
+
+        body.vectorheart .style-btn.active {
+            background: #ff3300;
+            color: #fff;
+            border-color: #ff3300;
+        }
+
+        /* Cyberpunk Style - FULL GLITCH MODE */
+        body.cyberpunk {
+            --primary-color: #00ffff;
+            --secondary-color: #ff00ff;
+            --bg-color: #000;
+            --text-color: #00ffff;
+            background: #000;
+            position: relative;
+        }
+
+        body.cyberpunk::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 255, 255, 0.03) 2px,
+                    rgba(0, 255, 255, 0.03) 4px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(255, 0, 255, 0.03) 2px,
+                    rgba(255, 0, 255, 0.03) 4px
+                );
+            animation: scanlines 8s linear infinite;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        @keyframes scanlines {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        body.cyberpunk .main-container {
+            position: relative;
+            z-index: 2;
+        }
+
+        body.cyberpunk h1 {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            position: relative;
+            animation: glitchText 4s infinite;
+        }
+
+        body.cyberpunk h1::before,
+        body.cyberpunk h1::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        body.cyberpunk h1::before {
+            animation: glitch1 0.5s infinite;
+            color: #ff00ff;
+            z-index: -1;
+        }
+
+        body.cyberpunk h1::after {
+            animation: glitch2 0.5s infinite;
+            color: #00ffff;
+            z-index: -2;
+        }
+
+        @keyframes glitchText {
+            0%, 100% { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 30px #00ffff; }
+            25% { text-shadow: -5px 0 #ff00ff, 5px 0 #00ffff, 0 0 10px #fff; }
+            50% { text-shadow: 5px 0 #ff00ff, -5px 0 #00ffff, 0 0 20px #fff; }
+            75% { text-shadow: 0 0 10px #ff00ff, 0 0 20px #00ffff, 0 0 30px #fff; }
+        }
+
+        @keyframes glitch1 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(20% 0 60% 0); transform: translate(-2px, 2px); }
+            40% { clip-path: inset(50% 0 30% 0); transform: translate(2px, -2px); }
+            60% { clip-path: inset(70% 0 10% 0); transform: translate(-2px, 2px); }
+            80% { clip-path: inset(10% 0 80% 0); transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch2 {
+            0%, 100% { clip-path: inset(0 0 0 0); }
+            20% { clip-path: inset(80% 0 10% 0); transform: translate(2px, -2px); }
+            40% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 2px); }
+            60% { clip-path: inset(30% 0 50% 0); transform: translate(2px, -2px); }
+            80% { clip-path: inset(60% 0 20% 0); transform: translate(-2px, 2px); }
+        }
+
+        body.cyberpunk .feature-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid #00ffff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.cyberpunk .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ffff, #ff00ff, #00ffff);
+            z-index: -1;
+            animation: borderGlow 3s linear infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        body.cyberpunk .feature-card h3 {
+            color: #00ffff;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        body.cyberpunk .description {
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+
+        /* Abstract Tech Style - GEOMETRIC CHAOS */
+        body.abstract-tech {
+            --primary-color: #00ff88;
+            --secondary-color: #0088ff;
+            --bg-color: #000;
+            --text-color: #fff;
+            background: #000;
+            overflow: hidden;
+        }
+
+        body.abstract-tech .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        body.abstract-tech .bg-animation::before,
+        body.abstract-tech .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border: 2px solid #00ff88;
+            animation: rotateShape 15s linear infinite;
+        }
+
+        body.abstract-tech .bg-animation::before {
+            top: 10%;
+            left: 10%;
+            transform: rotate(45deg);
+        }
+
+        body.abstract-tech .bg-animation::after {
+            bottom: 10%;
+            right: 10%;
+            border-color: #0088ff;
+            animation-direction: reverse;
+            animation-duration: 20s;
+        }
+
+        @keyframes rotateShape {
+            0% { transform: rotate(0deg) scale(1); }
+            50% { transform: rotate(180deg) scale(1.5); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
+
+        body.abstract-tech h1 {
+            font-family: 'Roboto', sans-serif;
+            font-weight: 100;
+            letter-spacing: 0.5em;
+            text-transform: uppercase;
+            background: linear-gradient(90deg, #00ff88, #0088ff, #00ff88);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: slideGradient 3s linear infinite;
+        }
+
+        @keyframes slideGradient {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
+
+        body.abstract-tech .content {
+            position: relative;
+            z-index: 10;
+        }
+
+        body.abstract-tech .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 2px;
+            background: linear-gradient(45deg, #00ff88, #0088ff);
+            padding: 2px;
+            border-radius: 0;
+        }
+
+        body.abstract-tech .feature-card {
+            background: #000;
+            border: none;
+            border-radius: 0;
+            position: relative;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 85% 100%, 0 100%);
+            transition: all 0.3s ease;
+        }
+
+        body.abstract-tech .feature-card:hover {
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.2), rgba(0, 136, 255, 0.2));
+        }
+
+        body.abstract-tech .feature-card h3 {
+            color: #00ff88;
+            font-weight: 300;
+            letter-spacing: 0.2em;
+        }
+
+        /* Internet Awesomecore Style - WEB 1.0 EXPLOSION */
+        body.awesomecore {
+            --primary-color: #ff00ff;
+            --secondary-color: #00ff00;
+            --bg-color: #0000ff;
+            --text-color: #ffff00;
+            background: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y="30" font-size="50" fill="%23ff69b4">⭐</text><text x="50" y="70" font-size="40" fill="%2300ff00">✨</text></svg>') 0 0/100px 100px,
+                linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #00ff00);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', cursive;
+            cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text y="20" font-size="20">🌟</text></svg>'), auto;
+        }
+
+        body.awesomecore * {
+            cursor: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32"><text y="20" font-size="20">✨</text></svg>'), auto;
+        }
+
+        body.awesomecore h1 {
+            font-size: clamp(3rem, 8vw, 6rem);
+            background: linear-gradient(45deg, #ff00ff, #ffff00, #00ff00, #00ffff, #ff69b4);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 2s linear infinite, bounce 1s ease-in-out infinite;
+            text-shadow: 3px 3px 0 rgba(0,0,0,0.2);
+            transform-origin: center;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: scale(1) rotate(-2deg); }
+            50% { transform: scale(1.1) rotate(2deg); }
+        }
+
+        body.awesomecore .content {
+            animation: wiggle 5s ease-in-out infinite;
+        }
+
+        @keyframes wiggle {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px) rotate(-1deg); }
+            75% { transform: translateX(10px) rotate(1deg); }
+        }
+
+        body.awesomecore .feature-card {
+            background: linear-gradient(45deg, rgba(255,0,255,0.3), rgba(0,255,255,0.3));
+            border: 3px solid #ffff00;
+            box-shadow: 5px 5px 0 #ff00ff, 10px 10px 0 #00ffff;
+            transform: rotate(-2deg);
+            transition: all 0.3s ease;
+        }
+
+        body.awesomecore .feature-card:nth-child(even) {
+            transform: rotate(2deg);
+        }
+
+        body.awesomecore .feature-card:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 0 0 30px #ffff00;
+            animation: shake 0.5s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        body.awesomecore .description {
+            font-size: 1.5rem;
+            color: #fff;
+            text-shadow: 2px 2px 0 #ff00ff;
+        }
+
+        /* Seapunk Style - DIGITAL OCEAN RAVE */
+        body.seapunk {
+            --primary-color: #00ffff;
+            --secondary-color: #ff69b4;
+            --bg-color: #000033;
+            --text-color: #00ffff;
+            background: #000033;
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.seapunk::before {
+            content: '';
+            position: fixed;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(0, 255, 255, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 80% 20%, rgba(255, 105, 180, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 40% 40%, rgba(0, 255, 255, 0.2) 0%, transparent 60%);
+            animation: oceanFlow 20s ease-in-out infinite;
+        }
+
+        @keyframes oceanFlow {
+            0%, 100% { transform: rotate(0deg) scale(1); }
+            33% { transform: rotate(120deg) scale(1.2); }
+            66% { transform: rotate(240deg) scale(0.8); }
+        }
+
+        body.seapunk .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><text y="50" font-size="60" fill="%2300ffff" opacity="0.5">🐚</text><text x="100" y="100" font-size="50" fill="%23ff69b4" opacity="0.5">🐠</text><text x="50" y="150" font-size="40" fill="%2300ffff" opacity="0.5">🌊</text><text x="150" y="180" font-size="45" fill="%23ff69b4" opacity="0.5">🐙</text></svg>');
+            animation: float 15s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            25% { transform: translateY(-30px) translateX(20px); }
+            50% { transform: translateY(20px) translateX(-30px); }
+            75% { transform: translateY(-20px) translateX(-20px); }
+        }
+
+        body.seapunk h1 {
+            font-family: 'Arial Black', sans-serif;
+            color: #00ffff;
+            text-shadow: 
+                0 0 20px #00ffff,
+                0 0 40px #00ffff,
+                0 0 60px #ff69b4;
+            animation: waveText 3s ease-in-out infinite;
+        }
+
+        @keyframes waveText {
+            0%, 100% { transform: translateY(0) skewX(0deg); }
+            25% { transform: translateY(-10px) skewX(-5deg); }
+            75% { transform: translateY(10px) skewX(5deg); }
+        }
+
+        body.seapunk .feature-card {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        body.seapunk .feature-card::before {
+            content: '〰️';
+            position: absolute;
+            font-size: 100px;
+            color: rgba(255, 105, 180, 0.3);
+            animation: wave 4s ease-in-out infinite;
+            bottom: -50px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            50% { transform: translateX(50px) translateY(-20px); }
+        }
+
+        body.seapunk .description {
+            color: #fff;
+            text-shadow: 0 0 10px #00ffff;
+        }
+
+        /* Laborwave Style - INDUSTRIAL REVOLUTION */
+        body.laborwave {
+            --primary-color: #ff0000;
+            --secondary-color: #ffcc00;
+            --bg-color: #1a0000;
+            --text-color: #ffcc00;
+            background: 
+                repeating-linear-gradient(
+                    45deg,
+                    #1a0000,
+                    #1a0000 10px,
+                    #330000 10px,
+                    #330000 20px
+                );
+            font-family: 'Impact', 'Arial Black', sans-serif;
+        }
+
+        body.laborwave::before {
+            content: 'WORK PROGRESS UNITY';
+            position: fixed;
+            font-size: 15vw;
+            font-weight: 900;
+            color: rgba(255, 0, 0, 0.05);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        body.laborwave h1 {
+            font-size: clamp(3rem, 7vw, 5rem);
+            text-transform: uppercase;
+            font-weight: 900;
+            color: #ff0000;
+            text-shadow: 
+                3px 3px 0 #ffcc00,
+                6px 6px 0 #ff6600,
+                9px 9px 0 rgba(0,0,0,0.5);
+            letter-spacing: 0.1em;
+            animation: slam 2s ease-out infinite;
+        }
+
+        @keyframes slam {
+            0%, 90%, 100% { transform: scale(1) rotateZ(0deg); }
+            95% { transform: scale(1.05) rotateZ(-2deg); }
+        }
+
+        body.laborwave .content {
+            position: relative;
+            z-index: 10;
+        }
+
+        body.laborwave .feature-card {
+            background: rgba(0, 0, 0, 0.8);
+            border: 4px solid #ff0000;
+            box-shadow: inset 0 0 0 2px #ffcc00;
+            position: relative;
+            overflow: hidden;
+            transform: skewX(-2deg);
+        }
+
+        body.laborwave .feature-card::before {
+            content: '⚒️⚙️🔨';
+            position: absolute;
+            font-size: 60px;
+            opacity: 0.2;
+            right: -20px;
+            bottom: -20px;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        body.laborwave .feature-card h3 {
+            text-transform: uppercase;
+            color: #ffcc00;
+            font-weight: 900;
+            letter-spacing: 0.2em;
+        }
+
+        body.laborwave .description {
+            font-family: 'Courier New', monospace;
+            color: #ff0000;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Liminal Space Style - BACKROOMS AESTHETIC */
+        body.liminal {
+            --primary-color: #d4d4aa;
+            --secondary-color: #b8b8b8;
+            --bg-color: #ffffed;
+            --text-color: #666655;
+            background: #ffffed;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+        }
+
+        body.liminal::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 200px,
+                    rgba(200, 200, 170, 0.1) 200px,
+                    rgba(200, 200, 170, 0.1) 201px
+                ),
+                radial-gradient(circle at 30% 50%, rgba(255, 255, 237, 0.9) 0%, rgba(212, 212, 170, 0.3) 100%);
+            filter: blur(1px);
+            pointer-events: none;
+        }
+
+        body.liminal .main-container {
+            filter: contrast(0.85) brightness(1.05) sepia(0.1);
+            position: relative;
+            z-index: 1;
+        }
+
+        body.liminal h1 {
+            color: #888877;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-shadow: 
+                1px 1px 0 rgba(255, 255, 255, 0.8),
+                2px 2px 5px rgba(0, 0, 0, 0.1);
+            animation: flicker 20s ease-in-out infinite;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; filter: brightness(1); }
+            92% { opacity: 1; filter: brightness(1); }
+            93% { opacity: 0.8; filter: brightness(0.8); }
+            94% { opacity: 1; filter: brightness(1.2); }
+            95% { opacity: 0.9; filter: brightness(0.9); }
+        }
+
+        body.liminal .bg-animation {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0.5;
+        }
+
+        body.liminal .bg-animation::after {
+            content: '';
+            position: absolute;
+            width: 300%;
+            height: 100%;
+            background: 
+                repeating-linear-gradient(
+                    90deg,
+                    transparent,
+                    transparent 100px,
+                    rgba(200, 200, 170, 0.2) 100px,
+                    rgba(200, 200, 170, 0.2) 102px
+                );
+            animation: drift 60s linear infinite;
+        }
+
+        body.liminal .feature-card {
+            background: rgba(255, 255, 237, 0.8);
+            border: 1px solid rgba(200, 200, 170, 0.5);
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.05),
+                0 4px 8px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transform: perspective(1000px) rotateY(1deg);
+        }
+
+        body.liminal .feature-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                repeating-linear-gradient(
+                    180deg,
+                    transparent,
+                    transparent 2px,
+                    rgba(0, 0, 0, 0.02) 2px,
+                    rgba(0, 0, 0, 0.02) 4px
+                );
+            pointer-events: none;
+        }
+
+        body.liminal .description {
+            color: #777766;
+            line-height: 1.8;
+        }
+
+        body.liminal .feature-card h3 {
+            color: #888877;
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body class="vectorheart">
+    <div class="bg-animation"></div>
+    
+    <div class="style-switcher">
+        <h3>Style Switcher</h3>
+        <button class="style-btn active" data-style="vectorheart">Vectorheart</button>
+        <button class="style-btn" data-style="cyberpunk">Cyberpunk</button>
+        <button class="style-btn" data-style="abstract-tech">Abstract Tech</button>
+        <button class="style-btn" data-style="awesomecore">Internet Awesomecore</button>
+        <button class="style-btn" data-style="seapunk">Seapunk</button>
+        <button class="style-btn" data-style="laborwave">Laborwave</button>
+        <button class="style-btn" data-style="liminal">Liminal Space</button>
+    </div>
+
+    <div class="main-container">
+        <div class="content">
+            <h1>Digital Aesthetics</h1>
+            <p class="description">
+                Explore the cutting edge of digital culture through various aesthetic movements.
+                Each style represents a unique vision of our technological future and digital present.
+            </p>
+
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>Visual Identity</h3>
+                    <p>Each aesthetic brings its own unique visual language and design philosophy.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Cultural Movement</h3>
+                    <p>More than just styles, these are expressions of digital subcultures.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Future Vision</h3>
+                    <p>Every aesthetic imagines a different relationship between humanity and technology.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Interactive Experience</h3>
+                    <p>Switch between styles to experience the full spectrum of digital aesthetics.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const styleBtns = document.querySelectorAll('.style-btn');
+        const body = document.body;
+        const h1 = document.querySelector('h1');
+        
+        // Add data-text attribute for cyberpunk glitch effect
+        h1.setAttribute('data-text', h1.textContent);
+
+        styleBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const style = btn.dataset.style;
+                
+                // Remove all style classes
+                body.className = '';
+                
+                // Add selected style
+                body.classList.add(style);
+                
+                // Update active button
+                styleBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                // Add style-specific animations
+                addStyleSpecificFeatures(style);
+            });
+        });
+
+        function addStyleSpecificFeatures(style) {
+            // Remove any existing dynamic elements
+            document.querySelectorAll('.dynamic-element').forEach(el => el.remove());
+
+            switch(style) {
+                case 'vectorheart':
+                    addVectorheartElements();
+                    break;
+                case 'cyberpunk':
+                    addCyberpunkElements();
+                    break;
+                case 'abstract-tech':
+                    addAbstractTechElements();
+                    break;
+                case 'awesomecore':
+                    addAwesomecoreElements();
+                    break;
+                case 'seapunk':
+                    addSeapunkElements();
+                    break;
+                case 'laborwave':
+                    addLaborwaveElements();
+                    break;
+                case 'liminal':
+                    addLiminalElements();
+                    break;
+            }
+        }
+
+        function addVectorheartElements() {
+            // Add dynamic intersecting vector streams
+            const container = document.querySelector('.main-container');
+            
+            // Create flowing vector lines - architectural streams
+            for (let i = 0; i < 12; i++) {
+                const vectorLine = document.createElement('div');
+                vectorLine.className = 'dynamic-element';
+                const angle = (i * 15) + (Math.random() * 30);
+                vectorLine.style.cssText = `
+                    position: fixed;
+                    width: ${200 + Math.random() * 400}px;
+                    height: 1px;
+                    background: ${['#000', '#ff3300', '#0066ff'][Math.floor(Math.random() * 3)]};
+                    left: ${-50 + Math.random() * 150}%;
+                    top: ${Math.random() * 100}%;
+                    transform-origin: left center;
+                    transform: rotate(${angle}deg);
+                    opacity: ${0.3 + Math.random() * 0.4};
+                    z-index: ${Math.floor(Math.random() * 3)};
+                `;
+                container.appendChild(vectorLine);
+            }
+
+            // Add architectural text overlay
+            const architecturalText = ['FLOW', 'STREAM', 'VECTOR', 'DYNAMIC', 'FORM', 'SPACE'];
+            const textOverlay = document.createElement('div');
+            textOverlay.className = 'dynamic-element';
+            textOverlay.textContent = architecturalText[Math.floor(Math.random() * architecturalText.length)];
+            textOverlay.style.cssText = `
+                position: fixed;
+                bottom: 5%;
+                left: 5%;
+                font-family: 'Helvetica Neue', sans-serif;
+                font-size: 10rem;
+                font-weight: 100;
+                color: rgba(0, 0, 0, 0.03);
+                text-transform: uppercase;
+                letter-spacing: 0.5em;
+                transform: rotate(-30deg);
+                z-index: 0;
+            `;
+            container.appendChild(textOverlay);
+
+            // Add circular intersections (Hadid-style focal points)
+            for (let i = 0; i < 3; i++) {
+                const circle = document.createElement('div');
+                circle.className = 'dynamic-element';
+                circle.style.cssText = `
+                    position: fixed;
+                    width: ${100 + i * 100}px;
+                    height: ${100 + i * 100}px;
+                    border: 1px solid ${['#000', '#ff3300', '#0066ff'][i % 3]};
+                    border-radius: 50%;
+                    left: ${20 + i * 25}%;
+                    top: ${20 + i * 20}%;
+                    opacity: 0.2;
+                    animation: vectorExpand ${5 + i * 2}s ease-in-out infinite alternate;
+                `;
+                container.appendChild(circle);
+            }
+
+            // Add diagonal grid overlays
+            for (let i = 0; i < 5; i++) {
+                const gridLine = document.createElement('div');
+                gridLine.className = 'dynamic-element';
+                gridLine.style.cssText = `
+                    position: fixed;
+                    width: 100%;
+                    height: 1px;
+                    background: linear-gradient(90deg, transparent, rgba(0,0,0,0.1) 50%, transparent);
+                    left: 0;
+                    top: ${i * 25}%;
+                    transform: rotate(${30 + i * 10}deg);
+                    transform-origin: center;
+                    opacity: 0.5;
+                `;
+                container.appendChild(gridLine);
+            }
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes vectorExpand {
+                    0% { transform: scale(1) rotate(0deg); opacity: 0.2; }
+                    100% { transform: scale(1.5) rotate(90deg); opacity: 0.1; }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function addCyberpunkElements() {
+            // Add data corruption text
+            const container = document.querySelector('.main-container');
+            const glitchTexts = ['ERROR_', 'SYS_FAIL', '0x00FF', 'ACCESS_DENIED', 'CORRUPTED'];
+            
+            setInterval(() => {
+                const glitch = document.createElement('div');
+                glitch.className = 'dynamic-element';
+                glitch.textContent = glitchTexts[Math.floor(Math.random() * glitchTexts.length)];
+                glitch.style.cssText = `
+                    position: fixed;
+                    font-family: 'Courier New', monospace;
+                    color: ${Math.random() > 0.5 ? '#00ffff' : '#ff00ff'};
+                    font-size: ${10 + Math.random() * 20}px;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    opacity: 0;
+                    animation: glitchAppear 0.5s ease-out;
+                    z-index: 100;
+                    pointer-events: none;
+                `;
+                container.appendChild(glitch);
+                
+                setTimeout(() => glitch.remove(), 500);
+            }, 2000);
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes glitchAppear {
+                    0% { opacity: 0; transform: scale(0) rotate(0deg); }
+                    50% { opacity: 1; transform: scale(1.5) rotate(180deg); }
+                    100% { opacity: 0; transform: scale(0) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function addAbstractTechElements() {
+            // Add floating particles
+            const container = document.querySelector('.bg-animation');
+            for (let i = 0; i < 20; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'dynamic-element';
+                particle.style.cssText = `
+                    position: absolute;
+                    width: 2px;
+                    height: 2px;
+                    background: #00ff88;
+                    left: ${Math.random() * 100}%;
+                    top: ${Math.random() * 100}%;
+                    animation: float ${5 + Math.random() * 10}s infinite ease-in-out;
+                `;
+                container.appendChild(particle);
+            }
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes float {
+                    0%, 100% { transform: translateY(0) translateX(0); }
+                    33% { transform: translateY(-100px) translateX(50px); }
+                    66% { transform: translateY(50px) translateX(-50px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function addAwesomecoreElements() {
+            // Add sparkles
+            const container = document.querySelector('.bg-animation');
+            const emojis = ['✨', '🌟', '💫', '⭐', '🌈'];
+            
+            setInterval(() => {
+                const sparkle = document.createElement('div');
+                sparkle.className = 'dynamic-element';
+                sparkle.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+                sparkle.style.cssText = `
+                    position: absolute;
+                    font-size: ${20 + Math.random() * 30}px;
+                    left: ${Math.random() * 100}%;
+                    top: -50px;
+                    animation: fall ${3 + Math.random() * 2}s linear;
+                `;
+                container.appendChild(sparkle);
+                
+                setTimeout(() => sparkle.remove(), 5000);
+            }, 500);
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes fall {
+                    to { transform: translateY(calc(100vh + 100px)) rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function addSeapunkElements() {
+            // Add bubbles
+            const container = document.querySelector('.bg-animation');
+            
+            for (let i = 0; i < 15; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'dynamic-element';
+                bubble.style.cssText = `
+                    position: absolute;
+                    width: ${10 + Math.random() * 30}px;
+                    height: ${10 + Math.random() * 30}px;
+                    background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), rgba(0, 255, 255, 0.3));
+                    border-radius: 50%;
+                    left: ${Math.random() * 100}%;
+                    bottom: -50px;
+                    animation: rise ${10 + Math.random() * 10}s infinite ease-in-out;
+                `;
+                container.appendChild(bubble);
+            }
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes rise {
+                    to { transform: translateY(-120vh) translateX(${Math.random() * 100 - 50}px); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        function addLaborwaveElements() {
+            // Add industrial elements
+            const slogans = ['WORK', 'BUILD', 'PROGRESS', 'UNITY', 'STRENGTH'];
+            const container = document.querySelector('.main-container');
+            
+            const slogan = document.createElement('div');
+            slogan.className = 'dynamic-element';
+            slogan.textContent = slogans[Math.floor(Math.random() * slogans.length)];
+            slogan.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                font-size: 100px;
+                font-weight: 900;
+                color: rgba(255, 68, 68, 0.1);
+                text-transform: uppercase;
+                pointer-events: none;
+            `;
+            container.appendChild(slogan);
+        }
+
+        function addLiminalElements() {
+            // Add subtle fog effect
+            const container = document.querySelector('.bg-animation');
+            const fog = document.createElement('div');
+            fog.className = 'dynamic-element';
+            fog.style.cssText = `
+                position: absolute;
+                width: 200%;
+                height: 100%;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+                animation: fogDrift 30s linear infinite;
+            `;
+            container.appendChild(fog);
+
+            const style = document.createElement('style');
+            style.className = 'dynamic-element';
+            style.textContent = `
+                @keyframes fogDrift {
+                    0% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Initialize with first style
+        addStyleSpecificFeatures('vectorheart');
+    </script>
+</body>
+</html>

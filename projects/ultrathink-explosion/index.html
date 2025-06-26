@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRATHINK EXPLOSION - 超爽快連鎖爆発ゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            overflow: hidden;
+            background: #000;
+            font-family: 'Arial Black', sans-serif;
+            cursor: crosshair;
+        }
+
+        #gameCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        #ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            text-shadow: 0 0 10px #ff0, 0 0 20px #ff0, 0 0 30px #ff0;
+            font-size: 24px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #score {
+            font-size: 36px;
+            animation: pulse 0.5s ease-in-out infinite;
+        }
+
+        #combo {
+            font-size: 48px;
+            color: #ff00ff;
+            text-shadow: 0 0 20px #ff00ff, 0 0 40px #ff00ff;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #combo.active {
+            opacity: 1;
+            animation: comboFlash 0.5s ease-out;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes comboFlash {
+            0% { transform: scale(2) rotate(10deg); opacity: 0; }
+            50% { transform: scale(1.5) rotate(-5deg); opacity: 1; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translate(0); }
+            25% { transform: translate(-10px, 5px); }
+            50% { transform: translate(10px, -5px); }
+            75% { transform: translate(-5px, -10px); }
+        }
+
+        #startScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #111 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            transition: opacity 0.5s;
+        }
+
+        #startScreen h1 {
+            font-size: 72px;
+            color: #fff;
+            text-shadow: 0 0 30px #f0f, 0 0 60px #f0f;
+            margin-bottom: 50px;
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 30px #f0f, 0 0 60px #f0f; }
+            50% { text-shadow: 0 0 50px #ff0, 0 0 100px #ff0; }
+        }
+
+        #startButton {
+            padding: 20px 60px;
+            font-size: 36px;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 50px;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            transition: all 0.3s;
+            box-shadow: 0 0 30px rgba(255, 0, 110, 0.5);
+        }
+
+        #startButton:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 50px rgba(255, 0, 110, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div id="startScreen">
+        <h1>ULTRATHINK EXPLOSION</h1>
+        <button id="startButton">START GAME</button>
+    </div>
+    
+    <div id="ui">
+        <div id="score">SCORE: 0</div>
+        <div id="combo">COMBO x1</div>
+    </div>
+    
+    <canvas id="gameCanvas"></canvas>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startScreen = document.getElementById('startScreen');
+        const startButton = document.getElementById('startButton');
+        const scoreEl = document.getElementById('score');
+        const comboEl = document.getElementById('combo');
+
+        let width, height;
+        let particles = [];
+        let orbs = [];
+        let explosions = [];
+        let score = 0;
+        let combo = 1;
+        let comboTimer = null;
+        let gameStarted = false;
+
+        // Audio context for sound effects
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playExplosionSound(frequency = 150, volume = 0.3) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.1);
+        }
+
+        function resize() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+
+        class Particle {
+            constructor(x, y, color, velocity) {
+                this.x = x;
+                this.y = y;
+                this.color = color;
+                this.velocity = velocity;
+                this.life = 1;
+                this.decay = Math.random() * 0.02 + 0.01;
+                this.size = Math.random() * 8 + 4;
+            }
+
+            update() {
+                this.velocity.x *= 0.98;
+                this.velocity.y *= 0.98;
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.life -= this.decay;
+                this.size *= 0.98;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 20;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        class Orb {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = Math.random() * 20 + 15;
+                this.color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                this.glow = 0;
+                this.velocity = {
+                    x: (Math.random() - 0.5) * 2,
+                    y: (Math.random() - 0.5) * 2
+                };
+                this.exploding = false;
+            }
+
+            update() {
+                if (!this.exploding) {
+                    this.x += this.velocity.x;
+                    this.y += this.velocity.y;
+
+                    // Bounce off walls
+                    if (this.x - this.radius < 0 || this.x + this.radius > width) {
+                        this.velocity.x *= -1;
+                    }
+                    if (this.y - this.radius < 0 || this.y + this.radius > height) {
+                        this.velocity.y *= -1;
+                    }
+
+                    // Keep within bounds
+                    this.x = Math.max(this.radius, Math.min(width - this.radius, this.x));
+                    this.y = Math.max(this.radius, Math.min(height - this.radius, this.y));
+
+                    this.glow = Math.sin(Date.now() * 0.003) * 0.3 + 0.7;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 30 * this.glow;
+                ctx.shadowColor = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner glow
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+                gradient.addColorStop(0, 'rgba(255, 255, 255, 0.8)');
+                gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+                gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+
+            explode() {
+                if (this.exploding) return;
+                this.exploding = true;
+                
+                // Create explosion effect
+                createExplosion(this.x, this.y, this.color, this.radius);
+                
+                // Add to score with combo
+                score += Math.floor(100 * combo);
+                updateScore();
+                
+                // Update combo
+                combo++;
+                updateCombo();
+                
+                // Reset combo timer
+                clearTimeout(comboTimer);
+                comboTimer = setTimeout(() => {
+                    combo = 1;
+                    comboEl.classList.remove('active');
+                }, 1000);
+            }
+        }
+
+        function createExplosion(x, y, color, size) {
+            // Screen shake
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 300);
+            
+            // Sound effect
+            playExplosionSound(100 + combo * 20, 0.2 + Math.min(combo * 0.05, 0.5));
+            
+            // Create particles
+            const particleCount = Math.floor(size * 2);
+            for (let i = 0; i < particleCount; i++) {
+                const angle = (Math.PI * 2 * i) / particleCount;
+                const speed = Math.random() * 10 + 5;
+                particles.push(new Particle(
+                    x, y, color,
+                    {
+                        x: Math.cos(angle) * speed,
+                        y: Math.sin(angle) * speed
+                    }
+                ));
+            }
+            
+            // Create shockwave
+            explosions.push({
+                x, y,
+                radius: size,
+                maxRadius: size * 4,
+                color: color,
+                alpha: 1
+            });
+            
+            // Check for chain reactions
+            orbs.forEach(orb => {
+                if (!orb.exploding) {
+                    const dist = Math.hypot(orb.x - x, orb.y - y);
+                    if (dist < size * 3 + orb.radius) {
+                        setTimeout(() => orb.explode(), dist * 2);
+                    }
+                }
+            });
+        }
+
+        function updateScore() {
+            scoreEl.textContent = `SCORE: ${score}`;
+            scoreEl.style.transform = 'scale(1.2)';
+            setTimeout(() => scoreEl.style.transform = 'scale(1)', 100);
+        }
+
+        function updateCombo() {
+            comboEl.textContent = `COMBO x${combo}`;
+            comboEl.classList.add('active');
+        }
+
+        function gameLoop() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, width, height);
+            
+            // Update and draw particles
+            particles = particles.filter(particle => {
+                particle.update();
+                particle.draw();
+                return particle.life > 0;
+            });
+            
+            // Update and draw orbs
+            orbs = orbs.filter(orb => {
+                if (!orb.exploding) {
+                    orb.update();
+                    orb.draw();
+                    return true;
+                }
+                return false;
+            });
+            
+            // Update and draw explosions
+            explosions = explosions.filter(explosion => {
+                explosion.radius += 5;
+                explosion.alpha -= 0.02;
+                
+                ctx.save();
+                ctx.strokeStyle = explosion.color;
+                ctx.globalAlpha = explosion.alpha;
+                ctx.lineWidth = 3;
+                ctx.shadowBlur = 30;
+                ctx.shadowColor = explosion.color;
+                ctx.beginPath();
+                ctx.arc(explosion.x, explosion.y, explosion.radius, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+                
+                return explosion.radius < explosion.maxRadius;
+            });
+            
+            // Spawn new orbs
+            if (orbs.length < 30 && Math.random() < 0.02) {
+                orbs.push(new Orb(
+                    Math.random() * width,
+                    Math.random() * height
+                ));
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        function handleClick(e) {
+            if (!gameStarted) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            // Find nearest orb
+            let nearestOrb = null;
+            let nearestDist = Infinity;
+            
+            orbs.forEach(orb => {
+                const dist = Math.hypot(orb.x - x, orb.y - y);
+                if (dist < nearestDist && dist < 100) {
+                    nearestDist = dist;
+                    nearestOrb = orb;
+                }
+            });
+            
+            if (nearestOrb) {
+                nearestOrb.explode();
+            } else {
+                // Create a small explosion at click point
+                createExplosion(x, y, '#fff', 20);
+                combo = 1;
+                comboEl.classList.remove('active');
+            }
+        }
+
+        function startGame() {
+            startScreen.style.opacity = '0';
+            setTimeout(() => startScreen.style.display = 'none', 500);
+            gameStarted = true;
+            
+            // Initialize game
+            for (let i = 0; i < 20; i++) {
+                orbs.push(new Orb(
+                    Math.random() * width,
+                    Math.random() * height
+                ));
+            }
+            
+            gameLoop();
+        }
+
+        // Event listeners
+        window.addEventListener('resize', resize);
+        canvas.addEventListener('click', handleClick);
+        startButton.addEventListener('click', startGame);
+
+        // Initialize
+        resize();
+    </script>
+</body>
+</html>

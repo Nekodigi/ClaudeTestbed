@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultrathink - 哲学的思考の探求</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+            color: #f0f0f0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeIn 2s ease-in;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            letter-spacing: 0.1em;
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: #a0a0a0;
+            font-style: italic;
+        }
+
+        .quote-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            padding: 3rem;
+            margin: 2rem 0;
+            backdrop-filter: blur(10px);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .quote-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+        }
+
+        .quote {
+            font-size: 1.5rem;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+
+        .author {
+            text-align: right;
+            color: #7c3aed;
+            font-size: 1.1rem;
+        }
+
+        .thought-experiment {
+            margin: 3rem 0;
+            padding: 2rem;
+            border-left: 4px solid #4f46e5;
+            background: rgba(79, 70, 229, 0.1);
+        }
+
+        .thought-experiment h2 {
+            color: #7c3aed;
+            margin-bottom: 1rem;
+        }
+
+        .interactive-section {
+            margin: 4rem 0;
+            text-align: center;
+        }
+
+        .think-button {
+            background: linear-gradient(45deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 1rem;
+        }
+
+        .think-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(124, 58, 237, 0.5);
+        }
+
+        #thought-display {
+            margin-top: 2rem;
+            padding: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            min-height: 100px;
+            display: none;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .philosophy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .philosophy-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 10px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .philosophy-card:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .philosophy-card h3 {
+            color: #7c3aed;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .floating-thought {
+            position: fixed;
+            font-size: 2rem;
+            opacity: 0.1;
+            animation: float 20s infinite linear;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            from {
+                transform: translateX(-100px) translateY(100vh) rotate(0deg);
+            }
+            to {
+                transform: translateX(100vw) translateY(-100px) rotate(360deg);
+            }
+        }
+
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            color: #7c3aed;
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <a href="../../index.html" class="back-link">← 戻る</a>
+    
+    <div class="floating-thought">∞</div>
+    <div class="floating-thought" style="animation-delay: 5s;">思</div>
+    <div class="floating-thought" style="animation-delay: 10s;">考</div>
+    <div class="floating-thought" style="animation-delay: 15s;">φ</div>
+
+    <div class="container">
+        <header>
+            <h1>ULTRATHINK</h1>
+            <p class="subtitle">深淵なる思考の探求</p>
+        </header>
+
+        <section class="quote-section">
+            <p class="quote">
+                "考えるということは、疑うことである。"
+            </p>
+            <p class="author">— ルネ・デカルト</p>
+        </section>
+
+        <section class="thought-experiment">
+            <h2>思考実験：テセウスの船</h2>
+            <p>
+                古代ギリシャの英雄テセウスの船は、時間とともに部品が交換され、
+                最終的にすべての部品が新しくなりました。
+                これは元の船と同じ船でしょうか？
+                もし古い部品で別の船を作ったら、どちらが本物のテセウスの船でしょうか？
+            </p>
+        </section>
+
+        <section class="interactive-section">
+            <h2>深遠なる問いを探る</h2>
+            <button class="think-button" onclick="generateThought()">思考を巡らせる</button>
+            <button class="think-button" onclick="showParadox()">パラドックスを見る</button>
+            <div id="thought-display"></div>
+        </section>
+
+        <section class="philosophy-grid">
+            <div class="philosophy-card">
+                <h3>存在論</h3>
+                <p>なぜ何もないのではなく、何かがあるのか？</p>
+            </div>
+            <div class="philosophy-card">
+                <h3>認識論</h3>
+                <p>我々は真に何かを知ることができるのか？</p>
+            </div>
+            <div class="philosophy-card">
+                <h3>倫理学</h3>
+                <p>善とは何か、正義とは何か？</p>
+            </div>
+            <div class="philosophy-card">
+                <h3>美学</h3>
+                <p>美とは客観的か、主観的か？</p>
+            </div>
+        </section>
+
+        <section class="quote-section">
+            <p class="quote">
+                "私が知っているのは、私が何も知らないということだけだ。"
+            </p>
+            <p class="author">— ソクラテス</p>
+        </section>
+    </div>
+
+    <script>
+        const thoughts = [
+            "意識とは何か？それは脳の電気信号の集合に過ぎないのか？",
+            "自由意志は存在するのか、それとも全ては決定論的か？",
+            "時間は実在するのか、それとも人間の知覚の産物か？",
+            "言語は思考を制限するのか、それとも思考を可能にするのか？",
+            "自己とは継続的な物語なのか、それとも瞬間の集合か？",
+            "無限は概念として存在するが、現実に存在し得るか？"
+        ];
+
+        const paradoxes = [
+            "全知全能の神は、自分が持ち上げられない石を作ることができるか？",
+            "この文は偽である。— 嘘つきのパラドックス",
+            "アキレスは亀に追いつけない。— ゼノンのパラドックス",
+            "砂山から砂粒を一つずつ取り除いていくと、いつ砂山でなくなるのか？",
+            "理髪師は自分で髭を剃らない人全員の髭を剃る。理髪師は誰が剃るのか？"
+        ];
+
+        function generateThought() {
+            const display = document.getElementById('thought-display');
+            const randomThought = thoughts[Math.floor(Math.random() * thoughts.length)];
+            display.textContent = randomThought;
+            display.style.display = 'block';
+        }
+
+        function showParadox() {
+            const display = document.getElementById('thought-display');
+            const randomParadox = paradoxes[Math.floor(Math.random() * paradoxes.length)];
+            display.textContent = randomParadox;
+            display.style.display = 'block';
+        }
+
+        // ページロード時のアニメーション
+        window.addEventListener('load', () => {
+            const elements = document.querySelectorAll('.quote-section, .thought-experiment, .philosophy-card');
+            elements.forEach((el, index) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    el.style.transition = 'all 0.8s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

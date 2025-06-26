@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shader Workshop - GLSLディープダイブ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+            background: #0a0a0a;
+            color: #e0e0e0;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 3rem;
+            font-size: 1.2rem;
+        }
+        
+        .section {
+            margin-bottom: 4rem;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+        
+        .shader-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 2rem;
+            border: 1px solid #2a2a2a;
+        }
+        
+        .shader-preview {
+            position: relative;
+            aspect-ratio: 1;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .shader-preview canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        
+        .shader-code {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .code-editor {
+            flex: 1;
+            background: #0d0d0d;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Fira Code', 'Courier New', monospace;
+            font-size: 14px;
+            color: #e0e0e0;
+            resize: none;
+            overflow: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #2d3748;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        .explanation {
+            background: #1a1a1a;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 0 8px 8px 0;
+            line-height: 1.8;
+        }
+        
+        .concept-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .concept-card {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+        
+        .concept-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .concept-card h3 {
+            color: #764ba2;
+            margin-bottom: 0.5rem;
+        }
+        
+        .concept-card p {
+            color: #a0a0a0;
+            font-size: 0.9rem;
+        }
+        
+        .error-message {
+            background: #ff5555;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        @media (max-width: 968px) {
+            .shader-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .shader-preview {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Shader Workshop</h1>
+        <p class="subtitle">GLSLプログラミングの深層へ - インタラクティブなシェーダー学習</p>
+        
+        <section class="section">
+            <h2>基本概念</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>Fragment Shader</h3>
+                    <p>各ピクセルの色を計算するプログラム。並列処理で高速に実行される。</p>
+                </div>
+                <div class="concept-card">
+                    <h3>UV座標</h3>
+                    <p>0.0〜1.0の範囲で正規化されたテクスチャ座標。画面上の位置を表現。</p>
+                </div>
+                <div class="concept-card">
+                    <h3>Uniforms</h3>
+                    <p>シェーダー外部から渡される変数。時間、マウス位置、解像度など。</p>
+                </div>
+                <div class="concept-card">
+                    <h3>数学関数</h3>
+                    <p>sin, cos, smoothstep, mix などGLSL組み込み関数を活用。</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Example 1: カラーグラデーション</h2>
+            <div class="explanation">
+                UV座標を使った基本的なグラデーション。X軸は赤、Y軸は緑、時間で青を変化させます。
+            </div>
+            <div class="shader-container">
+                <div class="shader-preview">
+                    <canvas id="canvas1"></canvas>
+                </div>
+                <div class="shader-code">
+                    <textarea class="code-editor" id="code1">precision highp float;
+
+uniform vec2 resolution;
+uniform float time;
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    
+    // UV座標をそのまま色として使用
+    vec3 color = vec3(uv.x, uv.y, sin(time) * 0.5 + 0.5);
+    
+    gl_FragColor = vec4(color, 1.0);
+}</textarea>
+                    <div class="controls">
+                        <button class="btn" onclick="updateShader(1)">更新</button>
+                        <button class="btn btn-secondary" onclick="resetShader(1)">リセット</button>
+                    </div>
+                    <div class="error-message" id="error1"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Example 2: パターン生成</h2>
+            <div class="explanation">
+                三角関数を組み合わせて複雑なパターンを生成。fract関数で繰り返しパターンを作成。
+            </div>
+            <div class="shader-container">
+                <div class="shader-preview">
+                    <canvas id="canvas2"></canvas>
+                </div>
+                <div class="shader-code">
+                    <textarea class="code-editor" id="code2">precision highp float;
+
+uniform vec2 resolution;
+uniform float time;
+uniform vec2 mouse;
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 center = uv - 0.5;
+    
+    // 極座標変換
+    float angle = atan(center.y, center.x);
+    float radius = length(center);
+    
+    // パターン生成
+    float pattern = sin(angle * 8.0 + time) * 
+                   sin(radius * 20.0 - time * 2.0);
+    
+    // カラーマッピング
+    vec3 color = vec3(
+        sin(pattern + time) * 0.5 + 0.5,
+        cos(pattern + time * 0.7) * 0.5 + 0.5,
+        sin(pattern - time * 1.3) * 0.5 + 0.5
+    );
+    
+    gl_FragColor = vec4(color, 1.0);
+}</textarea>
+                    <div class="controls">
+                        <button class="btn" onclick="updateShader(2)">更新</button>
+                        <button class="btn btn-secondary" onclick="resetShader(2)">リセット</button>
+                    </div>
+                    <div class="error-message" id="error2"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Example 3: ノイズとフラクタル</h2>
+            <div class="explanation">
+                擬似ランダムノイズ関数とフラクタルブラウン運動（FBM）でオーガニックなパターンを生成。
+            </div>
+            <div class="shader-container">
+                <div class="shader-preview">
+                    <canvas id="canvas3"></canvas>
+                </div>
+                <div class="shader-code">
+                    <textarea class="code-editor" id="code3">precision highp float;
+
+uniform vec2 resolution;
+uniform float time;
+uniform vec2 mouse;
+
+// 擬似ランダムノイズ
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+// スムーズノイズ
+float noise(vec2 st) {
+    vec2 i = floor(st);
+    vec2 f = fract(st);
+    
+    float a = random(i);
+    float b = random(i + vec2(1.0, 0.0));
+    float c = random(i + vec2(0.0, 1.0));
+    float d = random(i + vec2(1.0, 1.0));
+    
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    
+    return mix(a, b, u.x) + 
+           (c - a) * u.y * (1.0 - u.x) + 
+           (d - b) * u.x * u.y;
+}
+
+// フラクタルブラウン運動
+float fbm(vec2 st) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 0.0;
+    
+    for (int i = 0; i < 6; i++) {
+        value += amplitude * noise(st);
+        st *= 2.0;
+        amplitude *= 0.5;
+    }
+    
+    return value;
+}
+
+void main() {
+    vec2 uv = gl_FragCoord.xy / resolution.xy;
+    vec2 st = uv * 3.0;
+    
+    // マウスで歪み
+    st += (mouse - 0.5) * 2.0;
+    
+    // アニメーション
+    st.x += time * 0.1;
+    
+    // FBMでパターン生成
+    float n = fbm(st + fbm(st + fbm(st)));
+    
+    // カラーマッピング
+    vec3 color = vec3(0.0);
+    color = mix(vec3(0.1, 0.2, 0.4), vec3(0.8, 0.3, 0.6), n);
+    color = mix(color, vec3(1.0, 0.8, 0.2), pow(n, 3.0));
+    
+    gl_FragColor = vec4(color, 1.0);
+}</textarea>
+                    <div class="controls">
+                        <button class="btn" onclick="updateShader(3)">更新</button>
+                        <button class="btn btn-secondary" onclick="resetShader(3)">リセット</button>
+                    </div>
+                    <div class="error-message" id="error3"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>Example 4: レイマーチングの基礎</h2>
+            <div class="explanation">
+                SDF（Signed Distance Function）を使った3D描画。球と立方体の組み合わせ。
+            </div>
+            <div class="shader-container">
+                <div class="shader-preview">
+                    <canvas id="canvas4"></canvas>
+                </div>
+                <div class="shader-code">
+                    <textarea class="code-editor" id="code4">precision highp float;
+
+uniform vec2 resolution;
+uniform float time;
+uniform vec2 mouse;
+
+// 回転行列
+mat2 rot(float a) {
+    float c = cos(a);
+    float s = sin(a);
+    return mat2(c, -s, s, c);
+}
+
+// SDFs
+float sdSphere(vec3 p, float r) {
+    return length(p) - r;
+}
+
+float sdBox(vec3 p, vec3 b) {
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+
+// スムーズな結合
+float smin(float a, float b, float k) {
+    float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+    return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+// シーン定義
+float map(vec3 p) {
+    // アニメーション
+    p.xz *= rot(time * 0.5);
+    p.xy *= rot(time * 0.3);
+    
+    float sphere = sdSphere(p + vec3(0.5, 0.0, 0.0), 0.5);
+    float box = sdBox(p - vec3(0.5, 0.0, 0.0), vec3(0.4));
+    
+    return smin(sphere, box, 0.3);
+}
+
+// 法線計算
+vec3 calcNormal(vec3 p) {
+    vec2 e = vec2(0.001, 0.0);
+    return normalize(vec3(
+        map(p + e.xyy) - map(p - e.xyy),
+        map(p + e.yxy) - map(p - e.yxy),
+        map(p + e.yyx) - map(p - e.yyx)
+    ));
+}
+
+void main() {
+    vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.y;
+    
+    // カメラ
+    vec3 ro = vec3(0.0, 0.0, -3.0);
+    vec3 rd = normalize(vec3(uv, 1.0));
+    
+    // マウス制御
+    float mx = (mouse.x - 0.5) * 3.14159;
+    float my = (mouse.y - 0.5) * 3.14159 * 0.5;
+    rd.xz *= rot(mx);
+    rd.yz *= rot(my);
+    
+    // レイマーチング
+    float t = 0.0;
+    vec3 col = vec3(0.0);
+    
+    for (int i = 0; i < 64; i++) {
+        vec3 p = ro + rd * t;
+        float d = map(p);
+        
+        if (d < 0.001) {
+            // ヒット時のライティング
+            vec3 n = calcNormal(p);
+            vec3 light = normalize(vec3(1.0, 2.0, -1.0));
+            
+            float diff = max(dot(n, light), 0.0);
+            float spec = pow(max(dot(reflect(-light, n), -rd), 0.0), 32.0);
+            
+            col = vec3(0.2) + diff * vec3(0.8, 0.6, 0.4) + spec * vec3(1.0);
+            break;
+        }
+        
+        if (t > 10.0) break;
+        t += d;
+    }
+    
+    // 背景グラデーション
+    if (col == vec3(0.0)) {
+        col = mix(vec3(0.1, 0.1, 0.2), vec3(0.05, 0.05, 0.1), uv.y + 0.5);
+    }
+    
+    gl_FragColor = vec4(col, 1.0);
+}</textarea>
+                    <div class="controls">
+                        <button class="btn" onclick="updateShader(4)">更新</button>
+                        <button class="btn btn-secondary" onclick="resetShader(4)">リセット</button>
+                    </div>
+                    <div class="error-message" id="error4"></div>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>リソースとヒント</h2>
+            <div class="concept-grid">
+                <div class="concept-card">
+                    <h3>パフォーマンス最適化</h3>
+                    <p>• ループ回数を最小限に<br>• 条件分岐を避ける<br>• テクスチャルックアップを減らす</p>
+                </div>
+                <div class="concept-card">
+                    <h3>デバッグテクニック</h3>
+                    <p>• 値を色として出力<br>• グラデーションで値の範囲を確認<br>• step関数で閾値を視覚化</p>
+                </div>
+                <div class="concept-card">
+                    <h3>よく使う関数</h3>
+                    <p>• mix(): 線形補間<br>• smoothstep(): スムーズな遷移<br>• clamp(): 値の制限</p>
+                </div>
+                <div class="concept-card">
+                    <h3>創造的なヒント</h3>
+                    <p>• 時間でアニメーション<br>• マウスでインタラクション<br>• 複数の関数を組み合わせる</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // シェーダープログラムのセットアップ
+        const vertexShaderSource = `
+            attribute vec2 position;
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        `;
+        
+        // オリジナルのシェーダーコード
+        const originalShaders = {};
+        
+        // WebGLセットアップ
+        function setupWebGL(canvasId, fragmentSource) {
+            const canvas = document.getElementById(canvasId);
+            const gl = canvas.getContext('webgl');
+            
+            if (!gl) {
+                console.error('WebGL not supported');
+                return null;
+            }
+            
+            // シェーダーのコンパイル
+            function compileShader(source, type) {
+                const shader = gl.createShader(type);
+                gl.shaderSource(shader, source);
+                gl.compileShader(shader);
+                
+                if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                    const error = gl.getShaderInfoLog(shader);
+                    gl.deleteShader(shader);
+                    throw new Error(error);
+                }
+                
+                return shader;
+            }
+            
+            try {
+                const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+                const fragmentShader = compileShader(fragmentSource, gl.FRAGMENT_SHADER);
+                
+                const program = gl.createProgram();
+                gl.attachShader(program, vertexShader);
+                gl.attachShader(program, fragmentShader);
+                gl.linkProgram(program);
+                
+                if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                    throw new Error(gl.getProgramInfoLog(program));
+                }
+                
+                // 頂点データ
+                const vertices = new Float32Array([
+                    -1, -1, 1, -1, -1, 1,
+                    -1, 1, 1, -1, 1, 1
+                ]);
+                
+                const buffer = gl.createBuffer();
+                gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+                gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+                
+                const positionLocation = gl.getAttribLocation(program, 'position');
+                gl.enableVertexAttribArray(positionLocation);
+                gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+                
+                return { gl, program };
+            } catch (error) {
+                return { error: error.message };
+            }
+        }
+        
+        // アニメーションループ
+        const shaderPrograms = {};
+        const mousePositions = {};
+        
+        function animate(id) {
+            const shader = shaderPrograms[id];
+            if (!shader || shader.error) return;
+            
+            const { gl, program, canvas } = shader;
+            
+            // キャンバスサイズ調整
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            
+            gl.useProgram(program);
+            
+            // Uniforms
+            const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+            const timeLocation = gl.getUniformLocation(program, 'time');
+            const mouseLocation = gl.getUniformLocation(program, 'mouse');
+            
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, performance.now() * 0.001);
+            
+            const mouse = mousePositions[id] || { x: 0.5, y: 0.5 };
+            gl.uniform2f(mouseLocation, mouse.x, mouse.y);
+            
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            
+            requestAnimationFrame(() => animate(id));
+        }
+        
+        // シェーダーの初期化
+        function initShader(id) {
+            const canvas = document.getElementById(`canvas${id}`);
+            const code = document.getElementById(`code${id}`).value;
+            const errorDiv = document.getElementById(`error${id}`);
+            
+            originalShaders[id] = code;
+            
+            const result = setupWebGL(`canvas${id}`, code);
+            
+            if (result.error) {
+                errorDiv.textContent = `エラー: ${result.error}`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            shaderPrograms[id] = { ...result, canvas };
+            
+            // マウスイベント
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                mousePositions[id] = {
+                    x: (e.clientX - rect.left) / rect.width,
+                    y: 1.0 - (e.clientY - rect.top) / rect.height
+                };
+            });
+            
+            animate(id);
+        }
+        
+        // シェーダーの更新
+        function updateShader(id) {
+            const code = document.getElementById(`code${id}`).value;
+            const errorDiv = document.getElementById(`error${id}`);
+            
+            const result = setupWebGL(`canvas${id}`, code);
+            
+            if (result.error) {
+                errorDiv.textContent = `エラー: ${result.error}`;
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            const canvas = document.getElementById(`canvas${id}`);
+            shaderPrograms[id] = { ...result, canvas };
+        }
+        
+        // シェーダーのリセット
+        function resetShader(id) {
+            document.getElementById(`code${id}`).value = originalShaders[id];
+            updateShader(id);
+        }
+        
+        // 初期化
+        window.onload = () => {
+            for (let i = 1; i <= 4; i++) {
+                initShader(i);
+            }
+        };
+    </script>
+</body>
+</html>

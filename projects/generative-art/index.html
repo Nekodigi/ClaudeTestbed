@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成的アート - Generative Art</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            cursor: crosshair;
+        }
+        canvas {
+            display: block;
+        }
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            user-select: none;
+        }
+        .controls h3 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+        }
+        .controls label {
+            display: block;
+            margin: 8px 0;
+        }
+        .controls input[type="range"] {
+            width: 150px;
+            margin-left: 10px;
+        }
+        .controls button {
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 8px 16px;
+            margin: 10px 5px 0 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .controls button:hover {
+            background: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="controls">
+        <h3>インタラクティブアート</h3>
+        <label>
+            速度: <input type="range" id="speed" min="0.1" max="5" step="0.1" value="1">
+        </label>
+        <label>
+            パーティクル数: <input type="range" id="particleCount" min="10" max="500" step="10" value="100">
+        </label>
+        <label>
+            カラーモード:
+            <select id="colorMode">
+                <option value="rainbow">虹</option>
+                <option value="ocean">海</option>
+                <option value="sunset">夕焼け</option>
+                <option value="monochrome">モノクロ</option>
+            </select>
+        </label>
+        <button id="clearBtn">クリア</button>
+        <button id="pauseBtn">一時停止</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        let particles = [];
+        let mouseX = canvas.width / 2;
+        let mouseY = canvas.height / 2;
+        let isPaused = false;
+        let speed = 1;
+        let targetParticleCount = 100;
+        let colorMode = 'rainbow';
+        let time = 0;
+        
+        const colorModes = {
+            rainbow: (time, index) => `hsl(${(time * 2 + index * 3) % 360}, 70%, 50%)`,
+            ocean: (time, index) => `hsl(${180 + Math.sin(time * 0.01 + index * 0.1) * 30}, 70%, 50%)`,
+            sunset: (time, index) => `hsl(${Math.sin(time * 0.01 + index * 0.05) * 30 + 30}, 80%, 50%)`,
+            monochrome: (time, index) => `hsl(0, 0%, ${50 + Math.sin(time * 0.01 + index * 0.1) * 40}%)`
+        };
+        
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.size = Math.random() * 3 + 1;
+                this.trail = [];
+                this.maxTrailLength = 20;
+                this.life = 1;
+                this.decay = 0.005;
+                this.index = particles.length;
+            }
+            
+            update() {
+                if (isPaused) return;
+                
+                const dx = mouseX - this.x;
+                const dy = mouseY - this.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 200) {
+                    const force = (200 - dist) / 200;
+                    this.vx += (dx / dist) * force * 0.5 * speed;
+                    this.vy += (dy / dist) * force * 0.5 * speed;
+                }
+                
+                this.vx *= 0.98;
+                this.vy *= 0.98;
+                
+                this.x += this.vx * speed;
+                this.y += this.vy * speed;
+                
+                if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+                
+                this.trail.push({ x: this.x, y: this.y });
+                if (this.trail.length > this.maxTrailLength) {
+                    this.trail.shift();
+                }
+                
+                this.life -= this.decay;
+                if (this.life <= 0) {
+                    this.reset();
+                }
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.life = 1;
+                this.trail = [];
+            }
+            
+            draw() {
+                ctx.save();
+                
+                for (let i = 0; i < this.trail.length; i++) {
+                    const point = this.trail[i];
+                    const alpha = (i / this.trail.length) * this.life * 0.5;
+                    
+                    ctx.globalAlpha = alpha;
+                    ctx.fillStyle = colorModes[colorMode](time, this.index);
+                    ctx.fillRect(point.x, point.y, this.size, this.size);
+                }
+                
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = colorModes[colorMode](time, this.index);
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size * 2, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.restore();
+            }
+        }
+        
+        function init() {
+            particles = [];
+            for (let i = 0; i < targetParticleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animate() {
+            if (!isPaused) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                time++;
+                
+                while (particles.length < targetParticleCount) {
+                    particles.push(new Particle());
+                }
+                while (particles.length > targetParticleCount) {
+                    particles.pop();
+                }
+                
+                particles.forEach(particle => {
+                    particle.update();
+                    particle.draw();
+                });
+            }
+            
+            requestAnimationFrame(animate);
+        }
+        
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            mouseX = e.touches[0].clientX;
+            mouseY = e.touches[0].clientY;
+        });
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        document.getElementById('speed').addEventListener('input', (e) => {
+            speed = parseFloat(e.target.value);
+        });
+        
+        document.getElementById('particleCount').addEventListener('input', (e) => {
+            targetParticleCount = parseInt(e.target.value);
+        });
+        
+        document.getElementById('colorMode').addEventListener('change', (e) => {
+            colorMode = e.target.value;
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', (e) => {
+            isPaused = !isPaused;
+            e.target.textContent = isPaused ? '再生' : '一時停止';
+        });
+        
+        init();
+        animate();
+    </script>
+</body>
+</html>

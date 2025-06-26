@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOPAMINE RUSH INFINITY - 究極の中毒性ゲーム</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        
+        #gameCanvas {
+            display: block;
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        #ui {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 48px;
+            font-weight: bold;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+        }
+        
+        #combo {
+            position: absolute;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #ffff00;
+            text-shadow: 0 0 15px rgba(255, 255, 0, 0.8);
+        }
+        
+        #level {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #00ffff;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+        }
+        
+        #multiplier {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 36px;
+            color: #ff00ff;
+            text-shadow: 0 0 15px rgba(255, 0, 255, 0.8);
+            display: none;
+        }
+        
+        .popup {
+            position: absolute;
+            font-size: 24px;
+            font-weight: bold;
+            pointer-events: none;
+            animation: popup 1s ease-out forwards;
+        }
+        
+        @keyframes popup {
+            0% {
+                transform: scale(0) translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.5) translateY(-20px);
+            }
+            100% {
+                transform: scale(1) translateY(-60px);
+                opacity: 0;
+            }
+        }
+        
+        #startScreen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #1a1a2e, #000);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        
+        #startScreen h1 {
+            font-size: 60px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #ff00ff, #00ffff, #ffff00, #ff00ff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 3s ease infinite;
+        }
+        
+        @keyframes gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        #startButton {
+            padding: 20px 60px;
+            font-size: 28px;
+            background: linear-gradient(45deg, #ff006e, #8338ec, #3a86ff);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 40px rgba(255, 255, 255, 0.8); }
+            100% { transform: scale(1); box-shadow: 0 0 20px rgba(255, 255, 255, 0.5); }
+        }
+        
+        #startButton:hover {
+            transform: scale(1.1);
+        }
+        
+        #gameOver {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: none;
+            z-index: 100;
+        }
+        
+        #gameOver h2 {
+            font-size: 48px;
+            color: #ff0066;
+            margin-bottom: 20px;
+        }
+        
+        #finalScore {
+            font-size: 36px;
+            margin-bottom: 30px;
+        }
+        
+        #restartButton {
+            padding: 15px 40px;
+            font-size: 24px;
+            background: #ff0066;
+            border: none;
+            border-radius: 30px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        #restartButton:hover {
+            background: #ff3388;
+            transform: scale(1.05);
+        }
+        
+        .achievement {
+            position: fixed;
+            top: 150px;
+            right: -400px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: right 0.5s ease;
+            z-index: 50;
+        }
+        
+        .achievement.show {
+            right: 20px;
+        }
+        
+        .achievement h3 {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        
+        .achievement p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas"></canvas>
+    
+    <div id="ui">
+        <div id="score">0</div>
+        <div id="combo">COMBO: 0</div>
+        <div id="level">LEVEL 1</div>
+        <div id="multiplier">x1</div>
+    </div>
+    
+    <div id="startScreen">
+        <h1>DOPAMINE RUSH INFINITY</h1>
+        <button id="startButton">START GAME</button>
+    </div>
+    
+    <div id="gameOver">
+        <h2>GAME OVER</h2>
+        <div id="finalScore">SCORE: 0</div>
+        <button id="restartButton">RESTART</button>
+    </div>
+    
+    <div id="achievement" class="achievement">
+        <h3 id="achievementTitle">Achievement Unlocked!</h3>
+        <p id="achievementDesc">Description</p>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Game state
+        let gameState = 'menu';
+        let score = 0;
+        let combo = 0;
+        let level = 1;
+        let multiplier = 1;
+        let gameSpeed = 1;
+        let perfectHits = 0;
+        let totalHits = 0;
+        
+        // Orbs
+        const orbs = [];
+        const particles = [];
+        const orbTypes = [
+            { color: '#00ffff', points: 10, size: 30, glow: 10 },
+            { color: '#ff00ff', points: 25, size: 35, glow: 15 },
+            { color: '#ffff00', points: 50, size: 40, glow: 20 },
+            { color: '#ff0066', points: 100, size: 45, glow: 25 },
+            { color: '#00ff66', points: 200, size: 50, glow: 30 }
+        ];
+        
+        // Target zone
+        const targetZone = {
+            y: 0,
+            height: 100,
+            perfectHeight: 30
+        };
+        
+        // Background effects
+        const bgParticles = [];
+        let bgHue = 0;
+        
+        // Sound system (using Web Audio API)
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        function playTone(frequency, duration, volume = 0.3) {
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.value = frequency;
+            gainNode.gain.value = volume;
+            
+            oscillator.start();
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+        
+        // Initialize canvas
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            targetZone.y = canvas.height - 150;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Orb class
+        class Orb {
+            constructor() {
+                this.x = Math.random() * (canvas.width - 100) + 50;
+                this.y = -50;
+                this.type = this.getRandomType();
+                this.speed = 2 + (level * 0.5) + (Math.random() * 2);
+                this.radius = this.type.size;
+                this.glow = 0;
+                this.hit = false;
+                this.perfect = false;
+            }
+            
+            getRandomType() {
+                const weights = [50, 30, 15, 4, 1];
+                const totalWeight = weights.reduce((a, b) => a + b, 0);
+                let random = Math.random() * totalWeight;
+                
+                for (let i = 0; i < weights.length; i++) {
+                    random -= weights[i];
+                    if (random <= 0) {
+                        return orbTypes[Math.min(i, level - 1)];
+                    }
+                }
+                
+                return orbTypes[0];
+            }
+            
+            update() {
+                this.y += this.speed * gameSpeed;
+                this.glow = Math.sin(Date.now() * 0.01) * 5 + this.type.glow;
+                
+                if (this.hit) {
+                    this.radius += 5;
+                    this.glow += 10;
+                }
+            }
+            
+            draw() {
+                // Glow effect
+                const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius + this.glow);
+                gradient.addColorStop(0, this.type.color);
+                gradient.addColorStop(0.5, this.type.color + '88');
+                gradient.addColorStop(1, 'transparent');
+                
+                ctx.fillStyle = gradient;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius + this.glow, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Core
+                ctx.fillStyle = this.type.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fill();
+                
+                // Inner glow
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+        
+        // Particle class
+        class Particle {
+            constructor(x, y, color, speed = 5) {
+                this.x = x;
+                this.y = y;
+                this.vx = (Math.random() - 0.5) * speed;
+                this.vy = (Math.random() - 0.5) * speed;
+                this.color = color;
+                this.alpha = 1;
+                this.size = Math.random() * 10 + 5;
+            }
+            
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1;
+                this.alpha -= 0.02;
+                this.size *= 0.98;
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // Background particle
+        class BgParticle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = Math.random() * 0.5 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.3;
+            }
+            
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX;
+                
+                if (this.y > canvas.height) {
+                    this.y = -10;
+                    this.x = Math.random() * canvas.width;
+                }
+            }
+            
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.fillStyle = `hsl(${bgHue}, 100%, 50%)`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+        
+        // Initialize background particles
+        for (let i = 0; i < 100; i++) {
+            bgParticles.push(new BgParticle());
+        }
+        
+        // Spawn orbs
+        let spawnTimer = 0;
+        function spawnOrb() {
+            const spawnRate = Math.max(30 - level * 2, 10);
+            spawnTimer++;
+            
+            if (spawnTimer >= spawnRate) {
+                orbs.push(new Orb());
+                spawnTimer = 0;
+            }
+        }
+        
+        // Create explosion effect
+        function createExplosion(x, y, color, power = 1) {
+            const particleCount = 20 * power;
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle(x, y, color, 10 * power));
+            }
+        }
+        
+        // Create score popup
+        function createScorePopup(x, y, points, perfect = false) {
+            const popup = document.createElement('div');
+            popup.className = 'popup';
+            popup.style.left = x + 'px';
+            popup.style.top = y + 'px';
+            popup.style.color = perfect ? '#ffff00' : '#ffffff';
+            popup.textContent = perfect ? `PERFECT! +${points}` : `+${points}`;
+            popup.style.fontSize = perfect ? '32px' : '24px';
+            
+            document.getElementById('ui').appendChild(popup);
+            
+            setTimeout(() => {
+                popup.remove();
+            }, 1000);
+        }
+        
+        // Show achievement
+        function showAchievement(title, description) {
+            const achievementEl = document.getElementById('achievement');
+            document.getElementById('achievementTitle').textContent = title;
+            document.getElementById('achievementDesc').textContent = description;
+            
+            achievementEl.classList.add('show');
+            
+            setTimeout(() => {
+                achievementEl.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check achievements
+        function checkAchievements() {
+            if (combo === 10 && !localStorage.getItem('combo10')) {
+                showAchievement('Combo Master!', '10 combo achieved!');
+                localStorage.setItem('combo10', 'true');
+            }
+            
+            if (combo === 50 && !localStorage.getItem('combo50')) {
+                showAchievement('Combo Legend!', '50 combo achieved!');
+                localStorage.setItem('combo50', 'true');
+            }
+            
+            if (perfectHits === 10 && !localStorage.getItem('perfect10')) {
+                showAchievement('Perfect Player!', '10 perfect hits!');
+                localStorage.setItem('perfect10', 'true');
+            }
+            
+            if (score >= 10000 && !localStorage.getItem('score10k')) {
+                showAchievement('High Scorer!', '10,000 points reached!');
+                localStorage.setItem('score10k', 'true');
+            }
+        }
+        
+        // Update game
+        function updateGame() {
+            if (gameState !== 'playing') return;
+            
+            // Update background
+            bgHue = (bgHue + 0.5) % 360;
+            
+            // Update background particles
+            bgParticles.forEach(particle => particle.update());
+            
+            // Spawn orbs
+            spawnOrb();
+            
+            // Update orbs
+            for (let i = orbs.length - 1; i >= 0; i--) {
+                const orb = orbs[i];
+                orb.update();
+                
+                // Remove orbs that are off screen
+                if (orb.y > canvas.height + 50) {
+                    orbs.splice(i, 1);
+                    if (!orb.hit) {
+                        combo = 0;
+                        multiplier = 1;
+                        updateUI();
+                    }
+                }
+                
+                // Remove hit orbs
+                if (orb.hit && orb.radius > orb.type.size * 2) {
+                    orbs.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.update();
+                
+                if (particle.alpha <= 0 || particle.size <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Level progression
+            if (score > level * 1000) {
+                level++;
+                gameSpeed += 0.1;
+                showAchievement(`Level ${level}!`, 'Speed increased!');
+                updateUI();
+            }
+            
+            checkAchievements();
+        }
+        
+        // Draw game
+        function drawGame() {
+            // Clear canvas
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background particles
+            bgParticles.forEach(particle => particle.draw());
+            
+            // Draw target zone
+            const gradient = ctx.createLinearGradient(0, targetZone.y, 0, targetZone.y + targetZone.height);
+            gradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+            gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.3)');
+            gradient.addColorStop(1, 'rgba(255, 255, 255, 0.1)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, targetZone.y, canvas.width, targetZone.height);
+            
+            // Draw perfect zone
+            ctx.fillStyle = 'rgba(255, 255, 0, 0.2)';
+            ctx.fillRect(0, targetZone.y + targetZone.height/2 - targetZone.perfectHeight/2, 
+                        canvas.width, targetZone.perfectHeight);
+            
+            // Draw orbs
+            orbs.forEach(orb => orb.draw());
+            
+            // Draw particles
+            particles.forEach(particle => particle.draw());
+        }
+        
+        // Handle click/tap
+        function handleClick(e) {
+            if (gameState === 'playing') {
+                const clickX = e.clientX || e.touches[0].clientX;
+                const clickY = e.clientY || e.touches[0].clientY;
+                
+                let hitOrb = false;
+                
+                for (let i = orbs.length - 1; i >= 0; i--) {
+                    const orb = orbs[i];
+                    
+                    // Check if orb is in target zone
+                    if (orb.y >= targetZone.y && orb.y <= targetZone.y + targetZone.height && !orb.hit) {
+                        const distance = Math.sqrt(Math.pow(clickX - orb.x, 2) + Math.pow(clickY - orb.y, 2));
+                        
+                        if (distance < orb.radius + 20) {
+                            orb.hit = true;
+                            hitOrb = true;
+                            totalHits++;
+                            
+                            // Check if perfect hit
+                            const perfectY = targetZone.y + targetZone.height/2;
+                            const isPerfect = Math.abs(orb.y - perfectY) < targetZone.perfectHeight/2;
+                            
+                            if (isPerfect) {
+                                orb.perfect = true;
+                                perfectHits++;
+                                multiplier = Math.min(multiplier + 0.5, 10);
+                            }
+                            
+                            // Calculate points
+                            const points = Math.floor(orb.type.points * multiplier * (isPerfect ? 2 : 1));
+                            score += points;
+                            combo++;
+                            
+                            // Effects
+                            createExplosion(orb.x, orb.y, orb.type.color, isPerfect ? 2 : 1);
+                            createScorePopup(orb.x, orb.y, points, isPerfect);
+                            
+                            // Sound
+                            const baseFreq = 440;
+                            const freq = baseFreq * Math.pow(2, (combo % 12) / 12);
+                            playTone(freq, 0.1, isPerfect ? 0.5 : 0.3);
+                            
+                            updateUI();
+                            break;
+                        }
+                    }
+                }
+                
+                if (!hitOrb) {
+                    // Miss penalty
+                    combo = 0;
+                    multiplier = 1;
+                    updateUI();
+                }
+            }
+        }
+        
+        // Update UI
+        function updateUI() {
+            document.getElementById('score').textContent = score.toLocaleString();
+            document.getElementById('combo').textContent = `COMBO: ${combo}`;
+            document.getElementById('level').textContent = `LEVEL ${level}`;
+            
+            const multiplierEl = document.getElementById('multiplier');
+            if (multiplier > 1) {
+                multiplierEl.textContent = `x${multiplier.toFixed(1)}`;
+                multiplierEl.style.display = 'block';
+            } else {
+                multiplierEl.style.display = 'none';
+            }
+        }
+        
+        // Start game
+        function startGame() {
+            gameState = 'playing';
+            score = 0;
+            combo = 0;
+            level = 1;
+            multiplier = 1;
+            gameSpeed = 1;
+            perfectHits = 0;
+            totalHits = 0;
+            orbs.length = 0;
+            particles.length = 0;
+            
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('gameOver').style.display = 'none';
+            
+            updateUI();
+        }
+        
+        // Game over
+        function gameOver() {
+            gameState = 'gameover';
+            document.getElementById('finalScore').textContent = `SCORE: ${score.toLocaleString()}`;
+            document.getElementById('gameOver').style.display = 'block';
+            
+            // Save high score
+            const highScore = localStorage.getItem('highScore') || 0;
+            if (score > highScore) {
+                localStorage.setItem('highScore', score);
+                showAchievement('New High Score!', `${score.toLocaleString()} points!`);
+            }
+        }
+        
+        // Game loop
+        function gameLoop() {
+            updateGame();
+            drawGame();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        // Event listeners
+        canvas.addEventListener('click', handleClick);
+        canvas.addEventListener('touchstart', handleClick);
+        
+        document.getElementById('startButton').addEventListener('click', () => {
+            audioContext.resume();
+            startGame();
+        });
+        
+        document.getElementById('restartButton').addEventListener('click', startGame);
+        
+        // Start game loop
+        gameLoop();
+    </script>
+</body>
+</html>

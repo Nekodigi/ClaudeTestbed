@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ray Marching Demo</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: #000;
+            font-family: monospace;
+        }
+        canvas {
+            display: block;
+            cursor: move;
+        }
+        .info {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #fff;
+            font-size: 14px;
+            text-shadow: 0 0 3px #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div class="info">Ray Marching Demo - Drag to rotate</div>
+    
+    <script>
+        const canvas = document.getElementById('canvas');
+        const gl = canvas.getContext('webgl');
+        
+        // Vertex shader - simple quad
+        const vertexShaderSource = `
+            attribute vec2 position;
+            void main() {
+                gl_Position = vec4(position, 0.0, 1.0);
+            }
+        `;
+        
+        // Fragment shader - ray marching implementation
+        const fragmentShaderSource = `
+            precision highp float;
+            
+            uniform vec2 resolution;
+            uniform float time;
+            uniform vec2 mouse;
+            
+            // Rotation matrix
+            mat3 rotateY(float angle) {
+                float c = cos(angle);
+                float s = sin(angle);
+                return mat3(c, 0, s, 0, 1, 0, -s, 0, c);
+            }
+            
+            // SDF primitives
+            float sdSphere(vec3 p, float r) {
+                return length(p) - r;
+            }
+            
+            float sdBox(vec3 p, vec3 b) {
+                vec3 q = abs(p) - b;
+                return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+            }
+            
+            float sdTorus(vec3 p, vec2 t) {
+                vec2 q = vec2(length(p.xz) - t.x, p.y);
+                return length(q) - t.y;
+            }
+            
+            float sdOctahedron(vec3 p, float s) {
+                p = abs(p);
+                float m = p.x + p.y + p.z - s;
+                vec3 q;
+                if (3.0 * p.x < m) q = p.xyz;
+                else if (3.0 * p.y < m) q = p.yzx;
+                else if (3.0 * p.z < m) q = p.zxy;
+                else return m * 0.57735027;
+                
+                float k = clamp(0.5 * (q.z - q.y + s), 0.0, s);
+                return length(vec3(q.x, q.y - s + k, q.z - k));
+            }
+            
+            // Smooth minimum for blending shapes
+            float smin(float a, float b, float k) {
+                float h = clamp(0.5 + 0.5 * (b - a) / k, 0.0, 1.0);
+                return mix(b, a, h) - k * h * (1.0 - h);
+            }
+            
+            // Scene distance function
+            float map(vec3 p) {
+                // Animate shapes
+                vec3 p1 = p - vec3(sin(time) * 2.0, 0.0, 0.0);
+                vec3 p2 = p - vec3(-sin(time) * 2.0, cos(time) * 1.5, 0.0);
+                vec3 p3 = p - vec3(0.0, -sin(time * 0.7) * 1.5, cos(time * 0.7) * 2.0);
+                vec3 p4 = p;
+                
+                // Apply rotations
+                p1 = rotateY(time) * p1;
+                p2 = rotateY(-time * 0.7) * p2;
+                p4 = rotateY(time * 0.5) * p4;
+                
+                // Create shapes
+                float sphere = sdSphere(p1, 1.0);
+                float box = sdBox(p2, vec3(0.8));
+                float torus = sdTorus(p3, vec2(1.2, 0.4));
+                float octahedron = sdOctahedron(p4, 1.5);
+                
+                // Blend shapes together
+                float d = smin(sphere, box, 0.5);
+                d = smin(d, torus, 0.5);
+                d = smin(d, octahedron, 0.5);
+                
+                // Add ground plane
+                float ground = p.y + 3.0;
+                d = min(d, ground);
+                
+                return d;
+            }
+            
+            // Calculate normal
+            vec3 calcNormal(vec3 p) {
+                vec2 e = vec2(0.001, 0.0);
+                return normalize(vec3(
+                    map(p + e.xyy) - map(p - e.xyy),
+                    map(p + e.yxy) - map(p - e.yxy),
+                    map(p + e.yyx) - map(p - e.yyx)
+                ));
+            }
+            
+            // Ray marching
+            float march(vec3 ro, vec3 rd) {
+                float t = 0.0;
+                for (int i = 0; i < 100; i++) {
+                    vec3 p = ro + rd * t;
+                    float d = map(p);
+                    if (d < 0.001 || t > 100.0) break;
+                    t += d;
+                }
+                return t;
+            }
+            
+            // Lighting
+            vec3 lighting(vec3 p, vec3 n, vec3 rd) {
+                // Material colors
+                vec3 color = vec3(0.2, 0.3, 0.8);
+                if (p.y < -2.95) color = vec3(0.1, 0.1, 0.1); // Ground color
+                
+                // Light positions
+                vec3 lightPos1 = vec3(5.0, 5.0, -5.0);
+                vec3 lightPos2 = vec3(-5.0, 5.0, 5.0);
+                
+                // Diffuse lighting
+                vec3 l1 = normalize(lightPos1 - p);
+                vec3 l2 = normalize(lightPos2 - p);
+                float diff1 = max(dot(n, l1), 0.0);
+                float diff2 = max(dot(n, l2), 0.0);
+                
+                // Specular lighting
+                vec3 h1 = normalize(l1 - rd);
+                vec3 h2 = normalize(l2 - rd);
+                float spec1 = pow(max(dot(n, h1), 0.0), 32.0);
+                float spec2 = pow(max(dot(n, h2), 0.0), 32.0);
+                
+                // Combine lighting
+                vec3 result = color * 0.1; // Ambient
+                result += color * diff1 * vec3(1.0, 0.8, 0.6);
+                result += color * diff2 * vec3(0.6, 0.8, 1.0);
+                result += vec3(1.0) * spec1 * 0.5;
+                result += vec3(1.0) * spec2 * 0.5;
+                
+                // Simple shadows
+                float shadow1 = march(p + n * 0.01, l1);
+                float shadow2 = march(p + n * 0.01, l2);
+                if (shadow1 < length(lightPos1 - p)) result *= 0.5;
+                if (shadow2 < length(lightPos2 - p)) result *= 0.5;
+                
+                return result;
+            }
+            
+            void main() {
+                vec2 uv = (gl_FragCoord.xy - 0.5 * resolution.xy) / resolution.y;
+                
+                // Camera setup
+                vec3 ro = vec3(0.0, 0.0, -8.0);
+                vec3 rd = normalize(vec3(uv, 1.0));
+                
+                // Mouse rotation
+                float mx = (mouse.x - 0.5) * 3.14159 * 2.0;
+                float my = (mouse.y - 0.5) * 3.14159;
+                
+                ro.xz = ro.xz * mat2(cos(mx), -sin(mx), sin(mx), cos(mx));
+                ro.yz = ro.yz * mat2(cos(my), -sin(my), sin(my), cos(my));
+                rd.xz = rd.xz * mat2(cos(mx), -sin(mx), sin(mx), cos(mx));
+                rd.yz = rd.yz * mat2(cos(my), -sin(my), sin(my), cos(my));
+                
+                // Ray march
+                float t = march(ro, rd);
+                
+                vec3 color = vec3(0.0);
+                
+                if (t < 100.0) {
+                    vec3 p = ro + rd * t;
+                    vec3 n = calcNormal(p);
+                    color = lighting(p, n, rd);
+                    
+                    // Fog
+                    color = mix(color, vec3(0.0), t / 100.0);
+                }
+                
+                // Gamma correction
+                color = pow(color, vec3(0.4545));
+                
+                gl_FragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        // Compile shader
+        function compileShader(source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            return shader;
+        }
+        
+        // Create shader program
+        const vertexShader = compileShader(vertexShaderSource, gl.VERTEX_SHADER);
+        const fragmentShader = compileShader(fragmentShaderSource, gl.FRAGMENT_SHADER);
+        
+        const program = gl.createProgram();
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program linking error:', gl.getProgramInfoLog(program));
+        }
+        
+        // Create geometry (full screen quad)
+        const vertices = new Float32Array([
+            -1, -1, 1, -1, -1, 1,
+            -1, 1, 1, -1, 1, 1
+        ]);
+        
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+        
+        const positionLocation = gl.getAttribLocation(program, 'position');
+        gl.enableVertexAttribArray(positionLocation);
+        gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+        
+        // Get uniform locations
+        const resolutionLocation = gl.getUniformLocation(program, 'resolution');
+        const timeLocation = gl.getUniformLocation(program, 'time');
+        const mouseLocation = gl.getUniformLocation(program, 'mouse');
+        
+        // Mouse tracking
+        let mouseX = 0.5;
+        let mouseY = 0.5;
+        let isDragging = false;
+        
+        canvas.addEventListener('mousedown', () => isDragging = true);
+        canvas.addEventListener('mouseup', () => isDragging = false);
+        canvas.addEventListener('mouseleave', () => isDragging = false);
+        
+        canvas.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                mouseX = e.clientX / window.innerWidth;
+                mouseY = 1.0 - e.clientY / window.innerHeight;
+            }
+        });
+        
+        // Touch support
+        canvas.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            const touch = e.touches[0];
+            mouseX = touch.clientX / window.innerWidth;
+            mouseY = 1.0 - touch.clientY / window.innerHeight;
+        });
+        
+        canvas.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                const touch = e.touches[0];
+                mouseX = touch.clientX / window.innerWidth;
+                mouseY = 1.0 - touch.clientY / window.innerHeight;
+            }
+        });
+        
+        canvas.addEventListener('touchend', () => isDragging = false);
+        
+        // Resize handling
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+        }
+        
+        window.addEventListener('resize', resize);
+        resize();
+        
+        // Animation loop
+        function animate(time) {
+            gl.useProgram(program);
+            
+            gl.uniform2f(resolutionLocation, canvas.width, canvas.height);
+            gl.uniform1f(timeLocation, time * 0.001);
+            gl.uniform2f(mouseLocation, mouseX, mouseY);
+            
+            gl.drawArrays(gl.TRIANGLES, 0, 6);
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate(0);
+    </script>
+</body>
+</html>

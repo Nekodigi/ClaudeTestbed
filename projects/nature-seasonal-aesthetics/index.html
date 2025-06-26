@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nature & Seasonal Aesthetics Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #e8f5e9 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(45deg, #4caf50, #2196f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.5em;
+            color: #666;
+        }
+
+        .category {
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .category h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #2e7d32;
+        }
+
+        .aesthetics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .aesthetic-card {
+            background: linear-gradient(135deg, #fff 0%, #f5f5f5 100%);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .aesthetic-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border-color: #4caf50;
+        }
+
+        .aesthetic-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .aesthetic-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .summer-spring { background: linear-gradient(135deg, #fff9c4 0%, #c8e6c9 100%); }
+        .summer-matsuri { background: linear-gradient(135deg, #ffcdd2 0%, #ff9800 100%); }
+        .tropical { background: linear-gradient(135deg, #00bcd4 0%, #ffeb3b 100%); }
+        .frutiger { background: linear-gradient(135deg, #e1f5fe 0%, #81d4fa 100%); }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background: #4caf50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: #45a049;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            .subtitle {
+                font-size: 1.2em;
+            }
+            .category h2 {
+                font-size: 1.8em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../../index.html" class="back-link">← Back to Projects</a>
+
+        <div class="hero">
+            <h1>Nature & Seasonal Aesthetics</h1>
+            <p class="subtitle">Explore the beauty of natural and seasonal design styles</p>
+        </div>
+
+        <div class="category">
+            <h2>10. Nature/Seasonal</h2>
+            <div class="aesthetics-grid">
+                <div class="aesthetic-card summer-spring">
+                    <h3>Summer/Spring</h3>
+                    <p>Fresh, vibrant aesthetics capturing the warmth and renewal of summer and spring seasons. Features bright colors, floral patterns, and sunny motifs.</p>
+                </div>
+
+                <div class="aesthetic-card summer-matsuri">
+                    <h3>Summer Matsuri</h3>
+                    <p>Japanese summer festival aesthetic with traditional elements like fireworks, yukatas, paper lanterns, and festival foods. Vibrant and celebratory.</p>
+                </div>
+
+                <div class="aesthetic-card tropical">
+                    <h3>Tropical/Hawaiian</h3>
+                    <p>Paradise-inspired aesthetic featuring palm trees, tropical flowers, ocean waves, and island vibes. Bold, colorful, and relaxing.</p>
+                </div>
+
+                <div class="aesthetic-card frutiger">
+                    <h3>Frutiger Aero</h3>
+                    <p>Early 2000s glossy aesthetic combining nature elements with technology. Features water droplets, grass, bubbles, and glass effects with vibrant blues and greens.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add interactive effects
+        document.querySelectorAll('.aesthetic-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const name = this.querySelector('h3').textContent;
+                const description = this.querySelector('p').textContent;
+                
+                // Create modal overlay
+                const modal = document.createElement('div');
+                modal.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    opacity: 0;
+                    transition: opacity 0.3s ease;
+                `;
+                
+                const content = document.createElement('div');
+                content.style.cssText = `
+                    background: white;
+                    padding: 40px;
+                    border-radius: 20px;
+                    max-width: 600px;
+                    text-align: center;
+                    transform: scale(0.8);
+                    transition: transform 0.3s ease;
+                `;
+                
+                content.innerHTML = `
+                    <h2 style="margin-bottom: 20px; color: #2e7d32;">${name}</h2>
+                    <p style="line-height: 1.8; color: #666; margin-bottom: 30px;">${description}</p>
+                    <button style="
+                        background: #4caf50;
+                        color: white;
+                        border: none;
+                        padding: 10px 30px;
+                        border-radius: 5px;
+                        font-size: 16px;
+                        cursor: pointer;
+                    ">Close</button>
+                `;
+                
+                modal.appendChild(content);
+                document.body.appendChild(modal);
+                
+                // Animate in
+                setTimeout(() => {
+                    modal.style.opacity = '1';
+                    content.style.transform = 'scale(1)';
+                }, 10);
+                
+                // Close modal
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal || e.target.tagName === 'BUTTON') {
+                        modal.style.opacity = '0';
+                        content.style.transform = 'scale(0.8)';
+                        setTimeout(() => modal.remove(), 300);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

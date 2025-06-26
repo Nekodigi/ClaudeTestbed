@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academic Aesthetics - A Visual Journey</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            overflow-x: hidden;
+            position: relative;
+            min-height: 100vh;
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ===== GREEN ACADEMIA ===== */
+        body.green-academia {
+            background: #f5f2e8;
+            color: #2d4a2b;
+            font-family: 'Garamond', 'Georgia', serif;
+        }
+
+        /* Nature Background Pattern */
+        .green-academia::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.05;
+            background-image: 
+                url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 10 Q 50 5, 90 10 T 90 50 Q 95 90, 50 90 T 10 50 Q 5 10, 10 10' fill='none' stroke='%232d4a2b' stroke-width='0.5'/%3E%3C/svg%3E");
+            background-size: 200px 200px;
+            z-index: -1;
+        }
+
+        .green-academia .floating-leaves {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .leaf {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background: #8b7355;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath d='M50 10 Q 30 30, 20 50 T 30 80 Q 50 70, 50 50 Q 50 70, 70 80 T 80 50 Q 70 30, 50 10' fill='white'/%3E%3C/svg%3E") center/contain no-repeat;
+            animation: float-leaf 20s infinite linear;
+        }
+
+        @keyframes float-leaf {
+            from {
+                transform: translateY(-100px) rotate(0deg);
+            }
+            to {
+                transform: translateY(calc(100vh + 100px)) rotate(360deg);
+            }
+        }
+
+        .green-academia .botanical-border {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid #8b7355;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .green-academia .botanical-corner {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border: 2px solid #8b7355;
+        }
+
+        .botanical-corner.top-left {
+            top: -2px;
+            left: -2px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .botanical-corner.top-right {
+            top: -2px;
+            right: -2px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .botanical-corner.bottom-left {
+            bottom: -2px;
+            left: -2px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .botanical-corner.bottom-right {
+            bottom: -2px;
+            right: -2px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .green-academia .content {
+            padding: 80px 60px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .green-academia h1 {
+            font-size: 3.5rem;
+            font-weight: normal;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            position: relative;
+        }
+
+        .green-academia h1::after {
+            content: '❦';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            color: #8b7355;
+        }
+
+        .green-academia .book-stack {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 150px;
+            height: 200px;
+            z-index: 2;
+        }
+
+        .book {
+            position: absolute;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(90deg, #2d4a2b 0%, #3d5a3b 90%, #2d4a2b 100%);
+            border: 1px solid #1a2e19;
+            transform-origin: bottom left;
+        }
+
+        .book:nth-child(1) { bottom: 0; transform: rotate(-2deg); }
+        .book:nth-child(2) { bottom: 25px; transform: rotate(1deg); background: #8b7355; }
+        .book:nth-child(3) { bottom: 50px; transform: rotate(-1deg); }
+        .book:nth-child(4) { bottom: 75px; transform: rotate(2deg); background: #6d5a44; }
+
+        .green-academia .quote-card {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #8b7355;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 600px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .green-academia .quote-card::before {
+            content: '"';
+            position: absolute;
+            top: -20px;
+            left: 20px;
+            font-size: 4rem;
+            color: #8b7355;
+            font-family: 'Georgia', serif;
+        }
+
+        /* ===== ROMANTIC ACADEMIA ===== */
+        body.romantic-academia {
+            background: #1a1111;
+            color: #f5e6d3;
+            font-family: 'Baskerville', 'Georgia', serif;
+        }
+
+        .romantic-academia::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(139, 69, 19, 0.3) 0%, transparent 50%),
+                radial-gradient(circle at 80% 50%, rgba(101, 67, 33, 0.3) 0%, transparent 50%);
+            z-index: -1;
+        }
+
+        .romantic-academia .candle-container {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            height: 300px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .candle {
+            position: absolute;
+            bottom: 40px;
+        }
+
+        .candle:nth-child(1) { left: 10%; }
+        .candle:nth-child(2) { left: 30%; }
+        .candle:nth-child(3) { right: 30%; }
+        .candle:nth-child(4) { right: 10%; }
+
+        .candle-body {
+            width: 30px;
+            height: 80px;
+            background: linear-gradient(to bottom, #f5e6d3 0%, #d4c5b2 100%);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .flame {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 30px;
+            background: radial-gradient(ellipse at bottom, #fff 0%, #ff6b35 40%, #c44536 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            animation: flicker 2s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 100% {
+                transform: translateX(-50%) scaleY(1);
+                filter: brightness(1);
+            }
+            50% {
+                transform: translateX(-50%) scaleY(1.1);
+                filter: brightness(1.2);
+            }
+        }
+
+        .romantic-academia .content {
+            padding: 60px;
+            position: relative;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .romantic-academia h1 {
+            font-size: 4rem;
+            font-weight: normal;
+            font-style: italic;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .romantic-academia .poetry-scroll {
+            background: linear-gradient(to bottom, #2a1f1f 0%, #3d2f2f 100%);
+            border: 2px solid #8b6f47;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 40px auto;
+            max-width: 700px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .romantic-academia .poetry-scroll::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(139, 111, 71, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        .romantic-academia .wax-seal {
+            position: absolute;
+            bottom: -30px;
+            right: 50px;
+            width: 60px;
+            height: 60px;
+            background: #8b1a1a;
+            border-radius: 50%;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #2a1f1f;
+            font-weight: bold;
+        }
+
+        /* ===== SCIENCE ACADEMIA ===== */
+        body.science-academia {
+            background: #0a0e1a;
+            color: #e8f0ff;
+            font-family: 'Helvetica Neue', 'Arial', sans-serif;
+        }
+
+        .science-academia::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(74, 144, 226, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 144, 226, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+
+        .science-academia .formula-container {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .formula {
+            position: absolute;
+            font-family: 'Courier New', monospace;
+            color: rgba(74, 144, 226, 0.3);
+            font-size: 1.2rem;
+            animation: drift 30s infinite linear;
+        }
+
+        .formula:nth-child(1) { top: 10%; left: -200px; animation-duration: 25s; }
+        .formula:nth-child(2) { top: 30%; left: -200px; animation-duration: 35s; }
+        .formula:nth-child(3) { top: 50%; left: -200px; animation-duration: 30s; }
+        .formula:nth-child(4) { top: 70%; left: -200px; animation-duration: 40s; }
+        .formula:nth-child(5) { top: 90%; left: -200px; animation-duration: 28s; }
+
+        @keyframes drift {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 400px)); }
+        }
+
+        .science-academia .content {
+            padding: 60px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .science-academia h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 5px;
+            text-transform: uppercase;
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+        }
+
+        .science-academia h1::before,
+        .science-academia h1::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 100px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #4a90e2, transparent);
+        }
+
+        .science-academia h1::before { left: -120px; }
+        .science-academia h1::after { right: -120px; }
+
+        .science-academia .lab-equipment {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 200px;
+            z-index: 2;
+        }
+
+        .beaker {
+            position: absolute;
+            bottom: 40px;
+            width: 80px;
+            height: 100px;
+            border: 2px solid #4a90e2;
+            border-top: none;
+            border-radius: 0 0 40px 40px;
+            overflow: hidden;
+        }
+
+        .beaker:nth-child(1) { left: 20%; }
+        .beaker:nth-child(2) { left: 40%; width: 60px; height: 80px; }
+        .beaker:nth-child(3) { right: 30%; }
+
+        .liquid {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(to top, #4a90e2 0%, rgba(74, 144, 226, 0.5) 100%);
+            animation: bubble 4s infinite ease-in-out;
+        }
+
+        .beaker:nth-child(1) .liquid { height: 60%; }
+        .beaker:nth-child(2) .liquid { height: 40%; animation-delay: 1s; }
+        .beaker:nth-child(3) .liquid { height: 70%; animation-delay: 2s; }
+
+        @keyframes bubble {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .science-academia .data-card {
+            background: rgba(17, 19, 24, 0.8);
+            border: 1px solid #4a90e2;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px auto;
+            max-width: 800px;
+            box-shadow: 0 0 30px rgba(74, 144, 226, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .science-academia .data-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #4a90e2, transparent);
+            animation: scan 3s infinite;
+        }
+
+        @keyframes scan {
+            to { left: 100%; }
+        }
+
+        /* ===== THEATRE ACADEMIA ===== */
+        body.theatre-academia {
+            background: #0d0d0d;
+            color: #f5e6d3;
+            font-family: 'Playfair Display', 'Georgia', serif;
+        }
+
+        .theatre-academia::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at center, transparent 0%, #0d0d0d 50%);
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .theatre-academia .stage-lights {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .spotlight {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(ellipse at center, rgba(212, 175, 55, 0.3) 0%, transparent 60%);
+            border-radius: 50%;
+            animation: sway 10s infinite ease-in-out;
+        }
+
+        .spotlight:nth-child(1) { 
+            top: -150px; 
+            left: 10%; 
+            animation-delay: 0s; 
+        }
+        .spotlight:nth-child(2) { 
+            top: -150px; 
+            right: 10%; 
+            animation-delay: 3s; 
+        }
+        .spotlight:nth-child(3) { 
+            bottom: -150px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            animation-delay: 6s; 
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: rotate(-5deg) scale(1); }
+            50% { transform: rotate(5deg) scale(1.1); }
+        }
+
+        .theatre-academia .curtains {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            height: 150px;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .curtain {
+            position: absolute;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(to bottom, #8b1a1a 0%, #5d1212 100%);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.8);
+        }
+
+        .curtain.left {
+            left: 0;
+            transform-origin: top left;
+            transform: skewY(-2deg);
+        }
+
+        .curtain.right {
+            right: 0;
+            transform-origin: top right;
+            transform: skewY(2deg);
+        }
+
+        .curtain::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 30px;
+            background: repeating-linear-gradient(
+                90deg,
+                #d4af37 0px,
+                #d4af37 10px,
+                #b8962f 10px,
+                #b8962f 20px
+            );
+        }
+
+        .theatre-academia .content {
+            padding: 200px 60px 60px;
+            position: relative;
+            z-index: 5;
+            text-align: center;
+        }
+
+        .theatre-academia h1 {
+            font-size: 5rem;
+            font-weight: bold;
+            margin-bottom: 40px;
+            text-shadow: 
+                0 0 10px rgba(212, 175, 55, 0.5),
+                0 0 20px rgba(212, 175, 55, 0.3),
+                0 0 30px rgba(212, 175, 55, 0.1);
+            animation: dramatic-entrance 2s ease-out;
+        }
+
+        @keyframes dramatic-entrance {
+            from {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .theatre-academia .masks {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            z-index: 3;
+        }
+
+        .mask {
+            position: absolute;
+            width: 50px;
+            height: 60px;
+            background: #d4af37;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        }
+
+        .mask.comedy {
+            left: 0;
+            transform: rotate(-15deg);
+        }
+
+        .mask.tragedy {
+            right: 0;
+            transform: rotate(15deg);
+            background: #8b1a1a;
+        }
+
+        .mask::before,
+        .mask::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #0d0d0d;
+            border-radius: 50%;
+            top: 20px;
+        }
+
+        .mask::before { left: 12px; }
+        .mask::after { right: 12px; }
+
+        /* ===== SHARED ELEMENTS ===== */
+        .style-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 20px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .style-switcher h3 {
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+
+        .style-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .style-button {
+            padding: 12px 16px;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .style-button:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .style-button.active {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: #fff;
+            font-weight: bold;
+        }
+
+        .content-section {
+            margin: 60px auto;
+            max-width: 800px;
+            opacity: 0;
+            animation: fade-in 1s ease-out forwards;
+            animation-delay: 0.5s;
+        }
+
+        @keyframes fade-in {
+            to {
+                opacity: 1;
+            }
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 768px) {
+            .style-switcher {
+                top: 10px;
+                right: 10px;
+                padding: 15px;
+            }
+
+            .style-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 2.5rem !important;
+            }
+
+            .content {
+                padding: 120px 20px 40px !important;
+            }
+        }
+    </style>
+</head>
+<body class="green-academia">
+    <!-- Green Academia Elements -->
+    <div class="floating-leaves" style="display: none;">
+        <div class="leaf" style="left: 10%; animation-delay: 0s;"></div>
+        <div class="leaf" style="left: 30%; animation-delay: 3s;"></div>
+        <div class="leaf" style="left: 50%; animation-delay: 6s;"></div>
+        <div class="leaf" style="left: 70%; animation-delay: 9s;"></div>
+        <div class="leaf" style="left: 90%; animation-delay: 12s;"></div>
+    </div>
+
+    <div class="botanical-border" style="display: none;">
+        <div class="botanical-corner top-left"></div>
+        <div class="botanical-corner top-right"></div>
+        <div class="botanical-corner bottom-left"></div>
+        <div class="botanical-corner bottom-right"></div>
+    </div>
+
+    <div class="book-stack" style="display: none;">
+        <div class="book"></div>
+        <div class="book"></div>
+        <div class="book"></div>
+        <div class="book"></div>
+    </div>
+
+    <!-- Romantic Academia Elements -->
+    <div class="candle-container" style="display: none;">
+        <div class="candle">
+            <div class="candle-body"></div>
+            <div class="flame"></div>
+        </div>
+        <div class="candle">
+            <div class="candle-body"></div>
+            <div class="flame"></div>
+        </div>
+        <div class="candle">
+            <div class="candle-body"></div>
+            <div class="flame"></div>
+        </div>
+        <div class="candle">
+            <div class="candle-body"></div>
+            <div class="flame"></div>
+        </div>
+    </div>
+
+    <!-- Science Academia Elements -->
+    <div class="formula-container" style="display: none;">
+        <div class="formula">E = mc²</div>
+        <div class="formula">∑(n=1 to ∞) 1/n²</div>
+        <div class="formula">∂²ψ/∂t² = c²∇²ψ</div>
+        <div class="formula">F = ma</div>
+        <div class="formula">∫∫∫ ∇·F dV</div>
+    </div>
+
+    <div class="lab-equipment" style="display: none;">
+        <div class="beaker">
+            <div class="liquid"></div>
+        </div>
+        <div class="beaker">
+            <div class="liquid"></div>
+        </div>
+        <div class="beaker">
+            <div class="liquid"></div>
+        </div>
+    </div>
+
+    <!-- Theatre Academia Elements -->
+    <div class="stage-lights" style="display: none;">
+        <div class="spotlight"></div>
+        <div class="spotlight"></div>
+        <div class="spotlight"></div>
+    </div>
+
+    <div class="curtains" style="display: none;">
+        <div class="curtain left"></div>
+        <div class="curtain right"></div>
+    </div>
+
+    <div class="masks" style="display: none;">
+        <div class="mask comedy"></div>
+        <div class="mask tragedy"></div>
+    </div>
+
+    <!-- Style Switcher -->
+    <div class="style-switcher">
+        <h3>Academic Style</h3>
+        <div class="style-grid">
+            <button class="style-button active" data-style="green-academia">Green<br>Academia</button>
+            <button class="style-button" data-style="romantic-academia">Romantic<br>Academia</button>
+            <button class="style-button" data-style="science-academia">Science<br>Academia</button>
+            <button class="style-button" data-style="theatre-academia">Theatre<br>Academia</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <h1 id="main-title">The Scholar's Garden</h1>
+        
+        <div class="content-section">
+            <div class="quote-card card" id="quote-card">
+                <p id="quote-text">
+                    "In the garden of knowledge, every book is a seed, every thought a bloom, 
+                    and every discussion the gentle rain that nurtures wisdom."
+                </p>
+                <p style="text-align: right; margin-top: 20px; font-style: italic;" id="quote-author">
+                    — The Naturalist's Journal
+                </p>
+            </div>
+
+            <div class="card" id="description-card">
+                <h2 id="section-title">The Living Library</h2>
+                <p id="section-text">
+                    Here, among the whispered secrets of ancient texts and the rustling of autumn leaves, 
+                    we find solace in the pursuit of understanding. Each page turned reveals not just 
+                    information, but a connection to the natural world that surrounds and sustains us.
+                </p>
+            </div>
+
+            <div class="card" id="features-card">
+                <h3 id="features-title">Elements of Study</h3>
+                <ul id="features-list" style="list-style: none; padding: 0;">
+                    <li style="margin: 10px 0;">🌿 Botanical illustrations and pressed flowers</li>
+                    <li style="margin: 10px 0;">📚 Leather-bound journals and field notes</li>
+                    <li style="margin: 10px 0;">🍃 Herbal tea ceremonies and garden walks</li>
+                    <li style="margin: 10px 0;">✒️ Calligraphy practice in natural light</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const styleButtons = document.querySelectorAll('.style-button');
+        const body = document.body;
+
+        // Content for each style
+        const styleContent = {
+            'green-academia': {
+                title: "The Scholar's Garden",
+                quote: "In the garden of knowledge, every book is a seed, every thought a bloom, and every discussion the gentle rain that nurtures wisdom.",
+                author: "The Naturalist's Journal",
+                sectionTitle: "The Living Library",
+                sectionText: "Here, among the whispered secrets of ancient texts and the rustling of autumn leaves, we find solace in the pursuit of understanding. Each page turned reveals not just information, but a connection to the natural world that surrounds and sustains us.",
+                featuresTitle: "Elements of Study",
+                features: [
+                    "🌿 Botanical illustrations and pressed flowers",
+                    "📚 Leather-bound journals and field notes",
+                    "🍃 Herbal tea ceremonies and garden walks",
+                    "✒️ Calligraphy practice in natural light"
+                ]
+            },
+            'romantic-academia': {
+                title: "Ode to Melancholy Beauty",
+                quote: "By candlelight we read the poets of old, their words dancing like shadows on parchment, each verse a testament to the eternal struggle between passion and reason.",
+                author: "Letters from a Gothic Scholar",
+                sectionTitle: "The Midnight Study",
+                sectionText: "In these hallowed halls where portraits gaze down with knowing eyes, we compose sonnets to forgotten loves and pen treatises on the sublime. The night is our companion, the moon our gentle lamp.",
+                featuresTitle: "Romantic Pursuits",
+                features: [
+                    "🕯️ Candlelit poetry readings",
+                    "🌹 Victorian love letters and wax seals",
+                    "📜 Classical music and baroque aesthetics",
+                    "🎭 Gothic literature and tragic plays"
+                ]
+            },
+            'science-academia': {
+                title: "QUANTUM MECHANICS OF THOUGHT",
+                quote: "Every hypothesis is a doorway to infinity, every experiment a dance with the unknown. In the laboratory of the mind, we are both observer and observed.",
+                author: "Journal of Theoretical Academia, Vol. XLII",
+                sectionTitle: "The Research Paradigm",
+                sectionText: "Precision instruments measure not just phenomena, but the very fabric of reality. Here, in sterile laboratories and chalk-dusted lecture halls, we decode the universe one equation at a time.",
+                featuresTitle: "Scientific Method",
+                features: [
+                    "🔬 Advanced microscopy and data analysis",
+                    "⚗️ Chemical equations and lab notebooks",
+                    "📊 Statistical models and research papers",
+                    "🔭 Astronomical observations and field work"
+                ]
+            },
+            'theatre-academia': {
+                title: "ALL THE WORLD'S A STAGE",
+                quote: "Behind every mask lies a truth too brilliant for naked eyes. We are the players, the audience, and the very stage upon which life's drama unfolds.",
+                author: "The Dramatist's Manifesto",
+                sectionTitle: "The Grand Performance",
+                sectionText: "Under the spotlight's unforgiving gaze, we rehearse the human condition. Every gesture calculated, every word weighted with meaning, we transform raw emotion into timeless art.",
+                featuresTitle: "Theatrical Elements",
+                features: [
+                    "🎭 Method acting and character studies",
+                    "🎪 Stage design and dramatic lighting",
+                    "🎨 Costume history and makeup artistry",
+                    "📣 Voice projection and movement theory"
+                ]
+            }
+        };
+
+        // Elements that change for each style
+        const elementsToHide = {
+            'green-academia': ['.floating-leaves', '.botanical-border', '.book-stack'],
+            'romantic-academia': ['.candle-container'],
+            'science-academia': ['.formula-container', '.lab-equipment'],
+            'theatre-academia': ['.stage-lights', '.curtains', '.masks']
+        };
+
+        function updateContent(style) {
+            const content = styleContent[style];
+            
+            // Update text content with fade effect
+            const elements = [
+                { id: 'main-title', text: content.title },
+                { id: 'quote-text', text: content.quote },
+                { id: 'quote-author', text: `— ${content.author}` },
+                { id: 'section-title', text: content.sectionTitle },
+                { id: 'section-text', text: content.sectionText },
+                { id: 'features-title', text: content.featuresTitle }
+            ];
+
+            elements.forEach(el => {
+                const element = document.getElementById(el.id);
+                if (element) {
+                    element.style.opacity = '0';
+                    setTimeout(() => {
+                        element.textContent = el.text;
+                        element.style.opacity = '1';
+                    }, 300);
+                }
+            });
+
+            // Update features list
+            const featuresList = document.getElementById('features-list');
+            featuresList.style.opacity = '0';
+            setTimeout(() => {
+                featuresList.innerHTML = content.features
+                    .map(f => `<li style="margin: 10px 0;">${f}</li>`)
+                    .join('');
+                featuresList.style.opacity = '1';
+            }, 300);
+        }
+
+        function switchStyle(newStyle) {
+            // Hide all style-specific elements
+            Object.values(elementsToHide).flat().forEach(selector => {
+                document.querySelectorAll(selector).forEach(el => {
+                    el.style.display = 'none';
+                });
+            });
+
+            // Remove all style classes
+            body.className = '';
+            
+            // Add new style class
+            body.classList.add(newStyle);
+            
+            // Show elements for the new style
+            if (elementsToHide[newStyle]) {
+                elementsToHide[newStyle].forEach(selector => {
+                    document.querySelectorAll(selector).forEach(el => {
+                        el.style.display = '';
+                    });
+                });
+            }
+
+            // Update content
+            updateContent(newStyle);
+
+            // Update active button
+            styleButtons.forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`[data-style="${newStyle}"]`).classList.add('active');
+        }
+
+        // Initialize
+        switchStyle('green-academia');
+
+        // Add click handlers
+        styleButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const style = button.dataset.style;
+                switchStyle(style);
+            });
+        });
+
+        // Add some interactive effects
+        document.addEventListener('mousemove', (e) => {
+            if (body.classList.contains('science-academia')) {
+                const formulas = document.querySelectorAll('.formula');
+                formulas.forEach((formula, index) => {
+                    const speed = (index + 1) * 0.02;
+                    const x = e.clientX * speed;
+                    formula.style.transform = `translateX(${x}px)`;
+                });
+            }
+        });
+    </script>
+</body>
+</html>

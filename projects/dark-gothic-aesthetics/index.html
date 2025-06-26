@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dark Gothic Aesthetics Transformer | 闇美学変換器</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&family=Creepster&family=Playfair+Display:ital,wght@0,400;1,600&family=Kalam:wght@300;400;700&family=Orbitron:wght@400;700;900&family=Philosopher:ital,wght@0,400;1,700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background: #0a0a0a;
+            color: #e8e8e8;
+            min-height: 100vh;
+            overflow-x: hidden;
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        /* Background Effects */
+        .background-effects {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .particles-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            opacity: 0.6;
+            animation: particleFloat linear infinite;
+        }
+
+        @keyframes particleFloat {
+            0% {
+                transform: translateY(100vh) translateX(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                transform: translateY(-100px) translateX(50px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Aesthetic Styles */
+        .gothic-theme {
+            background: radial-gradient(circle at center, #1a0a1a, #0a0a0a);
+            color: #e6b3e6;
+            font-family: 'Cinzel', 'Georgia', serif;
+        }
+
+        .gothic-theme .background-effects {
+            background: 
+                radial-gradient(circle at 25% 25%, #4a0040 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, #200020 2px, transparent 2px);
+            background-size: 100px 100px;
+            opacity: 0.05;
+        }
+
+        .gothic-theme .aesthetic-card {
+            border-radius: 8px;
+            border: 3px solid;
+            border-image: linear-gradient(45deg, #4a0040, #200020, #4a0040) 1;
+            clip-path: polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px));
+        }
+
+        .gothic-theme .main-title {
+            font-family: 'Cinzel', serif;
+            font-weight: 600;
+            text-shadow: 3px 3px 0px #4a0040, 6px 6px 10px rgba(0,0,0,0.8);
+        }
+
+        .vampire-theme {
+            background: radial-gradient(circle at center, #200808, #0a0a0a);
+            color: #ff6b6b;
+            font-family: 'Creepster', 'Cinzel', serif;
+        }
+
+        .vampire-theme .background-effects {
+            background: 
+                linear-gradient(45deg, #4a0000 25%, transparent 25%),
+                linear-gradient(-45deg, #4a0000 25%, transparent 25%);
+            background-size: 20px 20px;
+            opacity: 0.1;
+        }
+
+        .vampire-theme .aesthetic-card {
+            border-radius: 25px 5px 25px 5px;
+            border: 2px solid #ff6b6b;
+            box-shadow: 0 0 20px rgba(255, 107, 107, 0.3), inset 0 0 20px rgba(255, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .vampire-theme .aesthetic-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0000, #8b0000, #ff0000);
+            border-radius: 25px 5px 25px 5px;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        .vampire-theme .main-title {
+            font-family: 'Creepster', serif;
+            color: #ff6b6b;
+            text-shadow: 2px 2px 0px #8b0000, 4px 4px 10px rgba(255,0,0,0.5);
+            transform: skew(-2deg);
+        }
+
+        .victorian-theme {
+            background: radial-gradient(circle at center, #1a1a0a, #0a0a0a);
+            color: #d4af37;
+            font-family: 'Playfair Display', 'Georgia', serif;
+        }
+
+        .victorian-theme .background-effects {
+            background: 
+                repeating-conic-gradient(from 0deg at 50% 50%, #3a3a0a 0deg 90deg, transparent 90deg 180deg);
+            background-size: 60px 60px;
+            opacity: 0.08;
+        }
+
+        .victorian-theme .aesthetic-card {
+            border-radius: 0;
+            border: 4px solid #d4af37;
+            border-image: repeating-linear-gradient(45deg, #d4af37 0, #8b7541 10px, #d4af37 20px) 4;
+            clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+        }
+
+        .victorian-theme .aesthetic-card::after {
+            content: '❦';
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 2rem;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .victorian-theme .main-title {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            color: #d4af37;
+            text-shadow: 2px 2px 0px #8b7541, 4px 4px 10px rgba(212, 175, 55, 0.3);
+            letter-spacing: 0.2em;
+        }
+
+        .yandere-theme {
+            background: radial-gradient(circle at center, #2a0a2a, #0a0a0a);
+            color: #ff69b4;
+            font-family: 'Kalam', 'Comic Sans MS', cursive;
+        }
+
+        .yandere-theme .background-effects {
+            background: 
+                radial-gradient(circle at 50% 50%, #ff69b4 1px, transparent 1px);
+            background-size: 30px 30px;
+            opacity: 0.1;
+        }
+
+        .yandere-theme .aesthetic-card {
+            border-radius: 50px 20px 50px 20px;
+            border: 3px solid #ff69b4;
+            box-shadow: 
+                0 0 20px rgba(255, 105, 180, 0.5),
+                inset 0 0 20px rgba(255, 20, 147, 0.1);
+            transform: rotate(-1deg);
+            position: relative;
+        }
+
+        .yandere-theme .aesthetic-card:nth-child(even) {
+            transform: rotate(1deg);
+        }
+
+        .yandere-theme .aesthetic-card::before {
+            content: '💕';
+            position: absolute;
+            top: -15px;
+            left: -15px;
+            font-size: 2rem;
+            animation: heartbeat 2s ease-in-out infinite;
+        }
+
+        .yandere-theme .main-title {
+            font-family: 'Kalam', cursive;
+            color: #ff69b4;
+            text-shadow: 3px 3px 0px #ff1493, 6px 6px 10px rgba(255, 20, 147, 0.5);
+            transform: rotate(-2deg);
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .apocalypse-theme {
+            background: radial-gradient(circle at center, #2a1a0a, #0a0a0a);
+            color: #ff4500;
+            font-family: 'Orbitron', 'Arial Black', sans-serif;
+        }
+
+        .apocalypse-theme .background-effects {
+            background: 
+                repeating-linear-gradient(45deg, #3a1a0a 0px, #3a1a0a 10px, transparent 10px, transparent 20px);
+            opacity: 0.15;
+        }
+
+        .apocalypse-theme .aesthetic-card {
+            border-radius: 0;
+            border: 2px solid #ff4500;
+            clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+            box-shadow: 
+                0 0 30px rgba(255, 69, 0, 0.4),
+                inset 0 0 30px rgba(255, 140, 0, 0.1);
+            position: relative;
+            background: linear-gradient(135deg, rgba(42, 26, 10, 0.8), rgba(10, 10, 10, 0.9));
+        }
+
+        .apocalypse-theme .aesthetic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: repeating-linear-gradient(90deg, #ff4500 0, #ff8c00 5px, #ff4500 10px);
+            animation: scanline 3s linear infinite;
+        }
+
+        .apocalypse-theme .main-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            color: #ff4500;
+            text-shadow: 0 0 10px #ff8c00, 2px 2px 0px #8b2500;
+            text-transform: uppercase;
+            letter-spacing: 0.3em;
+        }
+
+        @keyframes scanline {
+            0% { opacity: 1; }
+            50% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        .urban-fantasy-theme {
+            background: radial-gradient(circle at center, #0a1a2a, #0a0a0a);
+            color: #6a9bd1;
+            font-family: 'Philosopher', 'Georgia', serif;
+        }
+
+        .urban-fantasy-theme .background-effects {
+            background: 
+                radial-gradient(circle at 30% 30%, #2a4a6a 2px, transparent 2px),
+                radial-gradient(circle at 70% 70%, #4a2a6a 2px, transparent 2px);
+            background-size: 40px 40px;
+            opacity: 0.08;
+        }
+
+        .urban-fantasy-theme .aesthetic-card {
+            border-radius: 15px;
+            border: 2px solid #6a9bd1;
+            position: relative;
+            background: 
+                linear-gradient(135deg, rgba(10, 26, 42, 0.9), rgba(42, 74, 106, 0.3)),
+                radial-gradient(circle at 50% 50%, rgba(106, 155, 209, 0.1), transparent);
+            box-shadow: 
+                0 0 25px rgba(106, 155, 209, 0.3),
+                inset 0 0 25px rgba(74, 42, 106, 0.1);
+        }
+
+        .urban-fantasy-theme .aesthetic-card::before {
+            content: '✦';
+            position: absolute;
+            top: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 1.5rem;
+            color: #6a9bd1;
+            text-shadow: 0 0 10px currentColor;
+            animation: sparkle 4s ease-in-out infinite;
+        }
+
+        .urban-fantasy-theme .aesthetic-card::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100px;
+            height: 100px;
+            transform: translate(-50%, -50%);
+            background: radial-gradient(circle, rgba(106, 155, 209, 0.1), transparent);
+            border-radius: 50%;
+            animation: magicPulse 6s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        .urban-fantasy-theme .main-title {
+            font-family: 'Philosopher', serif;
+            font-style: italic;
+            color: #6a9bd1;
+            text-shadow: 0 0 15px #4a6a9b, 2px 2px 0px #2a4a6a;
+            position: relative;
+        }
+
+        @keyframes sparkle {
+            0%, 100% { transform: translateX(-50%) scale(1); opacity: 1; }
+            50% { transform: translateX(-50%) scale(1.3); opacity: 0.7; }
+        }
+
+        @keyframes magicPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.3; }
+            50% { transform: translate(-50%, -50%) scale(1.5); opacity: 0.1; }
+        }
+
+        /* Theme Selector */
+        .theme-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid;
+            border-radius: 15px;
+            padding: 1.5rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.5s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .selector-title {
+            text-align: center;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            opacity: 0.8;
+        }
+
+        .theme-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.8rem;
+        }
+
+        .theme-btn {
+            padding: 0.8rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            color: inherit;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.85rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .theme-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .theme-btn:hover::before {
+            left: 100%;
+        }
+
+        .theme-btn:hover,
+        .theme-btn.active {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .theme-btn.active {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            min-height: 100vh;
+            padding: 3rem 2rem;
+            z-index: 2;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        .main-title {
+            font-size: clamp(3rem, 8vw, 6rem);
+            margin-bottom: 1rem;
+            font-weight: 300;
+            letter-spacing: 0.1em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+            transition: all 1s ease;
+            position: relative;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            opacity: 0.8;
+            font-style: italic;
+            letter-spacing: 0.05em;
+            transition: all 1s ease;
+        }
+
+        /* Content Grid */
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2.5rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            transition: all 1s ease;
+        }
+
+        /* Theme-specific grid layouts */
+        .gothic-theme .content-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 3rem;
+        }
+
+        .vampire-theme .content-grid {
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            transform: perspective(1000px) rotateX(5deg);
+        }
+
+        .victorian-theme .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            grid-template-rows: auto auto;
+            gap: 2rem;
+            max-width: 1200px;
+        }
+
+        .victorian-theme .aesthetic-card:nth-child(1) { grid-column: 2; }
+        .victorian-theme .aesthetic-card:nth-child(2) { grid-column: 1; grid-row: 2; }
+        .victorian-theme .aesthetic-card:nth-child(3) { grid-column: 2; grid-row: 2; }
+        .victorian-theme .aesthetic-card:nth-child(4) { grid-column: 3; grid-row: 2; }
+        .victorian-theme .aesthetic-card:nth-child(5) { grid-column: 1; grid-row: 3; }
+        .victorian-theme .aesthetic-card:nth-child(6) { grid-column: 3; grid-row: 3; }
+
+        .yandere-theme .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            transform: perspective(800px);
+        }
+
+        .apocalypse-theme .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 3.5rem;
+            transform: skew(-1deg);
+        }
+
+        .urban-fantasy-theme .content-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: auto auto;
+            gap: 2.5rem;
+            max-width: 1300px;
+        }
+
+        .urban-fantasy-theme .aesthetic-card:nth-child(1) { grid-column: 1 / 3; }
+        .urban-fantasy-theme .aesthetic-card:nth-child(2) { grid-column: 3; }
+        .urban-fantasy-theme .aesthetic-card:nth-child(3) { grid-column: 1; grid-row: 2; }
+        .urban-fantasy-theme .aesthetic-card:nth-child(4) { grid-column: 2 / 4; grid-row: 2; }
+
+        .aesthetic-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2.5rem;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(10px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .aesthetic-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.02), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.8s ease;
+        }
+
+        .aesthetic-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .aesthetic-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+            text-align: center;
+            filter: drop-shadow(0 0 10px currentColor);
+        }
+
+        .card-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            text-align: center;
+        }
+
+        .card-description {
+            line-height: 1.7;
+            opacity: 0.9;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .aesthetic-elements {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            justify-content: center;
+        }
+
+        .element-tag {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .element-tag:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        /* Special Theme Effects */
+        .blood-moon {
+            position: fixed;
+            top: 5%;
+            right: 5%;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 30% 30%, #ff6666, #cc0000, #660000);
+            box-shadow: 0 0 50px rgba(204, 0, 0, 0.6);
+            z-index: 99;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .vampire-theme .blood-moon {
+            opacity: 1;
+        }
+
+        .vintage-clock {
+            position: fixed;
+            top: 5%;
+            left: 5%;
+            width: 80px;
+            height: 80px;
+            border: 3px solid #8b7541;
+            border-radius: 50%;
+            background: radial-gradient(circle, #2a2419, #1a1612);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #d4af37;
+            z-index: 99;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .victorian-theme .vintage-clock {
+            opacity: 1;
+        }
+
+        .love-meter {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #ff69b4;
+            border-radius: 10px;
+            padding: 0.8rem;
+            z-index: 99;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .yandere-theme .love-meter {
+            opacity: 1;
+        }
+
+        .love-fill {
+            width: 90%;
+            height: 6px;
+            background: linear-gradient(90deg, #ff1493, #ff69b4);
+            border-radius: 3px;
+            margin-bottom: 0.3rem;
+        }
+
+        .love-text {
+            color: #ff69b4;
+            font-size: 0.7rem;
+            text-align: center;
+        }
+
+        .radiation-symbol {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            width: 60px;
+            height: 60px;
+            color: #ff4500;
+            font-size: 3rem;
+            z-index: 99;
+            opacity: 0;
+            transition: all 1s ease;
+            animation: radiationSpin 4s linear infinite;
+            pointer-events: none;
+        }
+
+        .apocalypse-theme .radiation-symbol {
+            opacity: 0.7;
+        }
+
+        @keyframes radiationSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .magic-circle {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            border: 3px solid #6a9bd1;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(106, 155, 209, 0.1), transparent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #6a9bd1;
+            z-index: 99;
+            opacity: 0;
+            transition: all 1s ease;
+            animation: magicRotate 8s linear infinite;
+            pointer-events: none;
+        }
+
+        .urban-fantasy-theme .magic-circle {
+            opacity: 1;
+        }
+
+        @keyframes magicRotate {
+            0% { transform: translateX(-50%) rotate(0deg); }
+            100% { transform: translateX(-50%) rotate(360deg); }
+        }
+
+        /* Additional Theme-Specific Decorative Elements */
+        .gothic-ornament {
+            position: fixed;
+            top: 15%;
+            left: 3%;
+            font-size: 4rem;
+            color: #4a0040;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+            animation: gothicFloat 8s ease-in-out infinite;
+        }
+
+        .gothic-theme .gothic-ornament {
+            opacity: 0.3;
+        }
+
+        @keyframes gothicFloat {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(10deg); }
+        }
+
+        .vampire-coffin {
+            position: fixed;
+            bottom: 15%;
+            left: 3%;
+            font-size: 3rem;
+            color: #8b0000;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+            animation: coffinfloat 10s ease-in-out infinite;
+        }
+
+        .vampire-theme .vampire-coffin {
+            opacity: 0.4;
+        }
+
+        @keyframes coffinfloat {
+            0%, 100% { transform: scale(1) rotate(-5deg); }
+            50% { transform: scale(1.1) rotate(5deg); }
+        }
+
+        .victorian-frame {
+            position: fixed;
+            top: 50%;
+            right: 5%;
+            transform: translateY(-50%);
+            width: 80px;
+            height: 100px;
+            border: 4px solid #8b7541;
+            border-radius: 10px;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at center, rgba(212, 175, 55, 0.1), transparent),
+                repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(139, 117, 65, 0.1) 10px, rgba(139, 117, 65, 0.1) 20px);
+        }
+
+        .victorian-theme .victorian-frame {
+            opacity: 0.6;
+        }
+
+        .yandere-hearts {
+            position: fixed;
+            top: 20%;
+            right: 8%;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .yandere-theme .yandere-hearts {
+            opacity: 1;
+        }
+
+        .heart-cluster {
+            font-size: 1.5rem;
+            color: #ff69b4;
+            animation: heartFloat 3s ease-in-out infinite;
+        }
+
+        .heart-cluster:nth-child(2) { animation-delay: 1s; }
+        .heart-cluster:nth-child(3) { animation-delay: 2s; }
+
+        @keyframes heartFloat {
+            0%, 100% { transform: translateY(0px) scale(1); }
+            50% { transform: translateY(-15px) scale(1.2); }
+        }
+
+        .apocalypse-warning {
+            position: fixed;
+            top: 50%;
+            left: 3%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            border: 3px solid #ff4500;
+            background: 
+                repeating-linear-gradient(45deg, #ff4500, #ff4500 5px, transparent 5px, transparent 10px),
+                #2a1a0a;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+            animation: warningBlink 2s ease-in-out infinite;
+        }
+
+        .apocalypse-theme .apocalypse-warning {
+            opacity: 0.7;
+        }
+
+        @keyframes warningBlink {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 0.3; }
+        }
+
+        .urban-fantasy-runes {
+            position: fixed;
+            bottom: 25%;
+            right: 8%;
+            opacity: 0;
+            transition: all 1s ease;
+            pointer-events: none;
+        }
+
+        .urban-fantasy-theme .urban-fantasy-runes {
+            opacity: 0.6;
+        }
+
+        .rune {
+            font-size: 2rem;
+            color: #6a9bd1;
+            text-shadow: 0 0 10px currentColor;
+            animation: runeGlow 4s ease-in-out infinite;
+            display: block;
+            margin: 0.5rem 0;
+        }
+
+        .rune:nth-child(2) { animation-delay: 1.3s; }
+        .rune:nth-child(3) { animation-delay: 2.6s; }
+
+        @keyframes runeGlow {
+            0%, 100% { opacity: 0.6; text-shadow: 0 0 10px currentColor; }
+            50% { opacity: 1; text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; }
+        }
+
+        /* Theme-Specific Hover Animations */
+        .gothic-theme .aesthetic-card:hover {
+            animation: gothicPulse 1.5s ease-in-out;
+            box-shadow: 0 0 40px rgba(74, 0, 64, 0.6);
+        }
+
+        @keyframes gothicPulse {
+            0%, 100% { transform: translateY(-8px) scale(1.02); }
+            50% { transform: translateY(-8px) scale(1.05); filter: brightness(1.2); }
+        }
+
+        .vampire-theme .aesthetic-card:hover {
+            animation: vampireThirst 1s ease-in-out;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.8);
+        }
+
+        @keyframes vampireThirst {
+            0% { transform: translateY(-8px) scale(1.02); }
+            25% { transform: translateY(-8px) scale(1.02) rotateY(5deg); }
+            75% { transform: translateY(-8px) scale(1.02) rotateY(-5deg); }
+            100% { transform: translateY(-8px) scale(1.02); }
+        }
+
+        .victorian-theme .aesthetic-card:hover {
+            animation: victorianElegance 2s ease-in-out;
+        }
+
+        @keyframes victorianElegance {
+            0%, 100% { transform: translateY(-8px) scale(1.02); }
+            25% { transform: translateY(-12px) scale(1.02) rotateZ(1deg); }
+            75% { transform: translateY(-12px) scale(1.02) rotateZ(-1deg); }
+        }
+
+        .yandere-theme .aesthetic-card:hover {
+            animation: yandereObsession 1.2s ease-in-out;
+        }
+
+        @keyframes yandereObsession {
+            0% { transform: rotate(-1deg) translateY(-8px) scale(1.02); }
+            20% { transform: rotate(-1deg) translateY(-8px) scale(1.08); }
+            40% { transform: rotate(-1deg) translateY(-8px) scale(1.02); }
+            60% { transform: rotate(-1deg) translateY(-8px) scale(1.08); }
+            80% { transform: rotate(-1deg) translateY(-8px) scale(1.02); }
+            100% { transform: rotate(-1deg) translateY(-8px) scale(1.02); }
+        }
+
+        .apocalypse-theme .aesthetic-card:hover {
+            animation: apocalypseShake 0.8s ease-in-out;
+            box-shadow: 0 0 60px rgba(255, 69, 0, 0.9);
+        }
+
+        @keyframes apocalypseShake {
+            0%, 100% { transform: translateY(-8px) scale(1.02); }
+            10% { transform: translateY(-8px) scale(1.02) translateX(-2px); }
+            20% { transform: translateY(-8px) scale(1.02) translateX(2px); }
+            30% { transform: translateY(-8px) scale(1.02) translateX(-2px); }
+            40% { transform: translateY(-8px) scale(1.02) translateX(2px); }
+            50% { transform: translateY(-8px) scale(1.02) translateX(-1px); }
+            60% { transform: translateY(-8px) scale(1.02) translateX(1px); }
+        }
+
+        .urban-fantasy-theme .aesthetic-card:hover {
+            animation: magicShimmer 2s ease-in-out;
+        }
+
+        @keyframes magicShimmer {
+            0%, 100% { 
+                transform: translateY(-8px) scale(1.02); 
+                filter: brightness(1) hue-rotate(0deg);
+            }
+            33% { 
+                transform: translateY(-8px) scale(1.02); 
+                filter: brightness(1.2) hue-rotate(10deg);
+            }
+            66% { 
+                transform: translateY(-8px) scale(1.02); 
+                filter: brightness(1.1) hue-rotate(-10deg);
+            }
+        }
+
+        /* Theme-Specific Title Animations */
+        .gothic-theme .main-title {
+            animation: gothicTitleGlow 4s ease-in-out infinite;
+        }
+
+        @keyframes gothicTitleGlow {
+            0%, 100% { text-shadow: 3px 3px 0px #4a0040, 6px 6px 10px rgba(0,0,0,0.8); }
+            50% { text-shadow: 3px 3px 0px #4a0040, 6px 6px 20px rgba(74, 0, 64, 0.8), 0 0 30px #4a0040; }
+        }
+
+        .vampire-theme .main-title {
+            animation: vampireTitlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes vampireTitlePulse {
+            0%, 100% { 
+                transform: skew(-2deg);
+                text-shadow: 2px 2px 0px #8b0000, 4px 4px 10px rgba(255,0,0,0.5);
+            }
+            50% { 
+                transform: skew(-2deg) scale(1.02);
+                text-shadow: 2px 2px 0px #8b0000, 4px 4px 20px rgba(255,0,0,0.8), 0 0 40px #ff0000;
+            }
+        }
+
+        .yandere-theme .main-title {
+            animation: yandereTitleBounce 2s ease-in-out infinite;
+        }
+
+        @keyframes yandereTitleBounce {
+            0%, 100% { transform: rotate(-2deg); }
+            25% { transform: rotate(-2deg) translateY(-5px); }
+            75% { transform: rotate(-2deg) translateY(2px); }
+        }
+
+        .apocalypse-theme .main-title {
+            animation: apocalypseTitleFlicker 1.5s ease-in-out infinite;
+        }
+
+        @keyframes apocalypseTitleFlicker {
+            0%, 100% { 
+                opacity: 1;
+                text-shadow: 0 0 10px #ff8c00, 2px 2px 0px #8b2500;
+            }
+            50% { 
+                opacity: 0.8;
+                text-shadow: 0 0 20px #ff8c00, 2px 2px 0px #8b2500, 0 0 40px #ff4500;
+            }
+        }
+
+        .urban-fantasy-theme .main-title {
+            animation: magicTitleFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes magicTitleFloat {
+            0%, 100% { 
+                transform: translateY(0px);
+                text-shadow: 0 0 15px #4a6a9b, 2px 2px 0px #2a4a6a;
+            }
+            50% { 
+                transform: translateY(-10px);
+                text-shadow: 0 0 25px #4a6a9b, 2px 2px 0px #2a4a6a, 0 0 40px #6a9bd1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .theme-selector {
+                top: 10px;
+                right: 10px;
+                padding: 1rem;
+            }
+
+            .theme-buttons {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .main-container {
+                padding: 2rem 1rem;
+            }
+
+            .content-grid,
+            .gothic-theme .content-grid,
+            .vampire-theme .content-grid,
+            .victorian-theme .content-grid,
+            .yandere-theme .content-grid,
+            .apocalypse-theme .content-grid,
+            .urban-fantasy-theme .content-grid {
+                grid-template-columns: 1fr !important;
+                gap: 1.5rem !important;
+                transform: none !important;
+                max-width: 100% !important;
+            }
+
+            .victorian-theme .aesthetic-card,
+            .urban-fantasy-theme .aesthetic-card {
+                grid-column: 1 !important;
+                grid-row: auto !important;
+            }
+
+            .aesthetic-card {
+                padding: 2rem;
+                transform: none !important;
+            }
+
+            .yandere-theme .aesthetic-card {
+                transform: none !important;
+            }
+
+            .blood-moon,
+            .vintage-clock,
+            .radiation-symbol,
+            .magic-circle,
+            .gothic-ornament,
+            .vampire-coffin,
+            .victorian-frame,
+            .yandere-hearts,
+            .apocalypse-warning,
+            .urban-fantasy-runes {
+                display: none;
+            }
+
+            .love-meter {
+                width: 150px;
+                height: 50px;
+            }
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+            animation: fadeInUp 0.8s ease forwards;
+            opacity: 0;
+        }
+
+        .fade-in:nth-child(1) { animation-delay: 0.1s; }
+        .fade-in:nth-child(2) { animation-delay: 0.2s; }
+        .fade-in:nth-child(3) { animation-delay: 0.3s; }
+        .fade-in:nth-child(4) { animation-delay: 0.4s; }
+        .fade-in:nth-child(5) { animation-delay: 0.5s; }
+        .fade-in:nth-child(6) { animation-delay: 0.6s; }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body class="gothic-theme">
+    <div class="background-effects">
+        <div class="particles-container"></div>
+    </div>
+    
+    <!-- Special Theme Effects -->
+    <div class="blood-moon"></div>
+    <div class="vintage-clock">XII</div>
+    <div class="love-meter">
+        <div class="love-fill"></div>
+        <div class="love-text">愛情度 ∞%</div>
+    </div>
+    <div class="radiation-symbol">☢</div>
+    <div class="magic-circle">◈</div>
+    
+    <!-- Additional Decorative Elements -->
+    <div class="gothic-ornament">⚜</div>
+    <div class="vampire-coffin">⚰️</div>
+    <div class="victorian-frame"></div>
+    <div class="yandere-hearts">
+        <div class="heart-cluster">💖</div>
+        <div class="heart-cluster">💕</div>
+        <div class="heart-cluster">💗</div>
+    </div>
+    <div class="apocalypse-warning"></div>
+    <div class="urban-fantasy-runes">
+        <div class="rune">ᚱ</div>
+        <div class="rune">ᚢ</div>
+        <div class="rune">ᚾ</div>
+    </div>
+    
+    <!-- Theme Selector -->
+    <div class="theme-selector">
+        <div class="selector-title">Dark Aesthetics</div>
+        <div class="theme-buttons">
+            <button class="theme-btn active" data-theme="gothic">Gothic</button>
+            <button class="theme-btn" data-theme="vampire">Vampire</button>
+            <button class="theme-btn" data-theme="victorian">Victorian</button>
+            <button class="theme-btn" data-theme="yandere">Yandere</button>
+            <button class="theme-btn" data-theme="apocalypse">Apocalypse</button>
+            <button class="theme-btn" data-theme="urban-fantasy">Urban Fantasy</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="header">
+            <h1 class="main-title">Dark Gothic Aesthetics</h1>
+            <p class="subtitle">闇に包まれた美しさと永遠の愛の物語</p>
+        </div>
+        
+        <div class="content-grid">
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">🌙</div>
+                <h2 class="card-title">Nocturnal Romance</h2>
+                <p class="card-description">
+                    月明かりに照らされた永遠の愛。闇の中で輝く美しさと、時を超越した絆が織りなす神秘的な世界。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">月光</span>
+                    <span class="element-tag">永遠の愛</span>
+                    <span class="element-tag">神秘</span>
+                </div>
+            </div>
+
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">🖤</div>
+                <h2 class="card-title">Dark Elegance</h2>
+                <p class="card-description">
+                    洗練された闇の美学。黒いレースと深紅の薔薇、そして時の流れに磨かれた古典的な美しさ。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">黒レース</span>
+                    <span class="element-tag">深紅薔薇</span>
+                    <span class="element-tag">古典美</span>
+                </div>
+            </div>
+
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">🕯️</div>
+                <h2 class="card-title">Candlelit Shadows</h2>
+                <p class="card-description">
+                    ろうそくの炎が作り出す揺らめく影。古い大聖堂に響く祈りの声と、静寂の中に宿る聖なる美。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">ろうそく</span>
+                    <span class="element-tag">揺らめく影</span>
+                    <span class="element-tag">聖なる美</span>
+                </div>
+            </div>
+
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">⚱️</div>
+                <h2 class="card-title">Melancholic Beauty</h2>
+                <p class="card-description">
+                    憂愁に満ちた美しさ。失われたものへの想いと、記憶の中に生き続ける愛の詩。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">憂愁</span>
+                    <span class="element-tag">記憶</span>
+                    <span class="element-tag">愛の詩</span>
+                </div>
+            </div>
+
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">🌹</div>
+                <h2 class="card-title">Thorned Rose</h2>
+                <p class="card-description">
+                    棘のある薔薇の美学。美しさには危険が宿り、愛には痛みが伴う。それでも手を伸ばしたくなる魅力。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">棘薔薇</span>
+                    <span class="element-tag">美と危険</span>
+                    <span class="element-tag">魅力</span>
+                </div>
+            </div>
+
+            <div class="aesthetic-card fade-in">
+                <div class="card-icon">💀</div>
+                <h2 class="card-title">Memento Mori</h2>
+                <p class="card-description">
+                    死を思え、されど美しく生きよ。限りある時間だからこそ輝く、刹那の美しさと永遠への憧憬。
+                </p>
+                <div class="aesthetic-elements">
+                    <span class="element-tag">刹那美</span>
+                    <span class="element-tag">永遠憧憬</span>
+                    <span class="element-tag">生の輝き</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme data
+        const themes = {
+            gothic: {
+                title: 'Dark Gothic Aesthetics',
+                subtitle: '闇に包まれた美しさと永遠の愛の物語',
+                particles: ['🦇', '⚰️', '🕯️'],
+                particleColor: '#4a0040'
+            },
+            vampire: {
+                title: 'Vampire Chronicles',
+                subtitle: '永遠の夜に生きる美学',
+                particles: ['🩸', '🌙', '🦇'],
+                particleColor: '#8b0000'
+            },
+            victorian: {
+                title: 'Victorian Elegance',
+                subtitle: '古き良き時代の洗練された美学',
+                particles: ['⚜', '❦', '⸙'],
+                particleColor: '#8b7541'
+            },
+            yandere: {
+                title: 'Yandere Love',
+                subtitle: '愛という名の狂気の美学',
+                particles: ['💕', '💖', '💗'],
+                particleColor: '#ff69b4'
+            },
+            apocalypse: {
+                title: 'Apocalypse Visions',
+                subtitle: '終末世界の荒廃美学',
+                particles: ['💀', '🔥', '⚡'],
+                particleColor: '#ff4500'
+            },
+            'urban-fantasy': {
+                title: 'Urban Fantasy',
+                subtitle: '現代都市に息づく魔法の美学',
+                particles: ['✦', '◈', '✧'],
+                particleColor: '#6a9bd1'
+            }
+        };
+
+        // Theme switching
+        const themeButtons = document.querySelectorAll('.theme-btn');
+        const body = document.body;
+        const mainTitle = document.querySelector('.main-title');
+        const subtitle = document.querySelector('.subtitle');
+        const themeSelector = document.querySelector('.theme-selector');
+
+        themeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const theme = button.dataset.theme;
+                
+                // Update active button
+                themeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // Switch theme
+                switchTheme(theme);
+            });
+        });
+
+        function switchTheme(theme) {
+            const themeData = themes[theme];
+            
+            // Remove all theme classes
+            body.className = body.className.replace(/\w+-theme/g, '');
+            
+            // Add new theme class
+            body.classList.add(`${theme}-theme`);
+            
+            // Update theme selector colors
+            themeSelector.style.borderColor = themeData.particleColor;
+            
+            // Update title and subtitle with smooth transition
+            mainTitle.style.opacity = '0';
+            subtitle.style.opacity = '0';
+            
+            setTimeout(() => {
+                mainTitle.textContent = themeData.title;
+                subtitle.textContent = themeData.subtitle;
+                mainTitle.style.opacity = '1';
+                subtitle.style.opacity = '1';
+            }, 500);
+            
+            // Recreate particles
+            createParticles(themeData.particles, themeData.particleColor);
+            
+            // Update vintage clock if Victorian
+            if (theme === 'victorian') {
+                updateClock();
+            }
+        }
+
+        // Particle system
+        function createParticles(particleTypes, color) {
+            const container = document.querySelector('.particles-container');
+            container.innerHTML = '';
+            
+            for (let i = 0; i < 15; i++) {
+                createParticle(particleTypes, color);
+            }
+        }
+
+        function createParticle(particleTypes, color) {
+            const container = document.querySelector('.particles-container');
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            if (particleTypes[0].length > 1) {
+                // Emoji particles
+                particle.textContent = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+                particle.style.fontSize = (Math.random() * 1.5 + 1) + 'rem';
+            } else {
+                // Symbol particles
+                particle.textContent = particleTypes[Math.floor(Math.random() * particleTypes.length)];
+                particle.style.color = color;
+                particle.style.fontSize = (Math.random() * 1.2 + 0.8) + 'rem';
+            }
+            
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDuration = (Math.random() * 5 + 8) + 's';
+            particle.style.animationDelay = Math.random() * 3 + 's';
+            
+            container.appendChild(particle);
+            
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.remove();
+                }
+            }, 15000);
+        }
+
+        // Vintage clock for Victorian theme
+        function updateClock() {
+            const clock = document.querySelector('.vintage-clock');
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false, 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+            clock.textContent = timeString;
+        }
+
+        // Continuous particle creation
+        setInterval(() => {
+            const currentTheme = body.className.match(/(\w+)-theme/)?.[1] || 'gothic';
+            const themeData = themes[currentTheme];
+            if (themeData) {
+                createParticle(themeData.particles, themeData.particleColor);
+            }
+        }, 2000);
+
+        // Special effects
+        setInterval(() => {
+            if (body.classList.contains('victorian-theme')) {
+                updateClock();
+            }
+        }, 1000);
+
+        // Mouse interaction
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth;
+            const mouseY = e.clientY / window.innerHeight;
+            
+            // Parallax effect on background
+            const bgEffects = document.querySelector('.background-effects');
+            bgEffects.style.transform = `translate(${mouseX * 10}px, ${mouseY * 10}px)`;
+        });
+
+        // Card hover effects
+        document.querySelectorAll('.aesthetic-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.filter = 'brightness(1.1) saturate(1.1)';
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.filter = 'brightness(1) saturate(1)';
+            });
+        });
+
+        // Initialize
+        switchTheme('gothic');
+    </script>
+</body>
+</html>

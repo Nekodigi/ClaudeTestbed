@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>▲ VECTOR//CORE™ 2.0 - Mathematical Precision Meets Organic Beauty</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: #000;
+            color: #fff;
+            font-family: 'Orbitron', monospace;
+            overflow: hidden;
+            cursor: none;
+        }
+        
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #canvas-2d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            mix-blend-mode: screen;
+        }
+        
+        .ui {
+            position: fixed;
+            z-index: 100;
+            pointer-events: none;
+            user-select: none;
+        }
+        
+        .logo {
+            top: 40px;
+            left: 40px;
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 6px;
+            text-shadow: 0 0 20px #FF0066;
+            animation: logo-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes logo-pulse {
+            0%, 100% { opacity: 0.9; transform: translateX(0); }
+            50% { opacity: 1; transform: translateX(2px); }
+        }
+        
+        .logo::before {
+            content: "▲ ";
+            color: #FF0066;
+            filter: blur(0.5px);
+        }
+        
+        .info-panel {
+            bottom: 40px;
+            left: 40px;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(255, 0, 102, 0.3);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+        
+        .info-panel h3 {
+            color: #00FFCC;
+            font-size: 14px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .info-panel p {
+            font-size: 11px;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+        }
+        
+        .controls-panel {
+            top: 40px;
+            right: 40px;
+            text-align: right;
+            background: rgba(0, 0, 0, 0.8);
+            border: 1px solid rgba(0, 255, 204, 0.3);
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .control-item {
+            margin: 8px 0;
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .control-key {
+            color: #FFFF00;
+            font-weight: bold;
+            background: rgba(255, 255, 0, 0.1);
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+        
+        .status-bar {
+            bottom: 40px;
+            right: 40px;
+            font-size: 10px;
+            text-align: right;
+            color: rgba(255, 255, 255, 0.6);
+            font-family: monospace;
+        }
+        
+        .status-item {
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        
+        .status-value {
+            color: #FF00FF;
+            font-weight: bold;
+        }
+        
+        #custom-cursor {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            pointer-events: none;
+            z-index: 1000;
+            transform: translate(-50%, -50%);
+        }
+        
+        .cursor-outer {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #FF0066;
+            transform: rotate(45deg);
+            transition: transform 0.2s ease-out;
+        }
+        
+        .cursor-inner {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            background: rgba(255, 0, 102, 0.3);
+        }
+        
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .loading-logo {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 40px;
+            animation: loading-glitch 0.5s infinite;
+        }
+        
+        @keyframes loading-glitch {
+            0%, 100% { 
+                text-shadow: 2px 0 #FF0066, -2px 0 #00FFCC;
+                transform: translateX(0);
+            }
+            25% { 
+                text-shadow: -2px 0 #FF0066, 2px 0 #00FFCC;
+                transform: translateX(-2px);
+            }
+            50% { 
+                text-shadow: 2px 0 #00FFCC, -2px 0 #FF0066;
+                transform: translateX(2px);
+            }
+            75% { 
+                text-shadow: -2px 0 #00FFCC, 2px 0 #FF0066;
+                transform: translateX(-2px);
+            }
+        }
+        
+        .loading-bar {
+            width: 300px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .loading-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #FF0066, #00FFCC, #FFFF00);
+            animation: loading-progress 2s linear infinite;
+        }
+        
+        @keyframes loading-progress {
+            0% { width: 0%; left: 0%; }
+            50% { width: 100%; left: 0%; }
+            100% { width: 0%; left: 100%; }
+        }
+        
+        .error-message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.1);
+            border: 1px solid #FF0066;
+            padding: 40px;
+            text-align: center;
+            display: none;
+            z-index: 3000;
+        }
+        
+        @media (max-width: 768px) {
+            .logo { font-size: 24px; }
+            .info-panel, .controls-panel { 
+                padding: 15px;
+                font-size: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen" id="loading">
+        <div class="loading-logo">▲ VECTOR//CORE™</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
+        </div>
+    </div>
+    
+    <canvas id="webgl-canvas"></canvas>
+    <canvas id="canvas-2d"></canvas>
+    
+    <div class="ui logo">VECTOR//CORE™</div>
+    
+    <div class="ui info-panel">
+        <h3>System Status</h3>
+        <p>Mathematical precision meets organic beauty through advanced vector synthesis.</p>
+        <p>45° / 60° constraint system active</p>
+        <p>Real-time particle simulation: ON</p>
+    </div>
+    
+    <div class="ui controls-panel">
+        <div class="control-item">
+            <span>Interact</span>
+            <span class="control-key">MOUSE</span>
+        </div>
+        <div class="control-item">
+            <span>Energy Pulse</span>
+            <span class="control-key">CLICK</span>
+        </div>
+        <div class="control-item">
+            <span>Mode Switch</span>
+            <span class="control-key">1-5</span>
+        </div>
+        <div class="control-item">
+            <span>Quality</span>
+            <span class="control-key">Q</span>
+        </div>
+        <div class="control-item">
+            <span>Reset</span>
+            <span class="control-key">R</span>
+        </div>
+    </div>
+    
+    <div class="ui status-bar">
+        <div class="status-item">
+            <span>FPS:</span>
+            <span class="status-value" id="fps">60</span>
+        </div>
+        <div class="status-item">
+            <span>Particles:</span>
+            <span class="status-value" id="particles">0</span>
+        </div>
+        <div class="status-item">
+            <span>Mode:</span>
+            <span class="status-value" id="mode">GENESIS</span>
+        </div>
+        <div class="status-item">
+            <span>Energy:</span>
+            <span class="status-value" id="energy">100%</span>
+        </div>
+    </div>
+    
+    <div id="custom-cursor">
+        <div class="cursor-outer"></div>
+        <div class="cursor-inner"></div>
+    </div>
+    
+    <div class="error-message" id="error">
+        <h2>WebGL2 Not Supported</h2>
+        <p>This experience requires WebGL2 support. Please use a modern browser.</p>
+    </div>
+
+    <script>
+        // Global configuration
+        const CONFIG = {
+            PARTICLE_COUNT: 5000,
+            GRID_SIZE: 50,
+            ANGLE_45: Math.PI / 4,
+            ANGLE_60: Math.PI / 3,
+            HEART_SEGMENTS: 128,
+            POST_PROCESSING: true,
+            QUALITY: 'high' // 'low', 'medium', 'high', 'ultra'
+        };
+        
+        // Color schemes
+        const COLOR_SCHEMES = {
+            GENESIS: {
+                primary: [1.0, 0.0, 0.4],    // #FF0066
+                secondary: [0.0, 1.0, 0.8],   // #00FFCC
+                accent: [1.0, 1.0, 0.0],      // #FFFF00
+                glow: [1.0, 0.0, 1.0],        // #FF00FF
+                bg: [0.04, 0.04, 0.06]
+            },
+            CYBER: {
+                primary: [0.0, 1.0, 0.5],
+                secondary: [1.0, 0.0, 0.5],
+                accent: [0.0, 0.5, 1.0],
+                glow: [0.5, 0.0, 1.0],
+                bg: [0.02, 0.02, 0.04]
+            },
+            NOIR: {
+                primary: [1.0, 1.0, 1.0],
+                secondary: [0.5, 0.5, 0.5],
+                accent: [0.2, 0.2, 0.2],
+                glow: [0.8, 0.8, 0.8],
+                bg: [0.0, 0.0, 0.0]
+            },
+            AURORA: {
+                primary: [0.0, 1.0, 0.7],
+                secondary: [0.5, 0.0, 1.0],
+                accent: [1.0, 0.0, 0.7],
+                glow: [0.3, 0.7, 1.0],
+                bg: [0.02, 0.01, 0.04]
+            },
+            SOLAR: {
+                primary: [1.0, 0.5, 0.0],
+                secondary: [1.0, 0.8, 0.0],
+                accent: [1.0, 0.2, 0.0],
+                glow: [1.0, 0.6, 0.2],
+                bg: [0.05, 0.02, 0.0]
+            }
+        };
+        
+        let currentScheme = 'GENESIS';
+        let mouse = { x: 0, y: 0, pressed: false };
+        let time = 0;
+        let deltaTime = 0;
+        let lastTime = 0;
+        let frameCount = 0;
+        let fps = 60;
+        
+        // WebGL context and resources
+        let gl, canvas2d, ctx2d;
+        let shaderProgram, particleProgram, postProgram;
+        let heartVAO, gridVAO, particleVAO;
+        let framebuffer, colorTexture, depthTexture;
+        let quadVAO;
+        
+        // Vertex shader for heart geometry
+        const heartVertexShader = `#version 300 es
+            in vec3 a_position;
+            in vec3 a_normal;
+            in vec2 a_uv;
+            
+            uniform mat4 u_projection;
+            uniform mat4 u_view;
+            uniform mat4 u_model;
+            uniform float u_time;
+            
+            out vec3 v_position;
+            out vec3 v_normal;
+            out vec2 v_uv;
+            out float v_depth;
+            
+            void main() {
+                vec3 pos = a_position;
+                
+                // Pulsating effect
+                float pulse = sin(u_time * 2.0) * 0.05 + 1.0;
+                pos *= pulse;
+                
+                // Wave distortion
+                pos.z += sin(pos.x * 5.0 + u_time * 3.0) * 0.02;
+                pos.z += cos(pos.y * 5.0 + u_time * 2.0) * 0.02;
+                
+                vec4 worldPos = u_model * vec4(pos, 1.0);
+                vec4 viewPos = u_view * worldPos;
+                gl_Position = u_projection * viewPos;
+                
+                v_position = worldPos.xyz;
+                v_normal = mat3(u_model) * a_normal;
+                v_uv = a_uv;
+                v_depth = -viewPos.z;
+            }
+        `;
+        
+        // Fragment shader for heart geometry
+        const heartFragmentShader = `#version 300 es
+            precision highp float;
+            
+            in vec3 v_position;
+            in vec3 v_normal;
+            in vec2 v_uv;
+            in float v_depth;
+            
+            uniform vec3 u_colorPrimary;
+            uniform vec3 u_colorSecondary;
+            uniform vec3 u_colorGlow;
+            uniform float u_time;
+            uniform vec2 u_mouse;
+            
+            out vec4 fragColor;
+            
+            float hash(vec2 p) {
+                return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+            }
+            
+            void main() {
+                vec3 normal = normalize(v_normal);
+                vec3 viewDir = normalize(-v_position);
+                
+                // Wireframe effect using UV coordinates
+                vec2 grid = fract(v_uv * 20.0);
+                float wireframe = smoothstep(0.02, 0.04, min(grid.x, grid.y));
+                wireframe *= smoothstep(0.98, 0.96, max(grid.x, grid.y));
+                
+                // Holographic effect
+                float fresnel = 1.0 - abs(dot(normal, viewDir));
+                fresnel = pow(fresnel, 2.0);
+                
+                // Color based on position and time
+                vec3 color = mix(u_colorPrimary, u_colorSecondary, 
+                    sin(v_position.y * 10.0 + u_time) * 0.5 + 0.5);
+                
+                // Scanline effect
+                float scanline = sin(v_position.y * 100.0 + u_time * 10.0) * 0.5 + 0.5;
+                scanline = smoothstep(0.4, 0.6, scanline) * 0.1;
+                
+                // Energy flow
+                float energy = sin(length(v_position.xy) * 10.0 - u_time * 5.0) * 0.5 + 0.5;
+                energy = smoothstep(0.3, 0.7, energy);
+                
+                // Combine effects
+                color = mix(color * 0.1, color, wireframe);
+                color += u_colorGlow * fresnel * 0.5;
+                color += u_colorSecondary * energy * 0.2;
+                color += scanline;
+                
+                // Distance fog
+                float fog = exp(-v_depth * 0.05);
+                color *= fog;
+                
+                // Glitch effect occasionally
+                if (hash(v_uv + u_time) > 0.995) {
+                    color = vec3(1.0);
+                }
+                
+                fragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        // Particle vertex shader
+        const particleVertexShader = `#version 300 es
+            in vec2 a_position;
+            in vec2 a_velocity;
+            in float a_life;
+            in float a_size;
+            
+            uniform mat4 u_projection;
+            uniform mat4 u_view;
+            uniform float u_time;
+            uniform vec2 u_mouse;
+            
+            out float v_life;
+            out vec3 v_color;
+            
+            void main() {
+                vec3 pos = vec3(a_position, 0.0);
+                
+                // Mouse attraction
+                vec2 toMouse = u_mouse - a_position;
+                float dist = length(toMouse);
+                if (dist < 200.0 && dist > 0.0) {
+                    vec2 force = normalize(toMouse) * (200.0 - dist) * 0.001;
+                    pos.xy += force;
+                }
+                
+                gl_Position = u_projection * u_view * vec4(pos, 1.0);
+                gl_PointSize = a_size * (1.0 - a_life * 0.5);
+                
+                v_life = a_life;
+                v_color = mix(vec3(1.0, 0.0, 0.4), vec3(0.0, 1.0, 0.8), a_life);
+            }
+        `;
+        
+        // Particle fragment shader
+        const particleFragmentShader = `#version 300 es
+            precision highp float;
+            
+            in float v_life;
+            in vec3 v_color;
+            
+            out vec4 fragColor;
+            
+            void main() {
+                vec2 coord = gl_PointCoord - vec2(0.5);
+                float dist = length(coord);
+                
+                if (dist > 0.5) discard;
+                
+                float alpha = smoothstep(0.5, 0.0, dist) * v_life;
+                fragColor = vec4(v_color, alpha);
+            }
+        `;
+        
+        // Post-processing vertex shader
+        const postVertexShader = `#version 300 es
+            in vec2 a_position;
+            out vec2 v_uv;
+            
+            void main() {
+                v_uv = a_position * 0.5 + 0.5;
+                gl_Position = vec4(a_position, 0.0, 1.0);
+            }
+        `;
+        
+        // Post-processing fragment shader
+        const postFragmentShader = `#version 300 es
+            precision highp float;
+            
+            in vec2 v_uv;
+            
+            uniform sampler2D u_texture;
+            uniform vec2 u_resolution;
+            uniform float u_time;
+            uniform vec3 u_colorGlow;
+            
+            out vec4 fragColor;
+            
+            vec3 sampleTexture(vec2 uv) {
+                return texture(u_texture, uv).rgb;
+            }
+            
+            void main() {
+                vec2 texelSize = 1.0 / u_resolution;
+                vec3 color = sampleTexture(v_uv);
+                
+                // Chromatic aberration
+                float aberration = 0.002;
+                color.r = sampleTexture(v_uv + vec2(aberration, 0.0)).r;
+                color.b = sampleTexture(v_uv - vec2(aberration, 0.0)).b;
+                
+                // Bloom effect
+                vec3 bloom = vec3(0.0);
+                for (int i = -4; i <= 4; i++) {
+                    for (int j = -4; j <= 4; j++) {
+                        vec2 offset = vec2(float(i), float(j)) * texelSize * 2.0;
+                        bloom += sampleTexture(v_uv + offset) * 0.05;
+                    }
+                }
+                color += bloom * u_colorGlow * 0.5;
+                
+                // Vignette
+                vec2 vigCoord = v_uv * 2.0 - 1.0;
+                float vignette = 1.0 - dot(vigCoord, vigCoord) * 0.3;
+                color *= vignette;
+                
+                // Scanlines
+                float scanline = sin(v_uv.y * u_resolution.y * 0.5) * 0.02;
+                color -= scanline;
+                
+                // Film grain
+                float grain = (fract(sin(dot(v_uv * u_time, vec2(12.9898, 78.233))) * 43758.5453) - 0.5) * 0.03;
+                color += grain;
+                
+                fragColor = vec4(color, 1.0);
+            }
+        `;
+        
+        // Initialize WebGL
+        async function initWebGL() {
+            const canvas = document.getElementById('webgl-canvas');
+            canvas2d = document.getElementById('canvas-2d');
+            ctx2d = canvas2d.getContext('2d');
+            
+            gl = canvas.getContext('webgl2', {
+                antialias: false,
+                alpha: false,
+                premultipliedAlpha: false
+            });
+            
+            if (!gl) {
+                document.getElementById('error').style.display = 'block';
+                throw new Error('WebGL2 not supported');
+            }
+            
+            // Enable extensions
+            gl.getExtension('EXT_color_buffer_float');
+            gl.getExtension('OES_texture_float_linear');
+            
+            // Set up WebGL state
+            gl.enable(gl.DEPTH_TEST);
+            gl.enable(gl.BLEND);
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            
+            // Compile shaders
+            shaderProgram = createProgram(heartVertexShader, heartFragmentShader);
+            particleProgram = createProgram(particleVertexShader, particleFragmentShader);
+            postProgram = createProgram(postVertexShader, postFragmentShader);
+            
+            // Create geometry
+            createHeartGeometry();
+            createGridGeometry();
+            createParticleSystem();
+            createQuadGeometry();
+            
+            // Create framebuffer for post-processing
+            createFramebuffer();
+            
+            // Handle resize
+            handleResize();
+            window.addEventListener('resize', handleResize);
+        }
+        
+        // Shader compilation helper
+        function createShader(source, type) {
+            const shader = gl.createShader(type);
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Shader compilation error:', gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
+            }
+            
+            return shader;
+        }
+        
+        // Program creation helper
+        function createProgram(vertexSource, fragmentSource) {
+            const vertexShader = createShader(vertexSource, gl.VERTEX_SHADER);
+            const fragmentShader = createShader(fragmentSource, gl.FRAGMENT_SHADER);
+            
+            const program = gl.createProgram();
+            gl.attachShader(program, vertexShader);
+            gl.attachShader(program, fragmentShader);
+            gl.linkProgram(program);
+            
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Program linking error:', gl.getProgramInfoLog(program));
+                return null;
+            }
+            
+            return program;
+        }
+        
+        // Create heart geometry using parametric equations
+        function createHeartGeometry() {
+            const vertices = [];
+            const normals = [];
+            const uvs = [];
+            const indices = [];
+            
+            const segments = CONFIG.HEART_SEGMENTS;
+            const layers = segments / 2;
+            
+            // Generate vertices
+            for (let i = 0; i <= layers; i++) {
+                const v = i / layers;
+                const theta = v * Math.PI;
+                
+                for (let j = 0; j <= segments; j++) {
+                    const u = j / segments;
+                    const phi = u * Math.PI * 2;
+                    
+                    // Heart parametric equations
+                    const x = 16 * Math.pow(Math.sin(theta), 3) * Math.cos(phi);
+                    const y = -(13 * Math.cos(theta) - 5 * Math.cos(2 * theta) - 
+                              2 * Math.cos(3 * theta) - Math.cos(4 * theta));
+                    const z = 16 * Math.pow(Math.sin(theta), 3) * Math.sin(phi);
+                    
+                    // Apply angle constraints
+                    const angle = Math.atan2(z, x);
+                    const constrainedAngle = Math.round(angle / CONFIG.ANGLE_45) * CONFIG.ANGLE_45;
+                    const radius = Math.sqrt(x * x + z * z);
+                    
+                    vertices.push(
+                        radius * Math.cos(constrainedAngle) * 0.05,
+                        y * 0.05,
+                        radius * Math.sin(constrainedAngle) * 0.05
+                    );
+                    
+                    // Calculate normal
+                    const nx = Math.cos(constrainedAngle) * Math.sin(theta);
+                    const ny = Math.cos(theta);
+                    const nz = Math.sin(constrainedAngle) * Math.sin(theta);
+                    
+                    normals.push(nx, ny, nz);
+                    uvs.push(u, v);
+                }
+            }
+            
+            // Generate indices
+            for (let i = 0; i < layers; i++) {
+                for (let j = 0; j < segments; j++) {
+                    const a = i * (segments + 1) + j;
+                    const b = a + segments + 1;
+                    
+                    indices.push(a, b, a + 1);
+                    indices.push(b, b + 1, a + 1);
+                }
+            }
+            
+            // Create VAO
+            heartVAO = gl.createVertexArray();
+            gl.bindVertexArray(heartVAO);
+            
+            // Position buffer
+            const positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(0);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+            
+            // Normal buffer
+            const normalBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(normals), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(1);
+            gl.vertexAttribPointer(1, 3, gl.FLOAT, false, 0, 0);
+            
+            // UV buffer
+            const uvBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, uvBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(uvs), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(2);
+            gl.vertexAttribPointer(2, 2, gl.FLOAT, false, 0, 0);
+            
+            // Index buffer
+            const indexBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
+            
+            gl.bindVertexArray(null);
+            
+            // Store index count
+            heartVAO.indexCount = indices.length;
+        }
+        
+        // Create grid geometry
+        function createGridGeometry() {
+            const vertices = [];
+            const gridSize = 20;
+            const spacing = 1.0;
+            
+            // Create grid lines with 45° and 60° angles
+            for (let i = -gridSize; i <= gridSize; i++) {
+                const pos = i * spacing;
+                
+                // Horizontal lines
+                vertices.push(-gridSize * spacing, 0, pos);
+                vertices.push(gridSize * spacing, 0, pos);
+                
+                // Vertical lines
+                vertices.push(pos, 0, -gridSize * spacing);
+                vertices.push(pos, 0, gridSize * spacing);
+                
+                // 45° diagonal lines
+                const diag = gridSize * spacing * Math.sqrt(2);
+                vertices.push(pos - diag, 0, -diag);
+                vertices.push(pos + diag, 0, diag);
+                
+                vertices.push(pos - diag, 0, diag);
+                vertices.push(pos + diag, 0, -diag);
+            }
+            
+            // Create VAO
+            gridVAO = gl.createVertexArray();
+            gl.bindVertexArray(gridVAO);
+            
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(0);
+            gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+            
+            gl.bindVertexArray(null);
+            
+            gridVAO.vertexCount = vertices.length / 3;
+        }
+        
+        // Create particle system
+        function createParticleSystem() {
+            const positions = new Float32Array(CONFIG.PARTICLE_COUNT * 2);
+            const velocities = new Float32Array(CONFIG.PARTICLE_COUNT * 2);
+            const lifes = new Float32Array(CONFIG.PARTICLE_COUNT);
+            const sizes = new Float32Array(CONFIG.PARTICLE_COUNT);
+            
+            for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const radius = Math.random() * 500;
+                
+                positions[i * 2] = Math.cos(angle) * radius;
+                positions[i * 2 + 1] = Math.sin(angle) * radius;
+                
+                velocities[i * 2] = (Math.random() - 0.5) * 2;
+                velocities[i * 2 + 1] = (Math.random() - 0.5) * 2;
+                
+                lifes[i] = Math.random();
+                sizes[i] = Math.random() * 5 + 2;
+            }
+            
+            // Create VAO
+            particleVAO = gl.createVertexArray();
+            gl.bindVertexArray(particleVAO);
+            
+            // Position buffer
+            particleVAO.positionBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.positionBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, positions, gl.DYNAMIC_DRAW);
+            gl.enableVertexAttribArray(0);
+            gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+            
+            // Velocity buffer
+            particleVAO.velocityBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.velocityBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, velocities, gl.DYNAMIC_DRAW);
+            gl.enableVertexAttribArray(1);
+            gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
+            
+            // Life buffer
+            particleVAO.lifeBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.lifeBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, lifes, gl.DYNAMIC_DRAW);
+            gl.enableVertexAttribArray(2);
+            gl.vertexAttribPointer(2, 1, gl.FLOAT, false, 0, 0);
+            
+            // Size buffer
+            particleVAO.sizeBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.sizeBuffer);
+            gl.bufferData(gl.ARRAY_BUFFER, sizes, gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(3);
+            gl.vertexAttribPointer(3, 1, gl.FLOAT, false, 0, 0);
+            
+            gl.bindVertexArray(null);
+            
+            particleVAO.count = CONFIG.PARTICLE_COUNT;
+            particleVAO.positions = positions;
+            particleVAO.velocities = velocities;
+            particleVAO.lifes = lifes;
+        }
+        
+        // Create fullscreen quad for post-processing
+        function createQuadGeometry() {
+            const vertices = new Float32Array([
+                -1, -1,
+                 1, -1,
+                -1,  1,
+                 1,  1
+            ]);
+            
+            quadVAO = gl.createVertexArray();
+            gl.bindVertexArray(quadVAO);
+            
+            const buffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+            gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+            gl.enableVertexAttribArray(0);
+            gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+            
+            gl.bindVertexArray(null);
+        }
+        
+        // Create framebuffer for post-processing
+        function createFramebuffer() {
+            framebuffer = gl.createFramebuffer();
+            gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            
+            // Color attachment
+            colorTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, 
+                window.innerWidth, window.innerHeight, 0, gl.RGBA, gl.FLOAT, null);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, 
+                gl.TEXTURE_2D, colorTexture, 0);
+            
+            // Depth attachment
+            depthTexture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, depthTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, 
+                window.innerWidth, window.innerHeight, 0, gl.DEPTH_COMPONENT, 
+                gl.UNSIGNED_INT, null);
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, 
+                gl.TEXTURE_2D, depthTexture, 0);
+            
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+        }
+        
+        // Update particle system
+        function updateParticles(dt) {
+            const positions = particleVAO.positions;
+            const velocities = particleVAO.velocities;
+            const lifes = particleVAO.lifes;
+            
+            for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+                // Update position
+                positions[i * 2] += velocities[i * 2] * dt * 60;
+                positions[i * 2 + 1] += velocities[i * 2 + 1] * dt * 60;
+                
+                // Update life
+                lifes[i] -= dt * 0.5;
+                
+                // Respawn dead particles
+                if (lifes[i] <= 0) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const radius = Math.random() * 100;
+                    
+                    positions[i * 2] = mouse.x + Math.cos(angle) * radius;
+                    positions[i * 2 + 1] = mouse.y + Math.sin(angle) * radius;
+                    
+                    velocities[i * 2] = (Math.random() - 0.5) * 4;
+                    velocities[i * 2 + 1] = (Math.random() - 0.5) * 4;
+                    
+                    lifes[i] = 1.0;
+                }
+            }
+            
+            // Update GPU buffers
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.positionBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, positions);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.velocityBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, velocities);
+            
+            gl.bindBuffer(gl.ARRAY_BUFFER, particleVAO.lifeBuffer);
+            gl.bufferSubData(gl.ARRAY_BUFFER, 0, lifes);
+        }
+        
+        // Create transformation matrices
+        function createMatrix4() {
+            return new Float32Array(16);
+        }
+        
+        function setIdentity(out) {
+            out[0] = 1; out[1] = 0; out[2] = 0; out[3] = 0;
+            out[4] = 0; out[5] = 1; out[6] = 0; out[7] = 0;
+            out[8] = 0; out[9] = 0; out[10] = 1; out[11] = 0;
+            out[12] = 0; out[13] = 0; out[14] = 0; out[15] = 1;
+            return out;
+        }
+        
+        function perspective(out, fov, aspect, near, far) {
+            const f = 1.0 / Math.tan(fov / 2);
+            const nf = 1 / (near - far);
+            
+            out[0] = f / aspect;
+            out[1] = 0;
+            out[2] = 0;
+            out[3] = 0;
+            out[4] = 0;
+            out[5] = f;
+            out[6] = 0;
+            out[7] = 0;
+            out[8] = 0;
+            out[9] = 0;
+            out[10] = (far + near) * nf;
+            out[11] = -1;
+            out[12] = 0;
+            out[13] = 0;
+            out[14] = 2 * far * near * nf;
+            out[15] = 0;
+            return out;
+        }
+        
+        function lookAt(out, eye, center, up) {
+            const x0 = eye[0], y0 = eye[1], z0 = eye[2];
+            const x1 = center[0], y1 = center[1], z1 = center[2];
+            const x2 = up[0], y2 = up[1], z2 = up[2];
+            
+            let zx = x0 - x1, zy = y0 - y1, zz = z0 - z1;
+            let len = Math.sqrt(zx * zx + zy * zy + zz * zz);
+            zx /= len; zy /= len; zz /= len;
+            
+            let xx = y2 * zz - z2 * zy;
+            let xy = z2 * zx - x2 * zz;
+            let xz = x2 * zy - y2 * zx;
+            len = Math.sqrt(xx * xx + xy * xy + xz * xz);
+            xx /= len; xy /= len; xz /= len;
+            
+            const yx = zy * xz - zz * xy;
+            const yy = zz * xx - zx * xz;
+            const yz = zx * xy - zy * xx;
+            
+            out[0] = xx; out[1] = yx; out[2] = zx; out[3] = 0;
+            out[4] = xy; out[5] = yy; out[6] = zy; out[7] = 0;
+            out[8] = xz; out[9] = yz; out[10] = zz; out[11] = 0;
+            out[12] = -(xx * x0 + xy * y0 + xz * z0);
+            out[13] = -(yx * x0 + yy * y0 + yz * z0);
+            out[14] = -(zx * x0 + zy * y0 + zz * z0);
+            out[15] = 1;
+            return out;
+        }
+        
+        function rotateY(out, angle) {
+            const c = Math.cos(angle);
+            const s = Math.sin(angle);
+            const a00 = out[0], a01 = out[1], a02 = out[2], a03 = out[3];
+            const a20 = out[8], a21 = out[9], a22 = out[10], a23 = out[11];
+            
+            out[0] = a00 * c - a20 * s;
+            out[1] = a01 * c - a21 * s;
+            out[2] = a02 * c - a22 * s;
+            out[3] = a03 * c - a23 * s;
+            out[8] = a00 * s + a20 * c;
+            out[9] = a01 * s + a21 * c;
+            out[10] = a02 * s + a22 * c;
+            out[11] = a03 * s + a23 * c;
+            return out;
+        }
+        
+        // Render loop
+        function render(currentTime) {
+            // Calculate delta time
+            deltaTime = Math.min((currentTime - lastTime) / 1000, 0.1);
+            lastTime = currentTime;
+            time += deltaTime;
+            
+            // Update FPS
+            frameCount++;
+            if (frameCount % 30 === 0) {
+                fps = Math.round(1 / deltaTime);
+                document.getElementById('fps').textContent = fps;
+                document.getElementById('particles').textContent = CONFIG.PARTICLE_COUNT;
+                document.getElementById('energy').textContent = 
+                    Math.round(100 + Math.sin(time) * 20) + '%';
+            }
+            
+            // Update particles
+            updateParticles(deltaTime);
+            
+            // Create matrices
+            const projection = createMatrix4();
+            const view = createMatrix4();
+            const model = createMatrix4();
+            
+            const aspect = gl.canvas.width / gl.canvas.height;
+            perspective(projection, Math.PI / 4, aspect, 0.1, 100.0);
+            
+            const eyePos = [
+                Math.sin(time * 0.2) * 5,
+                2,
+                Math.cos(time * 0.2) * 5
+            ];
+            lookAt(view, eyePos, [0, 0, 0], [0, 1, 0]);
+            setIdentity(model);
+            rotateY(model, time);
+            
+            const colors = COLOR_SCHEMES[currentScheme];
+            
+            // Render to framebuffer
+            if (CONFIG.POST_PROCESSING) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+            }
+            
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clearColor(colors.bg[0], colors.bg[1], colors.bg[2], 1.0);
+            gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+            
+            // Render heart
+            gl.useProgram(shaderProgram);
+            
+            // Set uniforms
+            gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, 'u_projection'), 
+                false, projection);
+            gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, 'u_view'), 
+                false, view);
+            gl.uniformMatrix4fv(gl.getUniformLocation(shaderProgram, 'u_model'), 
+                false, model);
+            gl.uniform1f(gl.getUniformLocation(shaderProgram, 'u_time'), time);
+            gl.uniform2f(gl.getUniformLocation(shaderProgram, 'u_mouse'), 
+                mouse.x - gl.canvas.width / 2, mouse.y - gl.canvas.height / 2);
+            gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'u_colorPrimary'), 
+                colors.primary);
+            gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'u_colorSecondary'), 
+                colors.secondary);
+            gl.uniform3fv(gl.getUniformLocation(shaderProgram, 'u_colorGlow'), 
+                colors.glow);
+            
+            // Draw heart
+            gl.bindVertexArray(heartVAO);
+            gl.drawElements(gl.TRIANGLES, heartVAO.indexCount, gl.UNSIGNED_SHORT, 0);
+            
+            // Render particles
+            gl.useProgram(particleProgram);
+            gl.uniformMatrix4fv(gl.getUniformLocation(particleProgram, 'u_projection'), 
+                false, projection);
+            gl.uniformMatrix4fv(gl.getUniformLocation(particleProgram, 'u_view'), 
+                false, view);
+            gl.uniform1f(gl.getUniformLocation(particleProgram, 'u_time'), time);
+            gl.uniform2f(gl.getUniformLocation(particleProgram, 'u_mouse'), 
+                mouse.x - gl.canvas.width / 2, mouse.y - gl.canvas.height / 2);
+            
+            gl.bindVertexArray(particleVAO);
+            gl.drawArrays(gl.POINTS, 0, particleVAO.count);
+            
+            // Post-processing
+            if (CONFIG.POST_PROCESSING) {
+                gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+                gl.clear(gl.COLOR_BUFFER_BIT);
+                
+                gl.useProgram(postProgram);
+                gl.uniform1i(gl.getUniformLocation(postProgram, 'u_texture'), 0);
+                gl.uniform2f(gl.getUniformLocation(postProgram, 'u_resolution'), 
+                    gl.canvas.width, gl.canvas.height);
+                gl.uniform1f(gl.getUniformLocation(postProgram, 'u_time'), time);
+                gl.uniform3fv(gl.getUniformLocation(postProgram, 'u_colorGlow'), 
+                    colors.glow);
+                
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+                
+                gl.bindVertexArray(quadVAO);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            }
+            
+            // Draw 2D overlay effects
+            draw2DEffects();
+            
+            requestAnimationFrame(render);
+        }
+        
+        // Draw 2D canvas effects
+        function draw2DEffects() {
+            ctx2d.clearRect(0, 0, canvas2d.width, canvas2d.height);
+            
+            const colors = COLOR_SCHEMES[currentScheme];
+            const glowColor = `rgba(${Math.floor(colors.glow[0] * 255)}, 
+                ${Math.floor(colors.glow[1] * 255)}, 
+                ${Math.floor(colors.glow[2] * 255)}, 0.3)`;
+            
+            // Draw connection lines between particles near mouse
+            ctx2d.strokeStyle = glowColor;
+            ctx2d.lineWidth = 1;
+            
+            const positions = particleVAO.positions;
+            const lifes = particleVAO.lifes;
+            
+            for (let i = 0; i < Math.min(100, CONFIG.PARTICLE_COUNT); i++) {
+                if (lifes[i] < 0.5) continue;
+                
+                const x1 = positions[i * 2] + canvas2d.width / 2;
+                const y1 = positions[i * 2 + 1] + canvas2d.height / 2;
+                
+                const dx = x1 - mouse.x;
+                const dy = y1 - mouse.y;
+                const dist = Math.sqrt(dx * dx + dy * dy);
+                
+                if (dist < 150) {
+                    ctx2d.beginPath();
+                    ctx2d.moveTo(x1, y1);
+                    ctx2d.lineTo(mouse.x, mouse.y);
+                    ctx2d.globalAlpha = (1 - dist / 150) * lifes[i];
+                    ctx2d.stroke();
+                }
+            }
+            
+            ctx2d.globalAlpha = 1;
+        }
+        
+        // Handle window resize
+        function handleResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
+            gl.canvas.width = width;
+            gl.canvas.height = height;
+            canvas2d.width = width;
+            canvas2d.height = height;
+            
+            gl.viewport(0, 0, width, height);
+            
+            // Recreate framebuffer textures
+            if (framebuffer) {
+                gl.bindTexture(gl.TEXTURE_2D, colorTexture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA16F, width, height, 0, 
+                    gl.RGBA, gl.FLOAT, null);
+                
+                gl.bindTexture(gl.TEXTURE_2D, depthTexture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.DEPTH_COMPONENT24, width, height, 0, 
+                    gl.DEPTH_COMPONENT, gl.UNSIGNED_INT, null);
+            }
+        }
+        
+        // Mouse event handlers
+        window.addEventListener('mousemove', (e) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+            
+            const cursor = document.getElementById('custom-cursor');
+            cursor.style.left = mouse.x + 'px';
+            cursor.style.top = mouse.y + 'px';
+        });
+        
+        window.addEventListener('mousedown', () => {
+            mouse.pressed = true;
+            document.querySelector('.cursor-outer').style.transform = 
+                'rotate(45deg) scale(0.8)';
+            
+            // Create particle burst
+            const positions = particleVAO.positions;
+            const velocities = particleVAO.velocities;
+            const lifes = particleVAO.lifes;
+            
+            for (let i = 0; i < Math.min(50, CONFIG.PARTICLE_COUNT); i++) {
+                if (lifes[i] < 0.1) {
+                    const angle = (i / 50) * Math.PI * 2;
+                    positions[i * 2] = mouse.x - canvas2d.width / 2;
+                    positions[i * 2 + 1] = mouse.y - canvas2d.height / 2;
+                    velocities[i * 2] = Math.cos(angle) * 10;
+                    velocities[i * 2 + 1] = Math.sin(angle) * 10;
+                    lifes[i] = 1.0;
+                }
+            }
+        });
+        
+        window.addEventListener('mouseup', () => {
+            mouse.pressed = false;
+            document.querySelector('.cursor-outer').style.transform = 'rotate(45deg)';
+        });
+        
+        // Keyboard controls
+        window.addEventListener('keydown', (e) => {
+            const schemes = Object.keys(COLOR_SCHEMES);
+            
+            if (e.key >= '1' && e.key <= '5') {
+                const index = parseInt(e.key) - 1;
+                if (index < schemes.length) {
+                    currentScheme = schemes[index];
+                    document.getElementById('mode').textContent = currentScheme;
+                }
+            } else if (e.key.toLowerCase() === 'q') {
+                // Toggle quality
+                const qualities = ['low', 'medium', 'high', 'ultra'];
+                const currentIndex = qualities.indexOf(CONFIG.QUALITY);
+                CONFIG.QUALITY = qualities[(currentIndex + 1) % qualities.length];
+                
+                // Adjust particle count based on quality
+                const particleCounts = { low: 1000, medium: 5000, high: 10000, ultra: 20000 };
+                CONFIG.PARTICLE_COUNT = particleCounts[CONFIG.QUALITY];
+                createParticleSystem();
+            } else if (e.key.toLowerCase() === 'r') {
+                // Reset
+                time = 0;
+                createParticleSystem();
+            }
+        });
+        
+        // Initialize and start
+        async function init() {
+            try {
+                await initWebGL();
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    requestAnimationFrame(render);
+                }, 1500);
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('error').style.display = 'block';
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

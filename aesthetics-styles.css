@@ -1,0 +1,1451 @@
+/* ULTRATHINK Aesthetics Engine - Complete Style Transformations */
+
+/* Base Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: opacity 0.3s ease;
+}
+
+body.aesthetic-transitioning {
+    opacity: 0.3;
+}
+
+/* ==================== CYBERPUNK AESTHETIC ==================== */
+body.aesthetic-cyberpunk {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    background: #000;
+    color: #0ff;
+    position: relative;
+}
+
+/* Cyberpunk Background */
+.cyber-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -2;
+    overflow: hidden;
+}
+
+.cyber-grid {
+    position: absolute;
+    width: 200%;
+    height: 200%;
+    top: -50%;
+    left: -50%;
+    background-image: 
+        linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: cyber-grid-move 20s linear infinite;
+    transform: perspective(1000px) rotateX(60deg);
+}
+
+@keyframes cyber-grid-move {
+    0% { transform: perspective(1000px) rotateX(60deg) translateY(0); }
+    100% { transform: perspective(1000px) rotateX(60deg) translateY(50px); }
+}
+
+.cyber-rain {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.rain-drop {
+    position: absolute;
+    color: #0f0;
+    font-family: monospace;
+    font-size: 20px;
+    animation: rain-fall linear infinite;
+    text-shadow: 0 0 5px #0f0;
+}
+
+@keyframes rain-fall {
+    0% {
+        transform: translateY(-100vh);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh);
+        opacity: 0;
+    }
+}
+
+.glitch-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 255, 0.03) 2px,
+        rgba(0, 255, 255, 0.03) 4px
+    );
+    pointer-events: none;
+}
+
+/* Neon Particles */
+.cyber-particles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+}
+
+.neon-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: #0ff;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #0ff, 0 0 20px #0ff;
+    animation: float-particle 15s linear infinite;
+}
+
+@keyframes float-particle {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 1;
+    }
+    90% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* ASCII Decorations */
+.ascii-deco {
+    position: fixed;
+    font-family: 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: #0ff;
+    opacity: 0.2;
+    white-space: pre;
+    line-height: 1;
+    pointer-events: none;
+    z-index: -1;
+}
+
+.ascii-1 {
+    top: 10%;
+    left: 5%;
+    transform: rotate(-15deg);
+}
+
+.ascii-2 {
+    bottom: 10%;
+    right: 5%;
+    transform: rotate(15deg);
+}
+
+/* Cyberpunk Container */
+.cyber-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+/* Cyberpunk Header */
+.cyber-header {
+    padding: 2rem 0;
+    border-bottom: 2px solid #0ff;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-title-wrapper {
+    text-align: center;
+}
+
+.cyber-title {
+    font-size: 5rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: #0ff;
+    text-shadow: 
+        0 0 10px #0ff,
+        0 0 20px #0ff,
+        0 0 30px #0ff,
+        0 0 40px #0ff;
+    margin-bottom: 1rem;
+}
+
+/* Glitch Effect */
+.glitch {
+    position: relative;
+    display: inline-block;
+}
+
+.glitch::before,
+.glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.glitch::before {
+    animation: glitch-1 0.3s infinite;
+    color: #f0f;
+    z-index: -1;
+}
+
+.glitch::after {
+    animation: glitch-2 0.3s infinite;
+    color: #ff0;
+    z-index: -2;
+}
+
+@keyframes glitch-1 {
+    0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    20% { clip-path: inset(20% 0 30% 0); transform: translate(-2px, 2px); }
+    40% { clip-path: inset(50% 0 20% 0); transform: translate(2px, -2px); }
+    60% { clip-path: inset(10% 0 60% 0); transform: translate(-2px, 0); }
+    80% { clip-path: inset(80% 0 0 0); transform: translate(2px, 0); }
+}
+
+@keyframes glitch-2 {
+    0%, 100% { clip-path: inset(0 0 0 0); transform: translate(0); }
+    20% { clip-path: inset(60% 0 10% 0); transform: translate(2px, 0); }
+    40% { clip-path: inset(0 0 70% 0); transform: translate(-2px, 2px); }
+    60% { clip-path: inset(30% 0 40% 0); transform: translate(0, -2px); }
+    80% { clip-path: inset(10% 0 80% 0); transform: translate(-2px, 0); }
+}
+
+.cyber-subtitle {
+    font-size: 1rem;
+    color: #f0f;
+    text-transform: uppercase;
+    letter-spacing: 0.5em;
+    text-align: center;
+}
+
+.cyber-status {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+}
+
+.status-item {
+    color: #888;
+}
+
+.status-online {
+    color: #0f0;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.5; }
+}
+
+/* Cyberpunk Aesthetic Control */
+.cyber-aesthetic-control {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #0ff;
+    padding: 1rem;
+    box-shadow: 0 0 20px #0ff;
+}
+
+.cyber-label {
+    color: #0ff;
+    font-size: 0.8rem;
+    margin-right: 0.5rem;
+    text-transform: uppercase;
+}
+
+.cyber-select {
+    background: #000;
+    color: #0ff;
+    border: 1px solid #0ff;
+    padding: 0.5rem 1rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+/* Cyberpunk Navigation */
+.cyber-nav {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 3rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.cyber-search {
+    flex: 1;
+    min-width: 300px;
+    position: relative;
+}
+
+.cyber-search-input {
+    width: 100%;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #0ff;
+    color: #0ff;
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.cyber-search-input::placeholder {
+    color: #088;
+    opacity: 0.7;
+}
+
+.search-indicator {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #0ff;
+    animation: blink 1s infinite;
+}
+
+.cyber-filters {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.cyber-filter-btn {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #0ff;
+    color: #0ff;
+    padding: 0.75rem 1.5rem;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cyber-filter-btn:hover,
+.cyber-filter-btn.active {
+    background: #0ff;
+    color: #000;
+    box-shadow: 0 0 20px #0ff;
+}
+
+/* Cyberpunk Featured */
+.cyber-featured {
+    margin-bottom: 3rem;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #f0f;
+    position: relative;
+    overflow: hidden;
+}
+
+.cyber-featured::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, #0ff, #f0f, #ff0, #0ff);
+    z-index: -1;
+    animation: rotate-border 3s linear infinite;
+}
+
+@keyframes rotate-border {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.cyber-featured-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.featured-badge {
+    color: #f0f;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.featured-date {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.cyber-featured-project {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 2rem;
+    align-items: center;
+}
+
+.featured-icon {
+    font-size: 5rem;
+    filter: saturate(0) brightness(2);
+}
+
+.featured-title {
+    font-size: 2rem;
+    color: #f0f;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.featured-desc {
+    color: #fff;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.cyber-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #f0f;
+    color: #000;
+    padding: 1rem 2rem;
+    text-decoration: none;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: all 0.3s ease;
+}
+
+.cyber-cta:hover {
+    background: #0ff;
+    box-shadow: 0 0 30px #0ff;
+}
+
+.cta-arrow {
+    animation: arrow-move 1s ease-in-out infinite;
+}
+
+@keyframes arrow-move {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(5px); }
+}
+
+.featured-visual {
+    width: 200px;
+    height: 200px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hologram-effect {
+    position: relative;
+    width: 150px;
+    height: 150px;
+}
+
+.hologram-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #0ff;
+    border-radius: 50%;
+    animation: hologram-pulse 2s linear infinite;
+}
+
+.hologram-ring:nth-child(1) { animation-delay: 0s; }
+.hologram-ring:nth-child(2) { animation-delay: 0.7s; }
+.hologram-ring:nth-child(3) { animation-delay: 1.4s; }
+
+@keyframes hologram-pulse {
+    0% {
+        transform: scale(0.8);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1.5);
+        opacity: 0;
+    }
+}
+
+/* Cyberpunk Projects Grid */
+.cyber-projects-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+.cyber-project-card {
+    background: rgba(0, 0, 0, 0.8);
+    border: 2px solid #0ff;
+    padding: 1.5rem;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.cyber-project-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, #0ff, transparent);
+    transition: left 0.6s ease;
+}
+
+.cyber-project-card:hover::before {
+    left: 100%;
+}
+
+.cyber-project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+    border-color: #f0f;
+}
+
+.glitch-hover {
+    animation: glitch-hover 0.3s;
+}
+
+@keyframes glitch-hover {
+    0%, 100% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+}
+
+.project-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.project-icon {
+    font-size: 2rem;
+    filter: saturate(0) brightness(2);
+}
+
+.project-category {
+    color: #0ff;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.project-name {
+    font-size: 1.2rem;
+    color: #0ff;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.project-desc {
+    color: #fff;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
+
+.project-tags {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.cyber-tag {
+    color: #f0f;
+    font-size: 0.8rem;
+    opacity: 0.7;
+}
+
+.project-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, transparent, rgba(0, 255, 255, 0.1));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.cyber-project-card:hover .project-overlay {
+    opacity: 1;
+}
+
+/* Cyberpunk Footer */
+.cyber-footer {
+    padding: 2rem 0;
+    border-top: 2px solid #0ff;
+    margin-top: 4rem;
+}
+
+.cyber-footer-text {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.footer-item {
+    color: #888;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+/* ==================== MINIMALIST AESTHETIC ==================== */
+body.aesthetic-minimalist {
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+    background: #fff;
+    color: #000;
+    line-height: 1.6;
+}
+
+.minimal-wrapper {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+}
+
+.minimal-header {
+    text-align: center;
+    margin-bottom: 8rem;
+}
+
+.minimal-logo {
+    font-size: 2rem;
+    font-weight: 100;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.minimal-tagline {
+    font-size: 0.9rem;
+    color: #666;
+    letter-spacing: 0.1em;
+}
+
+/* Minimalist Aesthetic Control */
+.minimal-aesthetic-control {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.minimal-select {
+    background: transparent;
+    border: 1px solid #000;
+    padding: 0.5rem 1rem;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 300;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    min-width: 150px;
+    transition: all 0.3s ease;
+}
+
+.minimal-select:focus {
+    outline: none;
+    border-width: 2px;
+}
+
+/* Minimalist Main */
+.minimal-main {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* Minimalist Featured */
+.minimal-featured {
+    margin-bottom: 8rem;
+    padding-bottom: 4rem;
+    border-bottom: 1px solid #eee;
+}
+
+.minimal-featured-article {
+    text-align: center;
+}
+
+.minimal-featured-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #999;
+    margin-bottom: 2rem;
+}
+
+.minimal-featured-title {
+    font-size: 2.5rem;
+    font-weight: 300;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+}
+
+.minimal-featured-description {
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.8;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.minimal-featured-link {
+    display: inline-block;
+    color: #000;
+    text-decoration: none;
+    font-size: 0.9rem;
+    letter-spacing: 0.1em;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #000;
+    transition: all 0.3s ease;
+}
+
+.minimal-featured-link:hover {
+    padding-right: 1rem;
+}
+
+/* Minimalist Search */
+.minimal-search-container {
+    margin-bottom: 4rem;
+}
+
+.minimal-search {
+    width: 100%;
+    padding: 1rem 0;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid #eee;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 300;
+    transition: border-color 0.3s ease;
+}
+
+.minimal-search:focus {
+    outline: none;
+    border-bottom-color: #000;
+}
+
+.minimal-search::placeholder {
+    color: #ccc;
+}
+
+/* Minimalist Filters */
+.minimal-filters {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 4rem;
+    justify-content: center;
+}
+
+.minimal-filter {
+    background: transparent;
+    border: none;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #999;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+.minimal-filter::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: #000;
+    transition: width 0.3s ease;
+}
+
+.minimal-filter:hover,
+.minimal-filter.active {
+    color: #000;
+}
+
+.minimal-filter.active::after {
+    width: 100%;
+}
+
+/* Minimalist Projects */
+.minimal-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 4rem;
+}
+
+.minimal-project {
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.minimal-project:hover {
+    transform: translateY(-5px);
+}
+
+.minimal-project-icon {
+    font-size: 3rem;
+    margin-bottom: 1.5rem;
+    opacity: 0.8;
+}
+
+.minimal-project-title {
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+}
+
+.minimal-project-description {
+    font-size: 0.9rem;
+    color: #666;
+    line-height: 1.6;
+}
+
+/* Minimalist Footer */
+.minimal-footer {
+    margin-top: 8rem;
+    padding-top: 4rem;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.minimal-footer p {
+    font-size: 0.8rem;
+    color: #999;
+    letter-spacing: 0.1em;
+}
+
+/* ==================== BRUTALIST AESTHETIC ==================== */
+body.aesthetic-brutalist {
+    font-family: Impact, 'Arial Black', sans-serif;
+    background: #ff0;
+    color: #000;
+    overflow-x: hidden;
+}
+
+/* Brutalist Chaos */
+.brutal-chaos {
+    position: relative;
+    min-height: 100vh;
+}
+
+.brutal-shape {
+    position: fixed;
+    z-index: -1;
+}
+
+.shape-1 {
+    width: 300px;
+    height: 300px;
+    background: #f00;
+    top: 10%;
+    left: -100px;
+    transform: rotate(45deg);
+}
+
+.shape-2 {
+    width: 200px;
+    height: 400px;
+    background: #00f;
+    bottom: 20%;
+    right: -50px;
+    transform: rotate(-30deg);
+}
+
+.shape-3 {
+    width: 500px;
+    height: 100px;
+    background: #0f0;
+    top: 50%;
+    left: 20%;
+    transform: rotate(15deg);
+}
+
+/* Brutalist Container */
+.brutal-container {
+    background: #fff;
+    margin: 2rem;
+    border: 8px solid #000;
+    box-shadow: 16px 16px 0 #000;
+    position: relative;
+    z-index: 1;
+}
+
+/* Brutalist Header */
+.brutal-header {
+    background: #f00;
+    padding: 4rem 2rem;
+    border-bottom: 8px solid #000;
+    transform: skew(-2deg);
+    margin-bottom: 2rem;
+}
+
+.brutal-title {
+    font-size: 6rem;
+    line-height: 0.8;
+    text-transform: uppercase;
+    transform: skew(2deg);
+    margin: 0;
+}
+
+.brutal-subtitle {
+    background: #000;
+    color: #fff;
+    display: inline-block;
+    padding: 1rem 2rem;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    transform: rotate(-1deg) skew(2deg);
+}
+
+/* Brutalist Aesthetic Box */
+.brutal-aesthetic-box {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    background: #0ff;
+    border: 4px solid #000;
+    padding: 1rem;
+    transform: rotate(2deg);
+    box-shadow: 8px 8px 0 #000;
+}
+
+.brutal-label {
+    display: block;
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+}
+
+.brutal-select {
+    background: #fff;
+    border: 4px solid #000;
+    padding: 0.5rem 1rem;
+    font-family: Impact, sans-serif;
+    font-size: 1rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    width: 100%;
+}
+
+/* Brutalist Navigation */
+.brutal-nav {
+    padding: 2rem;
+    background: #f0f;
+    border: 8px solid #000;
+    margin: 2rem;
+    transform: rotate(-1deg);
+}
+
+.brutal-search {
+    width: 100%;
+    padding: 1rem;
+    background: #fff;
+    border: 4px solid #000;
+    font-family: Impact, sans-serif;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+}
+
+.brutal-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.brutal-btn {
+    background: #ff0;
+    border: 4px solid #000;
+    padding: 0.5rem 2rem;
+    font-family: Impact, sans-serif;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: 4px 4px 0 #000;
+    transition: all 0.1s ease;
+}
+
+.brutal-btn:hover {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+}
+
+.brutal-btn.active {
+    background: #000;
+    color: #fff;
+}
+
+/* Brutalist Featured */
+.brutal-featured {
+    margin: 2rem;
+}
+
+.brutal-featured-box {
+    background: #0ff;
+    border: 8px solid #000;
+    padding: 2rem;
+    transform: rotate(1deg);
+    box-shadow: 12px 12px 0 #000;
+}
+
+.brutal-featured-badge {
+    background: #f0f;
+    color: #fff;
+    display: inline-block;
+    padding: 0.5rem 2rem;
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    transform: rotate(-2deg);
+    box-shadow: 4px 4px 0 #000;
+}
+
+.brutal-featured-title {
+    font-size: 3rem;
+    line-height: 0.9;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.brutal-featured-desc {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    margin-bottom: 2rem;
+}
+
+.brutal-featured-link {
+    background: #000;
+    color: #fff;
+    display: inline-block;
+    padding: 1rem 3rem;
+    text-decoration: none;
+    font-size: 1.5rem;
+    text-transform: uppercase;
+    box-shadow: 6px 6px 0 #f00;
+    transition: all 0.1s ease;
+}
+
+.brutal-featured-link:hover {
+    transform: translate(6px, 6px);
+    box-shadow: none;
+}
+
+/* Brutalist Projects */
+.brutal-projects {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.brutal-project {
+    background: #fff;
+    border: 8px solid #000;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    position: relative;
+    box-shadow: 8px 8px 0 #000;
+}
+
+.brutal-project.brutal-left {
+    background: #0ff;
+}
+
+.brutal-project.brutal-right {
+    background: #f0f;
+}
+
+.brutal-project:hover {
+    transform: rotate(0deg) scale(1.05);
+    z-index: 10;
+    box-shadow: 12px 12px 0 #000;
+}
+
+.brutal-project-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+    filter: contrast(2) saturate(2);
+}
+
+.brutal-project-name {
+    font-size: 1.8rem;
+    line-height: 0.9;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.brutal-project-desc {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.3;
+}
+
+.brutal-project-border {
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    border: 4px dashed #000;
+    opacity: 0;
+    transition: opacity 0.1s ease;
+}
+
+.brutal-project:hover .brutal-project-border {
+    opacity: 1;
+}
+
+/* Brutalist Footer */
+.brutal-footer {
+    background: #000;
+    color: #fff;
+    padding: 2rem;
+    text-align: center;
+    font-size: 2rem;
+    text-transform: uppercase;
+    border-top: 8px solid #f00;
+}
+
+/* ==================== GLASSMORPHISM AESTHETIC ==================== */
+body.aesthetic-glassmorphism {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    min-height: 100vh;
+}
+
+.glass-container {
+    position: relative;
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+/* Glass Background */
+.glass-bg {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    overflow: hidden;
+}
+
+.glass-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: 0.7;
+    animation: glass-float 20s infinite ease-in-out;
+}
+
+.blob-1 {
+    width: 400px;
+    height: 400px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    top: -200px;
+    left: -200px;
+    animation-duration: 25s;
+}
+
+.blob-2 {
+    width: 300px;
+    height: 300px;
+    background: linear-gradient(135deg, #f093fb, #f5576c);
+    bottom: -150px;
+    right: -150px;
+    animation-duration: 20s;
+    animation-delay: -5s;
+}
+
+.blob-3 {
+    width: 350px;
+    height: 350px;
+    background: linear-gradient(135deg, #4facfe, #00f2fe);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation-duration: 30s;
+    animation-delay: -10s;
+}
+
+@keyframes glass-float {
+    0%, 100% {
+        transform: translate(0, 0) scale(1);
+    }
+    33% {
+        transform: translate(100px, -100px) scale(1.1);
+    }
+    66% {
+        transform: translate(-100px, 100px) scale(0.9);
+    }
+}
+
+/* Glass Content */
+.glass-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.glass-header {
+    text-align: center;
+    padding: 3rem 0;
+    margin-bottom: 3rem;
+}
+
+.glass-title {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 30px rgba(255,255,255,0.5);
+}
+
+.glass-subtitle {
+    font-size: 1.2rem;
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 300;
+}
+
+/* Glass Controls */
+.glass-controls {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 1000;
+}
+
+.glass-select {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    color: #fff;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.glass-select:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Glass Projects */
+.glass-projects {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+}
+
+.glass-card:hover::before {
+    animation: glass-shine 0.6s ease;
+}
+
+@keyframes glass-shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.glass-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.glass-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    filter: drop-shadow(0 0 20px rgba(255,255,255,0.5));
+}
+
+.glass-card-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+}
+
+.glass-card-desc {
+    color: rgba(255, 255, 255, 0.8);
+    line-height: 1.6;
+    font-size: 0.95rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    /* Cyberpunk Responsive */
+    .cyber-title {
+        font-size: 3rem;
+        letter-spacing: 0.1em;
+    }
+    
+    .cyber-featured-project {
+        grid-template-columns: 1fr;
+        text-align: center;
+    }
+    
+    .featured-visual {
+        margin: 2rem auto 0;
+    }
+    
+    .cyber-projects-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    /* Minimalist Responsive */
+    .minimal-projects {
+        grid-template-columns: 1fr;
+    }
+    
+    .minimal-filters {
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    /* Brutalist Responsive */
+    .brutal-title {
+        font-size: 3rem;
+    }
+    
+    .brutal-projects {
+        grid-template-columns: 1fr;
+    }
+    
+    .brutal-buttons {
+        flex-direction: column;
+    }
+    
+    /* Glassmorphism Responsive */
+    .glass-title {
+        font-size: 2.5rem;
+    }
+    
+    .glass-projects {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Placeholder Styles */
+.placeholder-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+}
+
+.placeholder-container h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.placeholder-container p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.7;
+}
+
+.placeholder-container select {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    cursor: pointer;
+}

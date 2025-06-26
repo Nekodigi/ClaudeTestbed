@@ -1210,15 +1210,41 @@
         // モデル設定をパース
         let size = "1024x1024";
         let quality = "standard";
+        let modelName = "dall-e-3";
 
-        if (model.includes("1024x1792")) {
-          size = "1024x1792";
-        } else if (model.includes("1792x1024")) {
-          size = "1792x1024";
+        // DALL-E 2の場合
+        if (model.includes("dall-e-2")) {
+          modelName = "dall-e-2";
+          if (model.includes("256x256")) {
+            size = "256x256";
+          } else if (model.includes("512x512")) {
+            size = "512x512";
+          } else {
+            size = "1024x1024";
+          }
+        } else {
+          // DALL-E 3の場合
+          if (model.includes("1024x1792")) {
+            size = "1024x1792";
+          } else if (model.includes("1792x1024")) {
+            size = "1792x1024";
+          }
+
+          if (model.includes("hd")) {
+            quality = "hd";
+          }
         }
 
-        if (model.includes("hd")) {
-          quality = "hd";
+        const requestBody = {
+          model: modelName,
+          prompt: prompt,
+          n: 1,
+          size: size
+        };
+
+        // DALL-E 3のみ quality パラメータをサポート
+        if (modelName === "dall-e-3") {
+          requestBody.quality = quality;
         }
 
         const response = await fetch(
@@ -1229,13 +1255,7 @@
               "Content-Type": "application/json",
               Authorization: `Bearer ${apiKey}`,
             },
-            body: JSON.stringify({
-              model: "dall-e-3",
-              prompt: prompt,
-              n: 1,
-              size: size,
-              quality: quality,
-            }),
+            body: JSON.stringify(requestBody),
           }
         );
 
@@ -1350,7 +1370,77 @@
         );
       }
 
+      // APIキーの保存と復元
+      function saveAPIKeys() {
+        const apiKeys = {
+          openai: document.getElementById("openai-key").value,
+          stability: document.getElementById("stability-key").value,
+          imagen: document.getElementById("imagen-key").value,
+          settings: {
+            useOpenAI: document.getElementById("use-openai").checked,
+            useStability: document.getElementById("use-stability").checked,
+            useImagen: document.getElementById("use-imagen").checked,
+            openaiModel: document.querySelector('input[name="openai-model"]:checked')?.value,
+            stabilityModel: document.querySelector('input[name="stability-model"]:checked')?.value,
+            imagenModel: document.querySelector('input[name="imagen-model"]:checked')?.value
+          }
+        };
+        localStorage.setItem("imageMatrixAPIKeys", JSON.stringify(apiKeys));
+      }
+
+      function loadAPIKeys() {
+        const saved = localStorage.getItem("imageMatrixAPIKeys");
+        if (saved) {
+          try {
+            const apiKeys = JSON.parse(saved);
+            
+            // APIキーを復元
+            if (apiKeys.openai) document.getElementById("openai-key").value = apiKeys.openai;
+            if (apiKeys.stability) document.getElementById("stability-key").value = apiKeys.stability;
+            if (apiKeys.imagen) document.getElementById("imagen-key").value = apiKeys.imagen;
+            
+            // 設定を復元
+            if (apiKeys.settings) {
+              document.getElementById("use-openai").checked = apiKeys.settings.useOpenAI || false;
+              document.getElementById("use-stability").checked = apiKeys.settings.useStability || false;
+              document.getElementById("use-imagen").checked = apiKeys.settings.useImagen || false;
+              
+              if (apiKeys.settings.openaiModel) {
+                const openaiRadio = document.querySelector(`input[name="openai-model"][value="${apiKeys.settings.openaiModel}"]`);
+                if (openaiRadio) openaiRadio.checked = true;
+              }
+              
+              if (apiKeys.settings.stabilityModel) {
+                const stabilityRadio = document.querySelector(`input[name="stability-model"][value="${apiKeys.settings.stabilityModel}"]`);
+                if (stabilityRadio) stabilityRadio.checked = true;
+              }
+              
+              if (apiKeys.settings.imagenModel) {
+                const imagenRadio = document.querySelector(`input[name="imagen-model"][value="${apiKeys.settings.imagenModel}"]`);
+                if (imagenRadio) imagenRadio.checked = true;
+              }
+            }
+          } catch (e) {
+            console.error("Failed to load API keys:", e);
+          }
+        }
+      }
+
+      // APIキーが変更されたときに自動保存
+      document.getElementById("openai-key").addEventListener("change", saveAPIKeys);
+      document.getElementById("stability-key").addEventListener("change", saveAPIKeys);
+      document.getElementById("imagen-key").addEventListener("change", saveAPIKeys);
+      document.getElementById("use-openai").addEventListener("change", saveAPIKeys);
+      document.getElementById("use-stability").addEventListener("change", saveAPIKeys);
+      document.getElementById("use-imagen").addEventListener("change", saveAPIKeys);
+      
+      // モデル選択の変更時にも保存
+      document.querySelectorAll('input[name="openai-model"], input[name="stability-model"], input[name="imagen-model"]').forEach(radio => {
+        radio.addEventListener("change", saveAPIKeys);
+      });
+
       // 初期化
+      loadAPIKeys();
       updateAPISettings();
       updateCombinations();
     </script>
